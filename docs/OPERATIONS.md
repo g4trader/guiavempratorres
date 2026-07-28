@@ -96,3 +96,25 @@ confirmada pela plataforma.
 A integração GitHub da Vercel ainda depende da conexão da conta Vercel com o
 GitHub. Até ela ser concluída, pushes e pull requests não geram deployments
 automáticos e a branch de produção permanece sem configuração remota.
+
+### Validação do fluxo Preview
+
+Em 2026-07-27, a branch `chore/vercel-environment-guardrails` foi publicada com
+alvo explícito:
+
+```bash
+vercel deploy --yes --target=preview --scope vem-pra-torres
+```
+
+Resultado:
+
+- URL:
+  <https://guiavempratorres-4ep8sl1fm-vem-pra-torres.vercel.app>;
+- deployment: `dpl_5pRQxawJn8zrW3oYdcYRWcMKNnXE`;
+- target: `preview`;
+- estado: `Ready`;
+- acesso: protegido por autenticação Vercel;
+- indexação: `noindex`;
+- commit da branch: `dcdccb1`;
+- nenhum secret, Supabase ou domínio personalizado foi conectado;
+- o deployment de Production anterior não foi alterado.
