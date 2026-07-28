@@ -182,7 +182,6 @@ export default async function BusinessPage({ params }: Props) {
           <BusinessRating
             business={business}
             currentRating={userRating?.rating ?? null}
-            isAuthenticated={Boolean(user)}
           />
           {contacts.length > 0 ? (
             <div className="panel">

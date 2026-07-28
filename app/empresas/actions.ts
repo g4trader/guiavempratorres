@@ -12,12 +12,16 @@ export async function saveBusinessRating(form: FormData) {
   const slug = parseSlug(String(form.get("slug") ?? ""));
   const rating = z.coerce.number().int().min(1).max(5).parse(form.get("rating"));
   const client = await createAuthenticatedServerClient();
-  if (!client) redirect(`/entrar?retorno=/empresas/${slug}` as Route);
+  if (!client) redirect(`/empresas/${slug}?avaliacao=erro` as Route);
 
-  const {
+  let {
     data: { user }
   } = await client.auth.getUser();
-  if (!user) redirect(`/entrar?retorno=/empresas/${slug}` as Route);
+  if (!user) {
+    const { data, error } = await client.auth.signInAnonymously();
+    if (error || !data.user) redirect(`/empresas/${slug}?avaliacao=erro` as Route);
+    user = data.user;
+  }
 
   const { error } = await client.from("business_ratings").upsert(
     {

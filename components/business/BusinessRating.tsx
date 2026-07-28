@@ -1,5 +1,3 @@
-import type { Route } from "next";
-import Link from "next/link";
 import { saveBusinessRating } from "@/app/empresas/actions";
 
 export function RatingStars({
@@ -24,8 +22,7 @@ export function RatingStars({
 
 export function BusinessRating({
   business,
-  currentRating,
-  isAuthenticated
+  currentRating
 }: {
   business: {
     id: string;
@@ -34,7 +31,6 @@ export function BusinessRating({
     ratingCount: number;
   };
   currentRating: number | null;
-  isAuthenticated: boolean;
 }) {
   return (
     <section className="panel business-rating">
@@ -55,38 +51,32 @@ export function BusinessRating({
           </span>
         </div>
       </div>
-      {isAuthenticated ? (
-        <form action={saveBusinessRating} className="rating-form">
-          <input type="hidden" name="business_id" value={business.id} />
-          <input type="hidden" name="slug" value={business.slug} />
-          <fieldset>
-            <legend>{currentRating ? "Sua avaliação" : "Avalie esta empresa"}</legend>
-            <div className="rating-options">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <label key={rating}>
-                  <input
-                    type="radio"
-                    name="rating"
-                    value={rating}
-                    defaultChecked={currentRating === rating}
-                    required
-                  />
-                  <span aria-hidden="true">★</span>
-                  <span className="sr-only">{rating} estrelas</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <button className="button secondary" type="submit">
-            {currentRating ? "Atualizar avaliação" : "Enviar avaliação"}
-          </button>
-        </form>
-      ) : (
-        <p>
-          <Link href={`/entrar?retorno=/empresas/${business.slug}` as Route}>Entre no Guia</Link> para
-          avaliar esta empresa.
-        </p>
-      )}
+      <form action={saveBusinessRating} className="rating-form">
+        <input type="hidden" name="business_id" value={business.id} />
+        <input type="hidden" name="slug" value={business.slug} />
+        <fieldset>
+          <legend>{currentRating ? "Sua avaliação" : "Avalie esta empresa"}</legend>
+          <div className="rating-options">
+            {[1, 2, 3, 4, 5].map((rating) => (
+              <label key={rating}>
+                <input
+                  type="radio"
+                  name="rating"
+                  value={rating}
+                  defaultChecked={currentRating === rating}
+                  required
+                />
+                <span aria-hidden="true">★</span>
+                <span className="sr-only">{rating} estrelas</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <button className="button secondary" type="submit">
+          {currentRating ? "Atualizar avaliação" : "Enviar avaliação"}
+        </button>
+        <small>Não é necessário criar cadastro ou fazer login.</small>
+      </form>
     </section>
   );
 }
