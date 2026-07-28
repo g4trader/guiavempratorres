@@ -42,43 +42,45 @@ export function HeroCarousel({ campaigns }: { campaigns: HeroCampaign[] }) {
           <span className="eyebrow">Destaque local · {active.businessName}</span>
           <h1>{active.title}</h1>
           <p>{active.description}</p>
-          <a className="button" href={active.internalPath}>
-            Conhecer empresa
-          </a>
+          <div className="hero-actions">
+            <a className="button" href={active.internalPath}>
+              Conhecer empresa
+            </a>
+            {campaigns.length > 1 ? (
+              <div className="carousel-controls">
+                <button
+                  className="carousel-arrow"
+                  type="button"
+                  onClick={() => move(-1)}
+                  aria-label="Destaque anterior"
+                >
+                  ←
+                </button>
+                <div className="carousel-dots" aria-label="Selecionar destaque">
+                  {campaigns.map((campaign, index) => (
+                    <button
+                      key={campaign.id}
+                      type="button"
+                      className="carousel-dot"
+                      aria-label={`Ir para destaque ${index + 1}: ${campaign.businessName}`}
+                      aria-current={index === activeIndex ? "true" : undefined}
+                      onClick={() => setActiveIndex(index)}
+                    />
+                  ))}
+                </div>
+                <button
+                  className="carousel-arrow"
+                  type="button"
+                  onClick={() => move(1)}
+                  aria-label="Próximo destaque"
+                >
+                  →
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
-      {campaigns.length > 1 ? (
-        <div className="carousel-controls">
-          <button
-            className="carousel-arrow"
-            type="button"
-            onClick={() => move(-1)}
-            aria-label="Destaque anterior"
-          >
-            ←
-          </button>
-          <div className="carousel-dots" aria-label="Selecionar destaque">
-            {campaigns.map((campaign, index) => (
-              <button
-                key={campaign.id}
-                type="button"
-                className="carousel-dot"
-                aria-label={`Ir para destaque ${index + 1}: ${campaign.businessName}`}
-                aria-current={index === activeIndex ? "true" : undefined}
-                onClick={() => setActiveIndex(index)}
-              />
-            ))}
-          </div>
-          <button
-            className="carousel-arrow"
-            type="button"
-            onClick={() => move(1)}
-            aria-label="Próximo destaque"
-          >
-            →
-          </button>
-        </div>
-      ) : null}
     </section>
   );
 }
