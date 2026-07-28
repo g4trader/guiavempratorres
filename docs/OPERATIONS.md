@@ -51,7 +51,10 @@ Ativação validada em 2026-07-27:
 - o lint remoto não encontrou erros;
 - a suíte pgTAP foi executada remotamente em transação com rollback;
 - o projeto anterior em Ohio não está vinculado ao repositório;
-- nenhum secret de produção ou deploy de produção foi configurado.
+- Vercel Preview recebeu a URL pública, chave publicável e identificadores de
+  proteção do projeto;
+- nenhuma `service_role`, variável de Production ou deploy de Production foi
+  configurado.
 
 ## Deployment inicial da Vercel
 
