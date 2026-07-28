@@ -10,20 +10,35 @@ import { requireAdmin } from "@/lib/supabase/auth-server";
 export default async function CampaignsAdminPage() {
   const { client, role } = await requireAdmin();
   if (!canManageCampaigns(role)) redirect("/admin?erro=permissao");
-  const [campaignsResult, businessesResult, placementsResult, creativesResult] = await Promise.all([
-    client.from("ad_campaigns").select("*").order("starts_at", { ascending: false }),
-    client.from("businesses").select("id,name,slug").order("name"),
-    client.from("ad_placements").select("id,name,code").order("name"),
-    client.from("ad_creatives").select("*")
-  ]);
+  const [
+    campaignsResult,
+    businessesResult,
+    placementsResult,
+    creativesResult,
+    categoriesResult,
+    campaignCategoriesResult
+  ] = await Promise.all([
+      client.from("ad_campaigns").select("*").order("starts_at", { ascending: false }),
+      client.from("businesses").select("id,name,slug").order("name"),
+      client.from("ad_placements").select("id,name,code").order("name"),
+      client.from("ad_creatives").select("*"),
+      client.from("categories").select("id,name").eq("is_active", true).order("name"),
+      client.from("ad_campaign_categories").select("campaign_id,category_id")
+    ]);
   if (
     campaignsResult.error ||
     businessesResult.error ||
     placementsResult.error ||
-    creativesResult.error
+    creativesResult.error ||
+    categoriesResult.error ||
+    campaignCategoriesResult.error
   )
     throw new Error("Não foi possível carregar as campanhas.");
-  const options = { businesses: businessesResult.data, placements: placementsResult.data };
+  const options = {
+    businesses: businessesResult.data,
+    placements: placementsResult.data,
+    categories: categoriesResult.data
+  };
   return (
     <>
       <AdminNav />
@@ -47,6 +62,7 @@ export default async function CampaignsAdminPage() {
               priority: 0
             }}
             creative={null}
+            categoryIds={[]}
             {...options}
           />
         </section>
@@ -68,6 +84,9 @@ export default async function CampaignsAdminPage() {
                   creativesResult.data.find((creative) => creative.campaign_id === campaign.id) ??
                   null
                 }
+                categoryIds={campaignCategoriesResult.data
+                  .filter((relation) => relation.campaign_id === campaign.id)
+                  .map((relation) => relation.category_id)}
                 {...options}
               />
               <form action={deleteCampaign} className="danger-zone">
@@ -94,6 +113,7 @@ type Campaign = {
   display_order: number;
   priority: number;
   internal_path?: string;
+  audience?: "HOME" | "SITE" | "CATEGORIES";
 };
 
 type Creative = {
@@ -108,17 +128,29 @@ function CampaignForm({
   campaign,
   creative,
   businesses,
-  placements
+  placements,
+  categories,
+  categoryIds
 }: {
   campaign: Campaign;
   creative: Creative | null;
   businesses: { id: string; name: string; slug: string }[];
   placements: { id: string; name: string; code: string }[];
+  categories: { id: string; name: string }[];
+  categoryIds: string[];
 }) {
   return (
     <form action={saveCampaign} className="admin-form">
       <input type="hidden" name="id" value={campaign.id} />
       <div className="admin-form-row">
+        <label>
+          Exibição do Hero
+          <select name="audience" required defaultValue={campaign.audience ?? "HOME"}>
+            <option value="HOME">Somente na Home</option>
+            <option value="SITE">Em todo o site</option>
+            <option value="CATEGORIES">Categorias específicas</option>
+          </select>
+        </label>
         <label>
           Empresa
           <select name="business_id" required defaultValue={campaign.business_id ?? ""}>
@@ -151,6 +183,20 @@ function CampaignForm({
           </select>
         </label>
       </div>
+      <fieldset className="checkbox-grid">
+        <legend>Categorias específicas</legend>
+        {categories.map((category) => (
+          <label key={category.id}>
+            <input
+              type="checkbox"
+              name="category_ids"
+              value={category.id}
+              defaultChecked={categoryIds.includes(category.id)}
+            />
+            {category.name}
+          </label>
+        ))}
+      </fieldset>
       <div className="admin-form-row">
         <label>
           Início

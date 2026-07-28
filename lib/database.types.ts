@@ -35,6 +35,7 @@ export type Database = {
     Tables: {
       ad_campaigns: {
         Row: {
+          audience: "HOME" | "SITE" | "CATEGORIES";
           business_id: string;
           created_at: string;
           display_order: number;
@@ -48,6 +49,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          audience?: "HOME" | "SITE" | "CATEGORIES";
           business_id: string;
           created_at?: string;
           display_order?: number;
@@ -61,6 +63,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          audience?: "HOME" | "SITE" | "CATEGORIES";
           business_id?: string;
           created_at?: string;
           display_order?: number;
@@ -86,6 +89,39 @@ export type Database = {
             columns: ["placement_id"];
             isOneToOne: false;
             referencedRelation: "ad_placements";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      ad_campaign_categories: {
+        Row: {
+          campaign_id: string;
+          category_id: string;
+          created_at: string;
+        };
+        Insert: {
+          campaign_id: string;
+          category_id: string;
+          created_at?: string;
+        };
+        Update: {
+          campaign_id?: string;
+          category_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ad_campaign_categories_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "ad_campaigns";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ad_campaign_categories_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
             referencedColumns: ["id"];
           }
         ];

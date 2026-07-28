@@ -158,6 +158,7 @@ export async function saveCampaign(form: FormData) {
   const id = uuid(form.get("id"));
   const payload = {
     id,
+    audience: z.enum(["HOME", "SITE", "CATEGORIES"]).parse(form.get("audience")),
     business_id: uuid(form.get("business_id")),
     placement_id: uuid(form.get("placement_id")),
     status: z.enum(["draft", "active", "paused", "archived"]).parse(form.get("status")),
@@ -169,6 +170,17 @@ export async function saveCampaign(form: FormData) {
   };
   const { error } = await client.from("ad_campaigns").upsert(payload);
   if (error) fail("/admin/campanhas", "Não foi possível salvar a campanha.");
+  const categoryIds = form.getAll("category_ids").map((value) => uuid(value));
+  await client.from("ad_campaign_categories").delete().eq("campaign_id", id);
+  if (payload.audience === "CATEGORIES") {
+    if (!categoryIds.length)
+      fail("/admin/campanhas", "Selecione ao menos uma categoria para esta campanha.");
+    const { error: categoriesError } = await client
+      .from("ad_campaign_categories")
+      .insert(categoryIds.map((categoryId) => ({ campaign_id: id, category_id: categoryId })));
+    if (categoriesError)
+      fail("/admin/campanhas", "Não foi possível vincular as categorias da campanha.");
+  }
   const { error: creativeError } = await client.from("ad_creatives").upsert(
     {
       campaign_id: id,
@@ -183,6 +195,7 @@ export async function saveCampaign(form: FormData) {
   if (creativeError) fail("/admin/campanhas", "Não foi possível salvar as imagens da campanha.");
   revalidatePath("/admin/campanhas");
   revalidatePath("/");
+  revalidatePath("/categorias/[slug]", "page");
 }
 
 export async function deleteCampaign(form: FormData) {

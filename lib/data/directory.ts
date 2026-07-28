@@ -62,6 +62,7 @@ export function resolvePublicAsset(path: string | null): string | null {
 }
 
 function mapCategory(row: {
+  id: string;
   slug: string;
   name: string;
   description: string | null;
@@ -71,6 +72,7 @@ function mapCategory(row: {
   seo_description: string | null;
 }): Category {
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     description: row.description ?? "",
@@ -141,7 +143,7 @@ export async function listActiveCategories(): Promise<Category[]> {
   if (!client) return [];
   const { data, error } = await client
     .from("categories")
-    .select("slug,name,description,image_path,image_alt,seo_title,seo_description")
+    .select("id,slug,name,description,image_path,image_alt,seo_title,seo_description")
     .eq("is_active", true)
     .order("display_order");
   if (error) throw new Error("Não foi possível carregar as categorias.");
@@ -153,7 +155,7 @@ export async function getActiveCategoryBySlug(slugValue: string): Promise<Catego
   if (!client) return null;
   const { data, error } = await client
     .from("categories")
-    .select("slug,name,description,image_path,image_alt,seo_title,seo_description")
+    .select("id,slug,name,description,image_path,image_alt,seo_title,seo_description")
     .eq("slug", parseSlug(slugValue))
     .eq("is_active", true)
     .maybeSingle();
@@ -341,6 +343,17 @@ export async function searchDirectory(rawQuery: string): Promise<SearchResult[]>
 }
 
 export async function getValidHomeHeroCampaigns(): Promise<HeroCampaign[]> {
+  return getValidHeroCampaigns({ audience: "home" });
+}
+
+export async function getValidCategoryHeroCampaigns(categoryId: string): Promise<HeroCampaign[]> {
+  return getValidHeroCampaigns({ audience: "category", categoryId });
+}
+
+async function getValidHeroCampaigns(options: {
+  audience: "home" | "category";
+  categoryId?: string;
+}): Promise<HeroCampaign[]> {
   const client = createPublicServerClient();
   if (!client) return [];
   const now = new Date().toISOString();
@@ -351,16 +364,32 @@ export async function getValidHomeHeroCampaigns(): Promise<HeroCampaign[]> {
     .eq("is_active", true)
     .maybeSingle();
   if (!placement) return [];
-  const { data: campaigns, error } = await client
+  let allowedCampaignIds: string[] = [];
+  if (options.audience === "category" && options.categoryId) {
+    const { data: relations } = await client
+      .from("ad_campaign_categories")
+      .select("campaign_id")
+      .eq("category_id", options.categoryId);
+    allowedCampaignIds = relations?.map((relation) => relation.campaign_id) ?? [];
+  }
+  let query = client
     .from("ad_campaigns")
-    .select("id,business_id,internal_path")
+    .select("id,business_id,internal_path,audience")
     .eq("placement_id", placement.id)
     .eq("status", "active")
     .lte("starts_at", now)
     .gt("ends_at", now)
     .order("priority", { ascending: false })
-    .order("display_order")
-    .limit(Math.min(placement.maximum_active_ads, 5));
+    .order("display_order");
+  query =
+    options.audience === "home"
+      ? query.in("audience", ["HOME", "SITE"])
+      : allowedCampaignIds.length
+        ? query.or(`audience.eq.SITE,id.in.(${allowedCampaignIds.join(",")})`)
+        : query.eq("audience", "SITE");
+  const { data: campaigns, error } = await query.limit(
+    Math.min(placement.maximum_active_ads, 5)
+  );
   if (error || campaigns.length === 0) return [];
   const [{ data: creatives }, { data: businesses }] = await Promise.all([
     client

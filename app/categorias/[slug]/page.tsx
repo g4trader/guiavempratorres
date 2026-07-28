@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BusinessCard } from "@/components/public/BusinessCard";
-import { getActiveCategoryBySlug, listPublishedBusinessesByCategory } from "@/lib/data/directory";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import {
+  getActiveCategoryBySlug,
+  getValidCategoryHeroCampaigns,
+  listPublishedBusinessesByCategory
+} from "@/lib/data/directory";
 
 export const dynamic = "force-dynamic";
 
@@ -36,13 +41,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const order = ["priority", "recent", "name"].includes(query.ordem ?? "")
     ? (query.ordem ?? "priority")
     : "priority";
-  const result = await listPublishedBusinessesByCategory(slug, page, 9, order);
+  const [result, campaigns] = await Promise.all([
+    listPublishedBusinessesByCategory(slug, page, 9, order),
+    getValidCategoryHeroCampaigns(category.id)
+  ]);
 
   return (
     <div className="container">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Início</Link> / {category.name}
       </nav>
+      {campaigns.length ? (
+        <div className="category-hero">
+          <HeroCarousel campaigns={campaigns} />
+        </div>
+      ) : null}
       <header className="page-header">
         <span className="eyebrow">Categoria</span>
         <h1>{category.name}</h1>

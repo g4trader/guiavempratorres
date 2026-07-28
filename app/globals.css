@@ -1019,6 +1019,21 @@ h2 {
   padding-top: 2rem;
 }
 
+.category-hero {
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.category-hero .hero-stage {
+  width: 100%;
+  min-height: clamp(24rem, 36vw, 32rem);
+}
+
+.category-hero .hero-copy {
+  min-height: clamp(24rem, 36vw, 32rem);
+}
+
 .page-header {
   max-width: 50rem;
   padding: 3.5rem 0 2.5rem;
