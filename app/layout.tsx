@@ -54,8 +54,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href={"/buscar" as Route}>Buscar</Link>
               <Link href="/#categorias">Categorias</Link>
               <Link href="/admin">Área administrativa</Link>
-              <Link className="button" href="/#categorias">
-                Explorar o guia
+              <Link className="button header-cta" href="/#categorias">
+                Explorar
               </Link>
             </div>
           </nav>

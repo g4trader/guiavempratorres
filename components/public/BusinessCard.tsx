@@ -1,17 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Business } from "@/lib/domain";
+import { BusinessCardImage } from "@/components/media/BusinessCardImage";
 
 export function BusinessCard({ business }: { business: Business }) {
   return (
-    <article className="card">
-      <Image
-        className="card-image"
-        src={business.imageUrl}
-        alt={business.imageAlt}
-        width={640}
-        height={400}
-      />
+    <article className="card business-card">
+      <BusinessCardImage src={business.imageUrl} alt={business.imageAlt} />
       <div className="card-body">
         {business.premium ? <span className="premium-badge">Premium</span> : null}
         <h3>{business.name}</h3>

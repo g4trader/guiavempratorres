@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import type { HeroCampaign } from "@/lib/data/directory";
+import { HeroImage } from "@/components/media/HeroImage";
 
 export function HeroCarousel({ campaigns }: { campaigns: HeroCampaign[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (campaigns.length === 0) {
     return (
-      <div className="hero-card hero-empty">
+      <div className="hero-stage hero-empty">
         <div className="hero-copy">
           <span className="eyebrow">Novidades locais</span>
           <h1>Em breve, novos destaques por aqui.</h1>
@@ -29,29 +30,22 @@ export function HeroCarousel({ campaigns }: { campaigns: HeroCampaign[] }) {
       aria-roledescription="carrossel"
       aria-label="Empresas em destaque"
     >
-      <div className="hero-card">
-        <div className="hero-copy" aria-live="polite">
+      <div className="hero-stage">
+        <HeroImage
+          desktop={active.imageDesktop}
+          mobile={active.imageMobile}
+          alt={active.imageAlt}
+          priority={activeIndex === 0}
+        />
+        <div className="hero-overlay" />
+        <div className="hero-copy container" aria-live="polite">
           <span className="eyebrow">Destaque local · {active.businessName}</span>
           <h1>{active.title}</h1>
-          <p className="muted">{active.description}</p>
+          <p>{active.description}</p>
           <a className="button" href={active.internalPath}>
             Conhecer empresa
           </a>
         </div>
-        <picture>
-          {active.imageMobile ? (
-            <source media="(max-width: 800px)" srcSet={active.imageMobile} />
-          ) : null}
-          {/* A primeira imagem é a única presente no DOM; trocar o slide troca a origem. */}
-          <img
-            className="hero-campaign-image"
-            src={active.imageDesktop}
-            alt={active.imageAlt}
-            width={1600}
-            height={720}
-            fetchPriority={activeIndex === 0 ? "high" : "auto"}
-          />
-        </picture>
       </div>
       {campaigns.length > 1 ? (
         <div className="carousel-controls">

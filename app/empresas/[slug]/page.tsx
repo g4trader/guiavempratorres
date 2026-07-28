@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedBusinessBySlug } from "@/lib/data/directory";
+import { GalleryImage } from "@/components/media/GalleryImage";
+import { HeroImage } from "@/components/media/HeroImage";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +91,7 @@ export default async function BusinessPage({ params }: Props) {
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Início</Link> / {business.name}
       </nav>
-      <header className="page-header">
+      <header className="page-header business-header">
         {business.logoUrl ? (
           <Image
             className="business-logo"
@@ -104,14 +106,9 @@ export default async function BusinessPage({ params }: Props) {
         {business.premium ? <span className="premium-badge">Premium</span> : null}
         {business.shortDescription ? <p className="muted">{business.shortDescription}</p> : null}
       </header>
-      <Image
-        className="card"
-        src={business.imageUrl}
-        alt={business.imageAlt}
-        width={1200}
-        height={600}
-        priority
-      />
+      <div className="business-hero">
+        <HeroImage desktop={business.imageUrl} alt={business.imageAlt} priority />
+      </div>
       <section className="section detail-grid">
         <div className="stack">
           <article className="panel">
@@ -123,7 +120,7 @@ export default async function BusinessPage({ params }: Props) {
               <h2>Galeria</h2>
               <div className="gallery-grid">
                 {business.gallery.map((image) => (
-                  <Image key={image.id} src={image.url} alt={image.alt} width={640} height={480} />
+                  <GalleryImage key={image.id} src={image.url} alt={image.alt} />
                 ))}
               </div>
             </article>

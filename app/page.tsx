@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { BusinessCard } from "@/components/public/BusinessCard";
+import { CategoryImage } from "@/components/media/CategoryImage";
 import {
   getValidHomeHeroCampaigns,
   listActiveCategories,
@@ -51,7 +51,7 @@ export default async function Home() {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c")
         }}
       />
-      <div className="hero container">
+      <div className="hero">
         <HeroCarousel campaigns={campaigns} />
       </div>
       <section className="search-section container" aria-labelledby="buscar-titulo">
@@ -81,16 +81,10 @@ export default async function Home() {
           </div>
         </div>
         {categories.length ? (
-          <div className="grid">
+          <div className="grid category-grid">
             {categories.map((category) => (
-              <article className="card" key={category.slug}>
-                <Image
-                  className="card-image"
-                  src={category.imageUrl}
-                  alt={category.imageAlt}
-                  width={640}
-                  height={400}
-                />
+              <article className="card category-card" key={category.slug}>
+                <CategoryImage src={category.imageUrl} alt={category.imageAlt} />
                 <div className="card-body">
                   <h3>{category.name}</h3>
                   {category.description ? <p>{category.description}</p> : null}
