@@ -68,3 +68,17 @@ insert into public.ad_creatives (
   ('40000000-0000-0000-0000-000000000003', '/placeholders/hero-desktop.svg', '/placeholders/hero-mobile.svg', 'Composição ilustrativa da Rota Inventada Aventuras', 'Explore um roteiro totalmente fictício', 'Campanha fictícia para desenvolvimento local.'),
   ('40000000-0000-0000-0000-000000000004', '/placeholders/hero-desktop.svg', '/placeholders/hero-mobile.svg', 'Composição ilustrativa da Oficina Farol Cenográfico', 'Uma campanha futura de teste', 'Campanha fictícia futura.'),
   ('40000000-0000-0000-0000-000000000005', '/placeholders/hero-desktop.svg', '/placeholders/hero-mobile.svg', 'Composição ilustrativa do Mercado Vila Imaginária', 'Uma campanha expirada de teste', 'Campanha fictícia expirada.');
+
+-- Não referenciar objetos inexistentes no Storage. O site apresenta seu
+-- placeholder neutro até que imagens sejam enviadas pelo painel.
+update public.categories
+set image_path = null, image_alt = null
+where id between
+  '10000000-0000-0000-0000-000000000001' and
+  '10000000-0000-0000-0000-000000000005';
+
+update public.businesses
+set hero_image_path = null, hero_image_alt = null
+where id between
+  '20000000-0000-0000-0000-000000000001' and
+  '20000000-0000-0000-0000-000000000006';
