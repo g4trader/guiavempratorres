@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/app/admin/actions";
 import { requestPasswordReset } from "@/app/admin/content-actions";
 import { Logo } from "@/components/layout/Logo";
-import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { createAuthenticatedServerClient, requireAdmin } from "@/lib/supabase/auth-server";
 
 export const metadata = {
   title: "Área administrativa",
@@ -24,7 +25,48 @@ export default async function AdminPage({ searchParams }: Props) {
       .select("role")
       .eq("user_id", user.id)
       .maybeSingle();
-    if (membership) redirect("/admin/planos");
+    if (membership) {
+      const { client: adminClient } = await requireAdmin();
+      const [plans, categories, businesses, items, campaigns, users] = await Promise.all([
+        adminClient.from("plans").select("*", { count: "exact", head: true }),
+        adminClient.from("categories").select("*", { count: "exact", head: true }),
+        adminClient.from("businesses").select("*", { count: "exact", head: true }),
+        adminClient.from("business_items").select("*", { count: "exact", head: true }),
+        adminClient.from("ad_campaigns").select("*", { count: "exact", head: true }),
+        adminClient.from("profiles").select("*", { count: "exact", head: true })
+      ]);
+      const stats = [
+        ["Planos", plans.count ?? 0, "/admin/planos"],
+        ["Categorias", categories.count ?? 0, "/admin/categorias"],
+        ["Empresas", businesses.count ?? 0, "/admin/empresas"],
+        ["Itens", items.count ?? 0, "/admin/itens"],
+        ["Campanhas", campaigns.count ?? 0, "/admin/campanhas"],
+        ["Usuários", users.count ?? 0, "/admin/usuarios"]
+      ] as const;
+      return (
+        <>
+          <AdminNav />
+          <main className="container admin-page">
+            <div className="admin-title">
+              <div>
+                <span className="eyebrow">Visão geral</span>
+                <h1>Dashboard</h1>
+              </div>
+              <span>Operação do guia</span>
+            </div>
+            <section className="admin-dashboard" aria-label="Indicadores">
+              {stats.map(([label, count, href]) => (
+                <Link className="admin-stat" href={href} key={label}>
+                  <span>{label}</span>
+                  <strong>{count}</strong>
+                  <small>Gerenciar →</small>
+                </Link>
+              ))}
+            </section>
+          </main>
+        </>
+      );
+    }
   }
 
   const { erro, mensagem } = await searchParams;

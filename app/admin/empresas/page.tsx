@@ -6,6 +6,7 @@ import {
   saveGalleryImage
 } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -40,14 +41,13 @@ export default async function BusinessesAdminPage() {
           </div>
           <span>{businessesResult.data.length} cadastradas</span>
         </div>
-        <section className="panel">
-          <h2>Nova empresa</h2>
+        <AdminCreatePanel title="Nova empresa">
           <BusinessForm
             business={{ id: randomUUID(), city: "Torres", status: "draft" }}
             {...options}
             categoryIds={[]}
           />
-        </section>
+        </AdminCreatePanel>
         <section className="admin-list">
           {businessesResult.data.map((business) => (
             <details className="panel" key={business.id}>

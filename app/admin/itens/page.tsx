@@ -1,5 +1,6 @@
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -62,14 +63,13 @@ export default async function ItemsPage({ searchParams }: Props) {
             Filtrar
           </button>
         </form>
-        <section className="panel">
-          <h2>Novo item</h2>
+        <AdminCreatePanel title="Novo item">
           <BusinessItemForm
             action={createBusinessItem}
             businesses={businesses}
             submitLabel="Criar item"
           />
-        </section>
+        </AdminCreatePanel>
         <section className="admin-list" aria-label="Itens cadastrados">
           {items.map((item) => (
             <details className="panel" key={item.id}>

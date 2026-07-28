@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { deleteCategory, saveCategory } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -33,10 +34,9 @@ export default async function CategoriesAdminPage() {
           </div>
           <span>{data.length} cadastradas</span>
         </div>
-        <section className="panel">
-          <h2>Nova categoria</h2>
+        <AdminCreatePanel title="Nova categoria">
           <CategoryForm category={{ id: randomUUID() }} />
-        </section>
+        </AdminCreatePanel>
         <section className="admin-list">
           {data.map((category) => (
             <details className="panel" key={category.id}>

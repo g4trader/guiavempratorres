@@ -130,6 +130,201 @@ img {
 .admin-page {
   padding-block: 2.5rem 4rem;
 }
+
+body:has(.admin-header) > .site-header,
+body:has(.admin-login) > .site-header,
+body:has(.admin-header) > .site-footer,
+body:has(.admin-login) > .site-footer {
+  display: none;
+}
+
+body:has(.admin-header),
+body:has(.admin-login) {
+  background: #f4f7f9;
+}
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 0 rgba(18, 49, 70, 0.09);
+}
+
+.admin-nav {
+  min-height: 4.75rem;
+}
+
+.admin-nav-logo {
+  width: 6.5rem;
+}
+
+.admin-nav nav {
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-nav nav a {
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.55rem;
+  font-size: 0.86rem;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.admin-nav nav a:hover {
+  color: var(--color-brand-primary-dark);
+  background: #edf7f4;
+}
+
+.admin-title {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #dce7ec;
+}
+
+.admin-title h1 {
+  margin-top: 0.25rem;
+  font-size: clamp(2.1rem, 4vw, 3.25rem);
+}
+
+.admin-list {
+  gap: 0.75rem;
+}
+
+.admin-list > .panel,
+.admin-list > details.panel {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #e0e9ed;
+  box-shadow: 0 3px 12px rgba(18, 49, 70, 0.04);
+}
+
+.admin-list details summary {
+  min-height: 4.5rem;
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+  list-style: none;
+}
+
+.admin-list details summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-list details summary::after {
+  content: "›";
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  transform: rotate(90deg);
+  transition: transform 160ms ease;
+}
+
+.admin-list details[open] summary::after {
+  transform: rotate(-90deg);
+}
+
+.admin-list details[open] summary {
+  margin: 0;
+  padding-bottom: 1.1rem;
+}
+
+.admin-list details > .admin-form,
+.admin-list details > form,
+.admin-list details > .gallery-admin {
+  margin: 1.25rem;
+}
+
+.admin-create {
+  position: relative;
+}
+
+.admin-create > summary {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 40;
+  width: 3.75rem;
+  height: 3.75rem;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--color-brand-primary);
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(17, 126, 110, 0.32);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.admin-create > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-create > summary:hover {
+  background: var(--color-brand-primary-dark);
+  transform: translateY(-3px);
+}
+
+.admin-create[open] > summary {
+  transform: rotate(45deg);
+}
+
+.admin-create-content {
+  margin-bottom: 1.5rem;
+  border: 2px solid rgba(45, 157, 120, 0.24);
+}
+
+.admin-create-heading {
+  margin-bottom: 1.5rem;
+}
+
+.admin-create-heading h2 {
+  margin: 0.25rem 0 0;
+}
+
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-stat {
+  min-height: 11rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e0e9ed;
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 18px rgba(18, 49, 70, 0.05);
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.admin-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(18, 49, 70, 0.09);
+}
+
+.admin-stat span,
+.admin-stat small {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.admin-stat strong {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  line-height: 1;
+}
 .admin-title {
   display: flex;
   align-items: end;
@@ -627,6 +822,9 @@ h2 {
     order: 3;
     flex-basis: 100%;
   }
+  .admin-dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .admin-form-row,
   .admin-filters,
   .checkbox-grid {
@@ -655,6 +853,13 @@ h2 {
   }
 }
 @media (max-width: 520px) {
+  .admin-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .admin-create > summary {
+    right: 1rem;
+    bottom: 1rem;
+  }
   .search-form,
   .listing-toolbar {
     align-items: stretch;

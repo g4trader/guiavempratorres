@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { updateAdminRole } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { canManageAdminRoles } from "@/lib/auth/authorization";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
@@ -23,31 +24,39 @@ export default async function UsersAdminPage() {
           </div>
           <span>{data.length} usuários</span>
         </div>
+        <AdminCreatePanel title="Adicionar usuário">
+          <p>
+            Novos usuários devem concluir o cadastro no Supabase Auth. Depois disso, eles aparecem
+            nesta lista para definição do papel administrativo.
+          </p>
+        </AdminCreatePanel>
         <div className="admin-list">
           {data.map((profile) => {
             const membership = Array.isArray(profile.admin_roles)
               ? profile.admin_roles[0]
               : profile.admin_roles;
             return (
-              <form action={updateAdminRole} className="panel admin-form-row" key={profile.id}>
-                <input type="hidden" name="user_id" value={profile.id} />
-                <div>
+              <details className="panel" key={profile.id}>
+                <summary>
                   <strong>{profile.display_name || "Usuário sem nome"}</strong>
-                  <br />
+                  <span>{membership?.role ?? "editor"}</span>
+                </summary>
+                <form action={updateAdminRole} className="admin-form-row">
+                  <input type="hidden" name="user_id" value={profile.id} />
                   <small>{profile.id}</small>
-                </div>
-                <label>
-                  Papel
-                  <select name="role" defaultValue={membership?.role ?? "editor"}>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super admin</option>
-                  </select>
-                </label>
-                <button className="button" type="submit">
-                  Salvar papel
-                </button>
-              </form>
+                  <label>
+                    Papel
+                    <select name="role" defaultValue={membership?.role ?? "editor"}>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
+                      <option value="super_admin">Super admin</option>
+                    </select>
+                  </label>
+                  <button className="button" type="submit">
+                    Salvar papel
+                  </button>
+                </form>
+              </details>
             );
           })}
           {!data.length ? (

@@ -1,5 +1,6 @@
 import { createPlan, deletePlan, updatePlan } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { PlanForm } from "@/components/admin/PlanForm";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -30,10 +31,9 @@ export default async function PlansPage({ searchParams }: Props) {
             {erro}
           </p>
         ) : null}
-        <section className="panel">
-          <h2>Novo plano</h2>
+        <AdminCreatePanel title="Novo plano">
           <PlanForm action={createPlan} submitLabel="Criar plano" />
-        </section>
+        </AdminCreatePanel>
         <section className="admin-list" aria-label="Planos cadastrados">
           {plans.map((plan) => (
             <details className="panel" key={plan.id}>

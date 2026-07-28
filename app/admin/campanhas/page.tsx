@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { deleteCampaign, saveCampaign } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { canManageCampaigns } from "@/lib/auth/authorization";
@@ -50,8 +51,7 @@ export default async function CampaignsAdminPage() {
           </div>
           <span>{campaignsResult.data.length} campanhas</span>
         </div>
-        <section className="panel">
-          <h2>Nova campanha</h2>
+        <AdminCreatePanel title="Nova campanha">
           <CampaignForm
             campaign={{
               id: randomUUID(),
@@ -65,7 +65,7 @@ export default async function CampaignsAdminPage() {
             categoryIds={[]}
             {...options}
           />
-        </section>
+        </AdminCreatePanel>
         <section className="admin-list">
           {campaignsResult.data.map((campaign) => (
             <details className="panel" key={campaign.id}>
