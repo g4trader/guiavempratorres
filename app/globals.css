@@ -218,6 +218,30 @@ body:has(.admin-login) {
   transition: transform 160ms ease;
 }
 
+.admin-status-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-left: auto;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.admin-status-icon.is-active {
+  color: #fff;
+  background: var(--color-brand-primary);
+  box-shadow: 0 0 0 4px rgba(45, 157, 120, 0.11);
+}
+
+.admin-status-icon.is-inactive {
+  color: var(--color-text-muted);
+  background: #e5ecef;
+}
+
 .admin-list details[open] summary::after {
   transform: rotate(-90deg);
 }

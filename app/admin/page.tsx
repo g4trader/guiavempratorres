@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { signIn } from "@/app/admin/actions";
 import { requestPasswordReset } from "@/app/admin/content-actions";
 import { Logo } from "@/components/layout/Logo";

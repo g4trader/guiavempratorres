@@ -42,7 +42,13 @@ export default async function CategoriesAdminPage() {
             <details className="panel" key={category.id}>
               <summary>
                 <strong>{category.name}</strong>
-                <span>{category.is_active ? "Ativa" : "Inativa"}</span>
+                <span
+                  className={`admin-status-icon ${category.is_active ? "is-active" : "is-inactive"}`}
+                  title={category.is_active ? "Categoria ativa" : "Categoria inativa"}
+                  aria-label={category.is_active ? "Categoria ativa" : "Categoria inativa"}
+                >
+                  <span aria-hidden="true">{category.is_active ? "✓" : "—"}</span>
+                </span>
               </summary>
               <CategoryForm category={category} />
               <form action={deleteCategory} className="danger-zone">
