@@ -140,9 +140,16 @@ function CampaignForm({
   categories: { id: string; name: string }[];
   categoryIds: string[];
 }) {
+  const heroPlacement = placements.find((placement) => placement.code === "HOME_HERO") ?? placements[0];
+
   return (
     <form action={saveCampaign} className="admin-form">
       <input type="hidden" name="id" value={campaign.id} />
+      <input
+        type="hidden"
+        name="placement_id"
+        value={campaign.placement_id ?? heroPlacement?.id ?? ""}
+      />
       <div className="admin-form-row">
         <label>
           Exibição do Hero
@@ -159,17 +166,6 @@ function CampaignForm({
             {businesses.map((business) => (
               <option key={business.id} value={business.id}>
                 {business.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Posição
-          <select name="placement_id" required defaultValue={campaign.placement_id ?? ""}>
-            <option value="">Selecione</option>
-            {placements.map((placement) => (
-              <option key={placement.id} value={placement.id}>
-                {placement.name} ({placement.code})
               </option>
             ))}
           </select>
