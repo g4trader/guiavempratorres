@@ -685,6 +685,10 @@ h2 {
   }
 }
 
+.mobile-controls {
+  display: none;
+}
+
 /* Experiência pública — linguagem editorial Vem Pra Torres */
 :root {
   --color-background: #f5f7f8;
@@ -1185,21 +1189,54 @@ h2 {
   }
   .hero-image-frame {
     grid-column: 1;
-    grid-row: 1;
-    min-height: 18rem;
+    grid-row: 2;
+    min-height: clamp(22rem, 112vw, 34rem);
   }
   .campaign-image img {
     object-position: center;
   }
   .hero-copy {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
     width: min(calc(100% - 2.5rem), var(--container-max-width));
     margin-inline: auto;
-    padding: 2.5rem 0 4rem;
+    padding: 3.5rem 0 2.5rem;
+    align-items: center;
+    text-align: center;
   }
   .hero-copy h1 {
+    max-width: 14ch;
     font-size: clamp(2.35rem, 11vw, 3.25rem);
+  }
+  .hero-copy p {
+    max-width: 30rem;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .desktop-controls {
+    display: none;
+  }
+  .mobile-controls {
+    z-index: 3;
+    grid-column: 1;
+    grid-row: 2;
+    width: calc(100% - 1rem);
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .mobile-controls .carousel-arrow,
+  .mobile-controls .carousel-dot {
+    pointer-events: auto;
+  }
+  .mobile-controls .carousel-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .search-section {
     margin-top: 0;
@@ -1228,8 +1265,7 @@ h2 {
     width: 100%;
   }
   .hero-actions {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
   }
   .search-form {
     padding: 0;
