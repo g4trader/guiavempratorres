@@ -1598,6 +1598,30 @@ h2 {
   flex-direction: column;
 }
 
+.business-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.5rem;
+  margin: -0.1rem 0 0.45rem;
+  color: var(--color-text-muted);
+}
+
+.business-card-rating > strong {
+  color: var(--color-ink);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.business-card-rating .rating-stars {
+  gap: 0.08rem;
+  font-size: 0.9rem;
+}
+
+.business-card-rating > span:last-child {
+  font-size: 0.78rem;
+}
+
 .business-card-actions {
   flex-wrap: wrap;
   justify-content: space-between;

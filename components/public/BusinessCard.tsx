@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Business } from "@/lib/domain";
+import { RatingStars } from "@/components/business/BusinessRating";
 import { InstagramIcon, MapPinIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { BusinessCardImage } from "@/components/media/BusinessCardImage";
 
@@ -17,6 +18,19 @@ export function BusinessCard({ business }: { business: Business }) {
       <div className="card-body">
         {business.premium ? <span className="premium-badge">Premium</span> : null}
         <h3>{business.name}</h3>
+        <div
+          className="business-card-rating"
+          aria-label={`${business.ratingAverage.toFixed(1)} de 5 estrelas, ${business.ratingCount} ${
+            business.ratingCount === 1 ? "avaliação" : "avaliações"
+          }`}
+        >
+          <strong>{business.ratingAverage.toFixed(1).replace(".", ",")}</strong>
+          <RatingStars
+            value={business.ratingAverage}
+            label={`${business.ratingAverage.toFixed(1)} de 5 estrelas`}
+          />
+          {business.ratingCount > 0 ? <span>({business.ratingCount})</span> : null}
+        </div>
         {business.shortDescription ? <p>{business.shortDescription}</p> : null}
         {[business.neighborhood, business.city].filter(Boolean).length ? (
           <p>{[business.neighborhood, business.city].filter(Boolean).join(", ")}</p>

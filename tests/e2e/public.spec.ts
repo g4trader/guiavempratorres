@@ -40,11 +40,13 @@ test("busca encontra empresas, categorias e itens", async ({ page }) => {
 test("cards de empresas exibem atalhos de contato e localização", async ({ page }) => {
   await page.goto("/");
   const homeCard = page.locator(".business-card").first();
+  await expect(homeCard.locator(".business-card-rating")).toBeVisible();
   await expect(homeCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
   await expect(homeCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
 
   await page.goto("/categorias/gastronomia");
   const categoryCard = page.locator(".business-card").first();
+  await expect(categoryCard.locator(".business-card-rating")).toBeVisible();
   await expect(categoryCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
   await expect(categoryCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
 });
