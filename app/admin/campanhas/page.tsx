@@ -47,7 +47,7 @@ export default async function CampaignsAdminPage() {
         <div className="admin-title">
           <div>
             <span className="eyebrow">Publicidade</span>
-            <h1>Campanhas e Hero</h1>
+            <h1>Banners e Heroes</h1>
           </div>
           <span>{campaignsResult.data.length} campanhas</span>
         </div>

@@ -441,6 +441,10 @@ export type Database = {
       };
       businesses: {
         Row: {
+          featured_home: boolean;
+          featured_home_ends_at: string | null;
+          featured_home_order: number;
+          featured_home_starts_at: string | null;
           address_line: string | null;
           city: string;
           created_at: string;
@@ -470,6 +474,10 @@ export type Database = {
           whatsapp: string | null;
         };
         Insert: {
+          featured_home?: boolean;
+          featured_home_ends_at?: string | null;
+          featured_home_order?: number;
+          featured_home_starts_at?: string | null;
           address_line?: string | null;
           city?: string;
           created_at?: string;
@@ -499,6 +507,10 @@ export type Database = {
           whatsapp?: string | null;
         };
         Update: {
+          featured_home?: boolean;
+          featured_home_ends_at?: string | null;
+          featured_home_order?: number;
+          featured_home_starts_at?: string | null;
           address_line?: string | null;
           city?: string;
           created_at?: string;

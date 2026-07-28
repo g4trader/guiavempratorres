@@ -38,9 +38,9 @@ export default async function AdminPage({ searchParams }: Props) {
       const stats = [
         ["Planos", plans.count ?? 0, "/admin/planos"],
         ["Categorias", categories.count ?? 0, "/admin/categorias"],
-        ["Empresas", businesses.count ?? 0, "/admin/empresas"],
+        ["Páginas de empresas", businesses.count ?? 0, "/admin/empresas"],
         ["Itens", items.count ?? 0, "/admin/itens"],
-        ["Campanhas", campaigns.count ?? 0, "/admin/campanhas"],
+        ["Banners", campaigns.count ?? 0, "/admin/campanhas"],
         ["Usuários", users.count ?? 0, "/admin/usuarios"]
       ] as const;
       return (

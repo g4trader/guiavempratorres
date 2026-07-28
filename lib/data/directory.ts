@@ -36,6 +36,10 @@ type BusinessRow = {
   published_at: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  featured_home: boolean;
+  featured_home_order: number;
+  featured_home_starts_at: string | null;
+  featured_home_ends_at: string | null;
   plans:
     | {
         premium_badge: boolean;
@@ -53,7 +57,7 @@ type BusinessRow = {
 };
 
 const businessSelect =
-  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,phone,whatsapp,email,website_url,instagram_url,published_at,seo_title,seo_description,plans(premium_badge,featured_home,featured_category,priority)";
+  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,phone,whatsapp,email,website_url,instagram_url,published_at,seo_title,seo_description,featured_home,featured_home_order,featured_home_starts_at,featured_home_ends_at,plans(premium_badge,featured_home,featured_category,priority)";
 
 export function resolvePublicAsset(path: string | null): string | null {
   if (!path || path.startsWith("/") || path.startsWith("https://")) return path;
@@ -112,6 +116,10 @@ function mapBusiness(
     gallery: options.gallery ?? [],
     premium: plan?.premium_badge ?? false,
     featuredHome: plan?.featured_home ?? false,
+    featuredHomeSelected: row.featured_home,
+    featuredHomeOrder: row.featured_home_order,
+    featuredHomeStartsAt: row.featured_home_starts_at,
+    featuredHomeEndsAt: row.featured_home_ends_at,
     featuredCategory: plan?.featured_category ?? false,
     planPriority: plan?.priority ?? 0,
     publishedAt: row.published_at,
@@ -174,9 +182,18 @@ async function listPublishedBusinessRows(ids?: string[]): Promise<Business[]> {
 }
 
 export async function listFeaturedBusinesses(limit = 6): Promise<Business[]> {
+  const now = Date.now();
   const businesses = await listPublishedBusinessRows();
   return sortCommercialPriority(businesses)
-    .filter((business) => business.featuredHome)
+    .filter(
+      (business) =>
+        business.featuredHome &&
+        business.featuredHomeSelected &&
+        (!business.featuredHomeStartsAt ||
+          new Date(business.featuredHomeStartsAt).getTime() <= now) &&
+        (!business.featuredHomeEndsAt || new Date(business.featuredHomeEndsAt).getTime() > now)
+    )
+    .sort((a, b) => a.featuredHomeOrder - b.featuredHomeOrder)
     .slice(0, limit);
 }
 

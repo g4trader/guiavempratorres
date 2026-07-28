@@ -118,6 +118,45 @@ function BusinessForm({
           </select>
         </label>
       </div>
+      <fieldset className="admin-commercial-fieldset">
+        <legend>Destaque comercial na Home</legend>
+        <label className="checkbox-line">
+          <input
+            name="featured_home"
+            type="checkbox"
+            defaultChecked={Boolean(business.featured_home)}
+          />
+          Exibir em “Empresas em destaque”
+        </label>
+        <div className="admin-form-row">
+          <label>
+            Ordem
+            <input
+              name="featured_home_order"
+              type="number"
+              min="0"
+              defaultValue={value("featured_home_order")}
+            />
+          </label>
+          <label>
+            Início da veiculação
+            <input
+              name="featured_home_starts_at"
+              type="datetime-local"
+              defaultValue={String(value("featured_home_starts_at")).slice(0, 16)}
+            />
+          </label>
+          <label>
+            Fim da veiculação
+            <input
+              name="featured_home_ends_at"
+              type="datetime-local"
+              defaultValue={String(value("featured_home_ends_at")).slice(0, 16)}
+            />
+          </label>
+        </div>
+        <small>O plano da empresa também precisa permitir destaque na Home.</small>
+      </fieldset>
       <label>
         Resumo
         <input name="short_description" defaultValue={value("short_description")} />

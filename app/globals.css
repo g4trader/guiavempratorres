@@ -287,6 +287,23 @@ body:has(.admin-login) {
   margin: 0.25rem 0 0;
 }
 
+.admin-commercial-fieldset {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #f3faf7;
+  border: 1px solid #cfe7df;
+  border-radius: var(--radius-sm);
+}
+
+.admin-commercial-fieldset legend {
+  padding-inline: 0.5rem;
+  color: var(--color-brand-primary-dark);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
 .admin-dashboard {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1238,19 +1255,8 @@ h2 {
   padding-top: 2rem;
 }
 
-.category-hero {
+.category-page-hero {
   margin-top: 1.5rem;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-}
-
-.category-hero .hero-stage {
-  width: 100%;
-  min-height: clamp(24rem, 36vw, 32rem);
-}
-
-.category-hero .hero-copy {
-  min-height: clamp(24rem, 36vw, 32rem);
 }
 
 .page-header {

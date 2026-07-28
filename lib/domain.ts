@@ -38,6 +38,10 @@ export type Business = {
   gallery: { id: string; url: string; alt: string }[];
   premium: boolean;
   featuredHome: boolean;
+  featuredHomeSelected: boolean;
+  featuredHomeOrder: number;
+  featuredHomeStartsAt: string | null;
+  featuredHomeEndsAt: string | null;
   featuredCategory: boolean;
   planPriority: number;
   publishedAt: string | null;

@@ -78,6 +78,14 @@ export async function saveBusiness(form: FormData) {
     instagram_url: optional(form, "instagram_url"),
     seo_title: optional(form, "seo_title"),
     seo_description: optional(form, "seo_description"),
+    featured_home: checked(form, "featured_home"),
+    featured_home_order: Number(text(form, "featured_home_order") || 0),
+    featured_home_starts_at: optional(form, "featured_home_starts_at")
+      ? new Date(text(form, "featured_home_starts_at")).toISOString()
+      : null,
+    featured_home_ends_at: optional(form, "featured_home_ends_at")
+      ? new Date(text(form, "featured_home_ends_at")).toISOString()
+      : null,
     published_at:
       status === "published" ? (optional(form, "published_at") ?? new Date().toISOString()) : null
   };
