@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
 import {
+  createBusinessItem,
+  deleteBusinessItem,
+  updateBusinessItem
+} from "@/app/admin/actions";
+import {
   deleteBusiness,
   deleteGalleryImage,
   saveBusiness,
@@ -7,26 +12,30 @@ import {
 } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminModal } from "@/components/admin/AdminModal";
+import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
 export default async function BusinessesAdminPage() {
   const { client } = await requireAdmin();
-  const [businessesResult, plansResult, categoriesResult, relationsResult, mediaResult] =
+  const [businessesResult, plansResult, categoriesResult, relationsResult, mediaResult, itemsResult] =
     await Promise.all([
       client.from("businesses").select("*").order("name"),
       client.from("plans").select("id,name").order("priority", { ascending: false }),
       client.from("categories").select("id,name").order("display_order"),
       client.from("business_categories").select("business_id,category_id"),
-      client.from("business_media").select("*").eq("kind", "gallery").order("display_order")
+      client.from("business_media").select("*").eq("kind", "gallery").order("display_order"),
+      client.from("business_items").select("*").order("display_order")
     ]);
   if (
     businessesResult.error ||
     plansResult.error ||
     categoriesResult.error ||
     relationsResult.error ||
-    mediaResult.error
+    mediaResult.error ||
+    itemsResult.error
   )
     throw new Error("Não foi possível carregar as empresas.");
   const options = { plans: plansResult.data, categories: categoriesResult.data };
@@ -66,6 +75,10 @@ export default async function BusinessesAdminPage() {
                 businessId={business.id}
                 images={mediaResult.data.filter((image) => image.business_id === business.id)}
               />
+              <BusinessItemsManager
+                business={{ id: business.id, name: business.name }}
+                items={itemsResult.data.filter((item) => item.business_id === business.id)}
+              />
               <form action={deleteBusiness} className="danger-zone">
                 <input type="hidden" name="id" value={business.id} />
                 <ConfirmSubmitButton message={`Excluir “${business.name}” e seus itens/mídias?`}>
@@ -77,6 +90,79 @@ export default async function BusinessesAdminPage() {
         </section>
       </main>
     </>
+  );
+}
+
+type BusinessItemRow = {
+  id: string;
+  business_id: string;
+  type: "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG";
+  title: string;
+  description: string | null;
+  image: string | null;
+  price: number | null;
+  cta_label: string | null;
+  cta_url: string | null;
+  display_order: number;
+  active: boolean;
+};
+
+function BusinessItemsManager({
+  business,
+  items
+}: {
+  business: { id: string; name: string };
+  items: BusinessItemRow[];
+}) {
+  return (
+    <section className="admin-business-items">
+      <div className="admin-subsection-heading">
+        <div>
+          <h3>Itens</h3>
+          <span>{items.length} cadastrados</span>
+        </div>
+        <AdminModal title={`Novo item · ${business.name}`} triggerLabel="Adicionar item">
+          <BusinessItemForm
+            action={createBusinessItem}
+            businesses={[business]}
+            values={{ business_id: business.id }}
+            submitLabel="Criar item"
+          />
+        </AdminModal>
+      </div>
+      {items.length ? (
+        <div className="admin-item-list">
+          {items.map((item) => (
+            <div className="admin-item-row" key={item.id}>
+              <div>
+                <strong>{item.title}</strong>
+                <span>
+                  {item.type} · {item.active ? "Ativo" : "Inativo"}
+                </span>
+              </div>
+              <div className="admin-item-actions">
+                <AdminModal title={`Editar · ${item.title}`} triggerLabel={`Editar ${item.title}`} compact>
+                  <BusinessItemForm
+                    action={updateBusinessItem}
+                    businesses={[business]}
+                    values={item}
+                    submitLabel="Salvar alterações"
+                  />
+                </AdminModal>
+                <form action={deleteBusinessItem}>
+                  <input type="hidden" name="id" value={item.id} />
+                  <ConfirmSubmitButton message={`Excluir o item “${item.title}”?`}>
+                    Excluir
+                  </ConfirmSubmitButton>
+                </form>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="empty">Nenhum item cadastrado para esta empresa.</div>
+      )}
+    </section>
   );
 }
 

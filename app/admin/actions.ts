@@ -31,7 +31,10 @@ const itemSchema = z.object({
   display_order: z.coerce.number().int().min(0)
 });
 
-function adminError(path: "/admin" | "/admin/planos" | "/admin/itens", message: string): never {
+function adminError(
+  path: "/admin" | "/admin/planos" | "/admin/itens" | "/admin/empresas",
+  message: string
+): never {
   redirect(`${path}?erro=${encodeURIComponent(message)}` as Route);
 }
 
@@ -43,7 +46,7 @@ export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error) adminError("/admin", "E-mail ou senha inválidos.");
-  redirect("/admin/planos");
+  redirect("/admin");
 }
 
 export async function signOut() {
@@ -130,35 +133,38 @@ function parseItem(formData: FormData) {
 export async function createBusinessItem(formData: FormData) {
   const { client } = await requireAdmin();
   const parsed = parseItem(formData);
-  if (!parsed.success) adminError("/admin/itens", "Revise os campos do item.");
+  if (!parsed.success) adminError("/admin/empresas", "Revise os campos do item.");
 
   const { error } = await client
     .from("business_items")
     .insert({ ...parsed.data, active: booleanValue(formData, "active") });
-  if (error) adminError("/admin/itens", "Não foi possível criar o item.");
+  if (error) adminError("/admin/empresas", "Não foi possível criar o item.");
   revalidatePath("/admin/itens");
+  revalidatePath("/admin/empresas");
 }
 
 export async function updateBusinessItem(formData: FormData) {
   const { client } = await requireAdmin();
   const id = z.string().uuid().safeParse(formData.get("id"));
   const parsed = parseItem(formData);
-  if (!id.success || !parsed.success) adminError("/admin/itens", "Revise os campos do item.");
+  if (!id.success || !parsed.success) adminError("/admin/empresas", "Revise os campos do item.");
 
   const { error } = await client
     .from("business_items")
     .update({ ...parsed.data, active: booleanValue(formData, "active") })
     .eq("id", id.data);
-  if (error) adminError("/admin/itens", "Não foi possível atualizar o item.");
+  if (error) adminError("/admin/empresas", "Não foi possível atualizar o item.");
   revalidatePath("/admin/itens");
+  revalidatePath("/admin/empresas");
 }
 
 export async function deleteBusinessItem(formData: FormData) {
   const { client } = await requireAdmin();
   const id = z.string().uuid().safeParse(formData.get("id"));
-  if (!id.success) adminError("/admin/itens", "Item inválido.");
+  if (!id.success) adminError("/admin/empresas", "Item inválido.");
 
   const { error } = await client.from("business_items").delete().eq("id", id.data);
-  if (error) adminError("/admin/itens", "Não foi possível excluir o item.");
+  if (error) adminError("/admin/empresas", "Não foi possível excluir o item.");
   revalidatePath("/admin/itens");
+  revalidatePath("/admin/empresas");
 }

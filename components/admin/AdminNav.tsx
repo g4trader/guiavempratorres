@@ -8,7 +8,6 @@ const links: { label: string; href: string }[] = [
   { label: "Planos", href: "/admin/planos" },
   { label: "Categorias", href: "/admin/categorias" },
   { label: "Páginas de empresas", href: "/admin/empresas" },
-  { label: "Itens", href: "/admin/itens" },
   { label: "Banners", href: "/admin/campanhas" },
   { label: "Usuários", href: "/admin/usuarios" }
 ];

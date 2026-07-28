@@ -328,6 +328,122 @@ body:has(.admin-login) {
   font-weight: 700;
 }
 
+.admin-business-items {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  margin: 1.5rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-subsection-heading,
+.admin-item-row,
+.admin-item-actions {
+  display: flex;
+  align-items: center;
+}
+
+.admin-subsection-heading {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-subsection-heading h3 {
+  margin: 0;
+}
+
+.admin-subsection-heading span,
+.admin-item-row span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.admin-add-button {
+  min-height: 2.6rem;
+  padding-inline: 1rem;
+}
+
+.admin-item-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-item-row {
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  background: #f7fafb;
+  border: 1px solid #e0e9ed;
+  border-radius: var(--radius-sm);
+}
+
+.admin-item-actions {
+  gap: 0.5rem;
+}
+
+.admin-icon-button,
+.admin-modal-close {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.admin-icon-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-text);
+  background: #e5eef2;
+  font-size: 1rem;
+}
+
+.admin-modal {
+  width: min(52rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+}
+
+.admin-modal::backdrop {
+  background: rgba(8, 30, 43, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.admin-modal-card {
+  max-height: calc(100dvh - 2rem);
+  padding: 1.5rem;
+  overflow: auto;
+  background: #fff;
+}
+
+.admin-modal-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-modal-card h2 {
+  margin: 0.2rem 0 0;
+}
+
+.admin-modal-close {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-text);
+  background: #eef3f5;
+  font-size: 1.75rem;
+}
+
 .admin-dashboard {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
