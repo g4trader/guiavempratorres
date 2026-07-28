@@ -225,6 +225,64 @@ img {
   color: #721c24;
   background: #f8d7da;
 }
+.image-upload {
+  display: grid;
+  gap: 0.5rem;
+}
+.image-upload-label {
+  font-weight: 800;
+}
+.upload-dropzone {
+  min-height: 10rem;
+  padding: 1rem;
+  color: var(--color-text-muted);
+  background: #f8fbfd;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.upload-dropzone.dragging {
+  border-color: var(--color-brand-primary);
+  background: #eefaf6;
+}
+.upload-dropzone img {
+  max-height: 12rem;
+  object-fit: contain;
+}
+.upload-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.gallery-admin {
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.gallery-admin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.5rem;
+}
+.skeleton {
+  background: #dfeaf0;
+  border-radius: var(--radius-md);
+}
+.skeleton-title {
+  width: min(28rem, 75%);
+  height: 4rem;
+  margin-bottom: 1.5rem;
+}
+.skeleton-card {
+  min-height: 20rem;
+}
+.skeleton-panel {
+  min-height: 28rem;
+}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -326,13 +384,118 @@ img {
   border-color: var(--color-brand-primary);
   background: var(--color-brand-primary);
 }
-.demo-notice {
-  padding: 0.65rem 1rem;
-  text-align: center;
+.search-section {
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.search-section h2 {
+  margin-top: 0;
+}
+.search-form {
+  display: flex;
+  gap: 0.75rem;
+}
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font: inherit;
+}
+.search-count {
+  margin-block: 1.5rem;
+  font-weight: 800;
+}
+.search-results {
+  display: grid;
+  gap: 1rem;
+}
+.search-results h2 {
+  margin-block: 0.5rem;
+}
+.listing-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.listing-toolbar label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 800;
+}
+.listing-toolbar select {
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: white;
+  font: inherit;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+.pagination a {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.pagination a[aria-current="page"] {
+  color: white;
+  background: var(--color-brand-primary);
+}
+.premium-badge {
+  display: inline-flex;
+  padding: 0.2rem 0.55rem;
   color: var(--color-text);
-  background: #fff4cf;
-  border-bottom: 1px solid #e0b34a;
-  font-size: 0.9rem;
+  background: #fff1bd;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.business-logo {
+  display: block;
+  max-width: 12rem;
+  max-height: 8rem;
+  margin-bottom: 1rem;
+  object-fit: contain;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.gallery-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+.business-item img {
+  float: left;
+  width: 8rem;
+  margin: 0 1rem 0.5rem 0;
+  border-radius: var(--radius-sm);
+}
+.map-embed {
+  width: 100%;
+  min-height: 18rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-radius: var(--radius-sm);
 }
 .hero-copy {
   padding: clamp(2rem, 6vw, 4.5rem);
@@ -360,13 +523,6 @@ h1 {
 }
 h2 {
   font-size: clamp(1.75rem, 4vw, 2.6rem);
-}
-.hero-image {
-  min-height: 22rem;
-  background:
-    linear-gradient(135deg, rgba(45, 157, 120, 0.15), rgba(224, 179, 74, 0.25)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80")
-      center/cover;
 }
 .section {
   padding: 3.5rem 0;
@@ -499,6 +655,14 @@ h2 {
   }
 }
 @media (max-width: 520px) {
+  .search-form,
+  .listing-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
   .grid {
     grid-template-columns: 1fr;
   }

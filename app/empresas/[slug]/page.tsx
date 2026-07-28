@@ -2,30 +2,26 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getPublishedBusinessBySlug,
-  listActiveCategories,
-  listPublishedBusinessesByCategory
-} from "@/lib/data/directory";
+import { getPublishedBusinessBySlug } from "@/lib/data/directory";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
-
-export async function generateStaticParams() {
-  const categories = await listActiveCategories();
-  const groups = await Promise.all(
-    categories.map((category) => listPublishedBusinessesByCategory(category.slug))
-  );
-  return [...new Set(groups.flat().map(({ slug }) => slug))].map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const business = await getPublishedBusinessBySlug(slug);
   if (!business) return {};
   return {
-    title: business.name,
-    description: business.shortDescription,
-    alternates: { canonical: `/empresas/${slug}` }
+    title: business.seoTitle ?? business.name,
+    description: business.seoDescription ?? business.shortDescription,
+    alternates: { canonical: `/empresas/${slug}` },
+    openGraph: {
+      title: business.name,
+      description: business.seoDescription ?? business.shortDescription,
+      url: `/empresas/${slug}`,
+      images: [{ url: business.imageUrl, alt: business.imageAlt }]
+    }
   };
 }
 
@@ -36,7 +32,10 @@ export default async function BusinessPage({ params }: Props) {
 
   const hasCoordinates = business.latitude !== null && business.longitude !== null;
   const mapUrl = hasCoordinates
-    ? `https://www.openstreetmap.org/?mlat=${business.latitude}&mlon=${business.longitude}#map=16/${business.latitude}/${business.longitude}`
+    ? `https://www.google.com/maps/search/?api=1&query=${business.latitude},${business.longitude}`
+    : null;
+  const mapEmbedUrl = hasCoordinates
+    ? `https://www.google.com/maps?q=${business.latitude},${business.longitude}&z=15&output=embed`
     : null;
   const structuredData = {
     "@context": "https://schema.org",
@@ -52,12 +51,32 @@ export default async function BusinessPage({ params }: Props) {
     }
   };
   const contacts = [
-    business.phone ? { label: "Telefone", value: business.phone } : null,
-    business.whatsapp ? { label: "WhatsApp", value: business.whatsapp } : null,
-    business.email ? { label: "E-mail", value: business.email } : null,
-    business.websiteUrl ? { label: "Site", value: business.websiteUrl } : null,
-    business.instagramUrl ? { label: "Instagram", value: business.instagramUrl } : null
-  ].filter((contact): contact is { label: string; value: string } => contact !== null);
+    business.whatsapp
+      ? {
+          label: "WhatsApp",
+          value: business.whatsapp,
+          href: `https://wa.me/${business.whatsapp.replace(/\D/g, "")}`
+        }
+      : null,
+    business.phone
+      ? {
+          label: "Telefone",
+          value: business.phone,
+          href: `tel:${business.phone.replace(/\D/g, "")}`
+        }
+      : null,
+    business.websiteUrl
+      ? { label: "Website", value: business.websiteUrl, href: business.websiteUrl }
+      : null,
+    business.instagramUrl
+      ? { label: "Instagram", value: business.instagramUrl, href: business.instagramUrl }
+      : null,
+    business.email
+      ? { label: "E-mail", value: business.email, href: `mailto:${business.email}` }
+      : null
+  ].filter(
+    (contact): contact is { label: string; value: string; href: string } => contact !== null
+  );
 
   return (
     <div className="container">
@@ -71,9 +90,19 @@ export default async function BusinessPage({ params }: Props) {
         <Link href="/">Início</Link> / {business.name}
       </nav>
       <header className="page-header">
+        {business.logoUrl ? (
+          <Image
+            className="business-logo"
+            src={business.logoUrl}
+            alt={`Logo de ${business.name}`}
+            width={240}
+            height={160}
+          />
+        ) : null}
         <span className="eyebrow">Empresa local</span>
         <h1>{business.name}</h1>
-        <p className="muted">{business.shortDescription}</p>
+        {business.premium ? <span className="premium-badge">Premium</span> : null}
+        {business.shortDescription ? <p className="muted">{business.shortDescription}</p> : null}
       </header>
       <Image
         className="card"
@@ -87,32 +116,45 @@ export default async function BusinessPage({ params }: Props) {
         <div className="stack">
           <article className="panel">
             <h2>Sobre</h2>
-            <p>{business.description}</p>
+            {business.description ? <p>{business.description}</p> : null}
           </article>
-          <article className="panel">
-            <h2>Itens</h2>
-            <div className="stack">
-              {business.items.map((item) => (
-                <div key={item.id}>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                  {item.price !== undefined ? (
-                    <p className="price">
-                      {new Intl.NumberFormat("pt-BR", {
-                        style: "currency",
-                        currency: "BRL"
-                      }).format(item.price)}
-                    </p>
-                  ) : null}
-                  {item.ctaLabel && item.ctaUrl ? (
-                    <a className="button secondary" href={item.ctaUrl}>
-                      {item.ctaLabel}
-                    </a>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </article>
+          {business.gallery.length ? (
+            <article className="panel">
+              <h2>Galeria</h2>
+              <div className="gallery-grid">
+                {business.gallery.map((image) => (
+                  <Image key={image.id} src={image.url} alt={image.alt} width={640} height={480} />
+                ))}
+              </div>
+            </article>
+          ) : null}
+          {business.items.length ? (
+            <article className="panel">
+              <h2>Itens</h2>
+              <div className="stack">
+                {business.items.map((item) => (
+                  <div className="business-item" key={item.id}>
+                    {item.image ? <Image src={item.image} alt="" width={240} height={180} /> : null}
+                    <h3>{item.title}</h3>
+                    {item.description ? <p>{item.description}</p> : null}
+                    {item.price !== undefined ? (
+                      <p className="price">
+                        {new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL"
+                        }).format(item.price)}
+                      </p>
+                    ) : null}
+                    {item.ctaLabel && item.ctaUrl ? (
+                      <a className="button secondary" href={item.ctaUrl}>
+                        {item.ctaLabel}
+                      </a>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </article>
+          ) : null}
         </div>
         <aside className="stack">
           {contacts.length > 0 ? (
@@ -120,18 +162,31 @@ export default async function BusinessPage({ params }: Props) {
               <h2>Contatos</h2>
               {contacts.map((contact) => (
                 <p key={contact.label}>
-                  <strong>{contact.label}:</strong> {contact.value}
+                  <a href={contact.href} target="_blank" rel="noreferrer">
+                    <strong>{contact.label}:</strong> {contact.value}
+                  </a>
                 </p>
               ))}
             </div>
           ) : null}
           <div className="panel">
             <h2>Localização</h2>
-            <p>
-              {business.addressLine ? `${business.addressLine}, ` : ""}
-              {business.neighborhood ? `${business.neighborhood}, ` : ""}
-              {business.city} — RS
-            </p>
+            {business.addressLine || business.neighborhood || business.city ? (
+              <p>
+                {business.addressLine ? `${business.addressLine}, ` : ""}
+                {business.neighborhood ? `${business.neighborhood}, ` : ""}
+                {business.city} — RS
+              </p>
+            ) : null}
+            {mapEmbedUrl ? (
+              <iframe
+                className="map-embed"
+                src={mapEmbedUrl}
+                title={`Mapa de ${business.name}`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : null}
             {mapUrl ? (
               <a className="button secondary" href={mapUrl} target="_blank" rel="noreferrer">
                 Abrir no mapa

@@ -3,14 +3,14 @@ import type { Route } from "next";
 import { signOut } from "@/app/admin/actions";
 import { Logo } from "@/components/layout/Logo";
 
-const links: { label: string; href?: Route }[] = [
+const links: { label: string; href: string }[] = [
   { label: "Dashboard", href: "/admin" },
   { label: "Planos", href: "/admin/planos" },
-  { label: "Categorias" },
-  { label: "Empresas" },
+  { label: "Categorias", href: "/admin/categorias" },
+  { label: "Empresas", href: "/admin/empresas" },
   { label: "Itens", href: "/admin/itens" },
-  { label: "Campanhas" },
-  { label: "Usuários" }
+  { label: "Campanhas", href: "/admin/campanhas" },
+  { label: "Usuários", href: "/admin/usuarios" }
 ];
 
 export function AdminNav() {
@@ -21,17 +21,11 @@ export function AdminNav() {
           <Logo className="admin-nav-logo" priority />
         </Link>
         <nav aria-label="Administração">
-          {links.map(({ label, href }) =>
-            href ? (
-              <Link key={label} href={href}>
-                {label}
-              </Link>
-            ) : (
-              <span className="admin-nav-pending" key={label}>
-                {label}
-              </span>
-            )
-          )}
+          {links.map(({ label, href }) => (
+            <Link key={label} href={href as Route}>
+              {label}
+            </Link>
+          ))}
         </nav>
         <form action={signOut}>
           <button className="button secondary" type="submit">

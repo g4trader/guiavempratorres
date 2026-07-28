@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import type { Route } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://guiavempratorres.vercel.app"),
   title: { default: "Guia Vem Pra Torres", template: "%s | Guia Vem Pra Torres" },
   description: "Empresas, profissionais, produtos e serviços de Torres e região.",
   manifest: "/manifest.webmanifest",
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <span className="sr-only">Guia Vem Pra Torres</span>
             </Link>
             <div className="nav-links">
+              <Link href={"/buscar" as Route}>Buscar</Link>
               <Link href="/#categorias">Categorias</Link>
               <Link href="/admin">Área administrativa</Link>
               <Link className="button" href="/#categorias">
@@ -69,6 +71,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <strong>Navegue</strong>
               <p>
                 <Link href="/#categorias">Categorias</Link>
+              </p>
+              <p>
+                <Link href={"/buscar" as Route}>Buscar</Link>
               </p>
             </div>
             <div>

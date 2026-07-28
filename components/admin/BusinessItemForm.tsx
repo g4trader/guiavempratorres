@@ -1,4 +1,5 @@
 import type { BusinessItemType } from "@/lib/domain";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 type ItemValues = {
   id?: string;
@@ -70,10 +71,13 @@ export function BusinessItemForm({
         <textarea name="description" rows={3} defaultValue={values.description ?? ""} />
       </label>
       <div className="admin-form-row">
-        <label>
-          Imagem (caminho ou URL)
-          <input name="image" defaultValue={values.image ?? ""} />
-        </label>
+        <ImageUpload
+          bucket="product-service-images"
+          entityId={values.id ?? crypto.randomUUID()}
+          name="image"
+          label="Imagem"
+          currentPath={values.image}
+        />
         <label>
           Preço
           <input name="price" type="number" min="0" step="0.01" defaultValue={values.price ?? ""} />

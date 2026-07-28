@@ -4,6 +4,8 @@ export type Category = {
   description: string;
   imageUrl: string;
   imageAlt: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
 };
 
 export type BusinessItemType = "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG";
@@ -31,6 +33,15 @@ export type Business = {
   addressLine: string;
   imageUrl: string;
   imageAlt: string;
+  logoUrl: string | null;
+  gallery: { id: string; url: string; alt: string }[];
+  premium: boolean;
+  featuredHome: boolean;
+  featuredCategory: boolean;
+  planPriority: number;
+  publishedAt: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   latitude: number | null;
   longitude: number | null;
   phone: string | null;
@@ -39,6 +50,15 @@ export type Business = {
   websiteUrl: string | null;
   instagramUrl: string | null;
   items: BusinessItem[];
+};
+
+export type SearchResult = {
+  id: string;
+  kind: "business" | "category" | "item";
+  title: string;
+  description: string;
+  href: string;
+  context: string;
 };
 
 export const isHeroCapacityAvailable = (activeCount: number) =>

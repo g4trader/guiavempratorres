@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signIn } from "@/app/admin/actions";
+import { requestPasswordReset } from "@/app/admin/content-actions";
 import { Logo } from "@/components/layout/Logo";
 import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
 
@@ -9,7 +10,7 @@ export const metadata = {
   robots: { index: false, follow: false }
 };
 
-type Props = { searchParams: Promise<{ erro?: string }> };
+type Props = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
 
 export default async function AdminPage({ searchParams }: Props) {
   const client = await createAuthenticatedServerClient();
@@ -26,7 +27,7 @@ export default async function AdminPage({ searchParams }: Props) {
     if (membership) redirect("/admin/planos");
   }
 
-  const { erro } = await searchParams;
+  const { erro, mensagem } = await searchParams;
   const message =
     erro === "permissao"
       ? "Seu usuário não possui um papel administrativo."
@@ -45,6 +46,13 @@ export default async function AdminPage({ searchParams }: Props) {
             {message}
           </p>
         ) : null}
+        {mensagem ? (
+          <p className="form-message" role="status">
+            {mensagem === "recuperacao"
+              ? "Se o e-mail existir, você receberá o link para redefinir a senha."
+              : "Senha alterada. Entre novamente."}
+          </p>
+        ) : null}
         <form action={signIn} className="admin-form">
           <label>
             E-mail
@@ -58,6 +66,18 @@ export default async function AdminPage({ searchParams }: Props) {
             Entrar
           </button>
         </form>
+        <details>
+          <summary>Esqueci minha senha</summary>
+          <form action={requestPasswordReset} className="admin-form">
+            <label>
+              E-mail
+              <input name="email" type="email" required autoComplete="email" />
+            </label>
+            <button className="button secondary" type="submit">
+              Enviar link
+            </button>
+          </form>
+        </details>
         <Link href="/">Voltar ao site</Link>
       </div>
     </div>

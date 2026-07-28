@@ -1,35 +1,42 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getActiveCategoryBySlug,
-  listActiveCategories,
-  listPublishedBusinessesByCategory
-} from "@/lib/data/directory";
+import { BusinessCard } from "@/components/public/BusinessCard";
+import { getActiveCategoryBySlug, listPublishedBusinessesByCategory } from "@/lib/data/directory";
 
-type Props = { params: Promise<{ slug: string }> };
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  return (await listActiveCategories()).map(({ slug }) => ({ slug }));
-}
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ pagina?: string; ordem?: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const category = await getActiveCategoryBySlug(slug);
   if (!category) return {};
   return {
-    title: category.name,
-    description: category.description,
-    alternates: { canonical: `/categorias/${slug}` }
+    title: category.seoTitle ?? category.name,
+    description: category.seoDescription ?? category.description,
+    alternates: { canonical: `/categorias/${slug}` },
+    openGraph: {
+      title: `${category.name} em Torres`,
+      description: category.seoDescription ?? category.description,
+      url: `/categorias/${slug}`,
+      images: [{ url: category.imageUrl, alt: category.imageAlt }]
+    }
   };
 }
 
-export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params;
+export default async function CategoryPage({ params, searchParams }: Props) {
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   const category = await getActiveCategoryBySlug(slug);
   if (!category) notFound();
-  const businesses = await listPublishedBusinessesByCategory(slug);
+  const page = Math.max(1, Number(query.pagina) || 1);
+  const order = ["priority", "recent", "name"].includes(query.ordem ?? "")
+    ? (query.ordem ?? "priority")
+    : "priority";
+  const result = await listPublishedBusinessesByCategory(slug, page, 9, order);
 
   return (
     <div className="container">
@@ -39,35 +46,46 @@ export default async function CategoryPage({ params }: Props) {
       <header className="page-header">
         <span className="eyebrow">Categoria</span>
         <h1>{category.name}</h1>
-        <p className="muted">{category.description}</p>
+        {category.description ? <p className="muted">{category.description}</p> : null}
+        <p>
+          {result.total} {result.total === 1 ? "empresa encontrada" : "empresas encontradas"}
+        </p>
       </header>
-      {businesses.length ? (
+      <form className="listing-toolbar">
+        <label>
+          Ordenar por
+          <select name="ordem" defaultValue={order}>
+            <option value="priority">Premium e destaques</option>
+            <option value="recent">Mais recentes</option>
+            <option value="name">Nome</option>
+          </select>
+        </label>
+        <button className="button secondary" type="submit">
+          Ordenar
+        </button>
+      </form>
+      {result.businesses.length ? (
         <div className="grid">
-          {businesses.map((business) => (
-            <article className="card" key={business.slug}>
-              <Image
-                className="card-image"
-                src={business.imageUrl}
-                alt={business.imageAlt}
-                width={640}
-                height={400}
-              />
-              <div className="card-body">
-                <h2>{business.name}</h2>
-                <p>{business.shortDescription}</p>
-                <p>
-                  {business.neighborhood}, {business.city}
-                </p>
-                <a className="button secondary" href={`/empresas/${business.slug}`}>
-                  Ver empresa
-                </a>
-              </div>
-            </article>
+          {result.businesses.map((business) => (
+            <BusinessCard business={business} key={business.id} />
           ))}
         </div>
       ) : (
         <div className="empty">Ainda não há empresas publicadas nesta categoria.</div>
       )}
+      {result.totalPages > 1 ? (
+        <nav className="pagination" aria-label="Paginação">
+          {Array.from({ length: result.totalPages }, (_, index) => index + 1).map((number) => (
+            <Link
+              key={number}
+              aria-current={number === page ? "page" : undefined}
+              href={`/categorias/${slug}?pagina=${number}&ordem=${order}`}
+            >
+              {number}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </div>
   );
 }

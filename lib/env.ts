@@ -15,7 +15,3 @@ export function getPublicSupabaseConfig(): PublicSupabaseConfig | null {
 
   return parsed.success ? parsed.data : null;
 }
-
-export function getDataMode(): "supabase-cloud" | "demo" {
-  return getPublicSupabaseConfig() ? "supabase-cloud" : "demo";
-}
