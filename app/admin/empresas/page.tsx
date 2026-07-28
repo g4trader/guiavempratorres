@@ -15,6 +15,7 @@ import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
+import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -207,6 +208,20 @@ function BusinessForm({
             ))}
           </select>
         </label>
+      </div>
+      <div className="admin-rating-summary" aria-label="Avaliação da empresa">
+        <div>
+          <strong>{Number(value("rating_average") || 5).toFixed(1).replace(".", ",")}</strong>
+          <RatingStars
+            value={Number(value("rating_average") || 5)}
+            label={`${Number(value("rating_average") || 5).toFixed(1)} de 5 estrelas`}
+          />
+        </div>
+        <span>
+          {Number(value("rating_count")) === 0
+            ? "Empresa nova · avaliação inicial de 5 estrelas"
+            : `${value("rating_count")} avaliações de usuários do Guia`}
+        </span>
       </div>
       <fieldset className="admin-commercial-fieldset">
         <legend>Destaque comercial na Home</legend>

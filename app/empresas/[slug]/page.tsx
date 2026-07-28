@@ -3,8 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedBusinessBySlug } from "@/lib/data/directory";
+import { BusinessRating } from "@/components/business/BusinessRating";
 import { GalleryImage } from "@/components/media/GalleryImage";
 import { HeroImage } from "@/components/media/HeroImage";
+import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,19 @@ export default async function BusinessPage({ params }: Props) {
   const { slug } = await params;
   const business = await getPublishedBusinessBySlug(slug);
   if (!business) notFound();
+  const authClient = await createAuthenticatedServerClient();
+  const {
+    data: { user }
+  } = (await authClient?.auth.getUser()) ?? { data: { user: null } };
+  const { data: userRating } =
+    user && authClient
+      ? await authClient
+          .from("business_ratings")
+          .select("rating")
+          .eq("business_id", business.id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : { data: null };
 
   const hasCoordinates = business.latitude !== null && business.longitude !== null;
   const mapUrl = hasCoordinates
@@ -50,7 +65,17 @@ export default async function BusinessPage({ params }: Props) {
       addressLocality: business.city,
       addressRegion: "RS",
       addressCountry: "BR"
-    }
+    },
+    aggregateRating:
+      business.ratingCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: business.ratingAverage,
+            ratingCount: business.ratingCount,
+            bestRating: 5,
+            worstRating: 1
+          }
+        : undefined
   };
   const contacts = [
     business.whatsapp
@@ -154,6 +179,11 @@ export default async function BusinessPage({ params }: Props) {
           ) : null}
         </div>
         <aside className="stack">
+          <BusinessRating
+            business={business}
+            currentRating={userRating?.rating ?? null}
+            isAuthenticated={Boolean(user)}
+          />
           {contacts.length > 0 ? (
             <div className="panel">
               <h2>Contatos</h2>

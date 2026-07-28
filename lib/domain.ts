@@ -54,6 +54,8 @@ export type Business = {
   email: string | null;
   websiteUrl: string | null;
   instagramUrl: string | null;
+  ratingAverage: number;
+  ratingCount: number;
   items: BusinessItem[];
 };
 

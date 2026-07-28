@@ -439,6 +439,38 @@ export type Database = {
           }
         ];
       };
+      business_ratings: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          rating: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          rating: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          rating?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_ratings_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       businesses: {
         Row: {
           featured_home: boolean;
@@ -463,6 +495,8 @@ export type Database = {
           plan_id: string;
           postal_code: string | null;
           published_at: string | null;
+          rating_average: number;
+          rating_count: number;
           seo_description: string | null;
           seo_title: string | null;
           short_description: string | null;
@@ -496,6 +530,8 @@ export type Database = {
           plan_id: string;
           postal_code?: string | null;
           published_at?: string | null;
+          rating_average?: number;
+          rating_count?: number;
           seo_description?: string | null;
           seo_title?: string | null;
           short_description?: string | null;
@@ -529,6 +565,8 @@ export type Database = {
           plan_id?: string;
           postal_code?: string | null;
           published_at?: string | null;
+          rating_average?: number;
+          rating_count?: number;
           seo_description?: string | null;
           seo_title?: string | null;
           short_description?: string | null;

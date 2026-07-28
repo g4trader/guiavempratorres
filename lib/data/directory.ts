@@ -33,6 +33,8 @@ type BusinessRow = {
   email: string | null;
   website_url: string | null;
   instagram_url: string | null;
+  rating_average: number;
+  rating_count: number;
   published_at: string | null;
   seo_title: string | null;
   seo_description: string | null;
@@ -57,7 +59,7 @@ type BusinessRow = {
 };
 
 const businessSelect =
-  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,phone,whatsapp,email,website_url,instagram_url,published_at,seo_title,seo_description,featured_home,featured_home_order,featured_home_starts_at,featured_home_ends_at,plans(premium_badge,featured_home,featured_category,priority)";
+  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,phone,whatsapp,email,website_url,instagram_url,rating_average,rating_count,published_at,seo_title,seo_description,featured_home,featured_home_order,featured_home_starts_at,featured_home_ends_at,plans(premium_badge,featured_home,featured_category,priority)";
 
 export function resolvePublicAsset(path: string | null): string | null {
   if (!path || path.startsWith("/") || path.startsWith("https://")) return path;
@@ -132,6 +134,8 @@ function mapBusiness(
     email: row.email,
     websiteUrl: row.website_url,
     instagramUrl: row.instagram_url,
+    ratingAverage: Number(row.rating_average),
+    ratingCount: row.rating_count,
     items: options.items ?? []
   };
 }

@@ -569,6 +569,93 @@ body:has(.admin-login) {
   width: auto;
   min-height: auto;
 }
+.rating-stars {
+  display: inline-flex;
+  gap: 0.15rem;
+  color: #cbd5db;
+  font-size: 1.35rem;
+  letter-spacing: 0;
+}
+.rating-stars .is-filled {
+  color: #ff7a2f;
+}
+.business-rating {
+  display: grid;
+  gap: 1.25rem;
+}
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.rating-summary > strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+}
+.rating-summary > div {
+  display: grid;
+}
+.rating-summary span:last-child,
+.admin-rating-summary > span {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+.rating-form fieldset {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+.rating-options {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  width: max-content;
+}
+.rating-options label {
+  cursor: pointer;
+}
+.rating-options input {
+  position: absolute;
+  opacity: 0;
+}
+.rating-options span[aria-hidden] {
+  color: #cbd5db;
+  font-size: 2rem;
+  transition: color 160ms ease;
+}
+.rating-options label:hover span[aria-hidden],
+.rating-options label:hover ~ label span[aria-hidden],
+.rating-options input:checked ~ span[aria-hidden],
+.rating-options label:has(input:checked) ~ label span[aria-hidden] {
+  color: #ff7a2f;
+}
+.rating-options input:focus-visible + span {
+  border-radius: 0.2rem;
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+.admin-rating-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: white;
+}
+.admin-rating-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.guide-login {
+  max-width: 48rem;
+}
+.guide-login > .panel {
+  display: grid;
+  gap: 2rem;
+}
 .admin-list {
   display: grid;
   gap: 1rem;
