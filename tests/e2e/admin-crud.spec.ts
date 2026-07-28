@@ -197,6 +197,8 @@ test.describe("fluxos administrativos", () => {
     await page.getByRole("radio", { name: "5 estrelas", exact: true }).check();
     await page.getByRole("button", { name: "Enviar avaliação" }).click();
     await expect(page.getByRole("button", { name: "Atualizar avaliação" })).toBeVisible();
+    await expect(page.locator(".business-rating .rating-summary > strong")).toHaveText("5,0");
+    await expect(page.locator(".business-rating .rating-summary")).toContainText("1 avaliação");
 
     await page.goto("/admin/usuarios");
     await expect(page.getByRole("heading", { name: "Usuários" })).toBeVisible();

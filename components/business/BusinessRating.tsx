@@ -75,7 +75,6 @@ export function BusinessRating({
         <button className="button secondary" type="submit">
           {currentRating ? "Atualizar avaliação" : "Enviar avaliação"}
         </button>
-        <small>Não é necessário criar cadastro ou fazer login.</small>
       </form>
     </section>
   );

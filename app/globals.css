@@ -608,7 +608,6 @@ body:has(.admin-login) {
 }
 .rating-options {
   display: flex;
-  flex-direction: row-reverse;
   justify-content: flex-end;
   width: max-content;
 }
@@ -625,9 +624,9 @@ body:has(.admin-login) {
   transition: color 160ms ease;
 }
 .rating-options label:hover span[aria-hidden],
-.rating-options label:hover ~ label span[aria-hidden],
+.rating-options label:has(~ label:hover) span[aria-hidden],
 .rating-options input:checked ~ span[aria-hidden],
-.rating-options label:has(input:checked) ~ label span[aria-hidden] {
+.rating-options label:has(~ label input:checked) span[aria-hidden] {
   color: #ff7a2f;
 }
 .rating-options input:focus-visible + span {
