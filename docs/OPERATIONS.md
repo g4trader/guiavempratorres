@@ -56,6 +56,21 @@ Ativação validada em 2026-07-27:
 - nenhuma `service_role`, variável de Production ou deploy de Production foi
   configurado.
 
+### Preview com Supabase
+
+- URL:
+  <https://guiavempratorres-5w9bofgvq-vem-pra-torres.vercel.app>;
+- deployment: `dpl_9owQiEL1jpUMXFRNEveD6XLYdpX1`;
+- classificação Vercel: `preview`;
+- estado: `Ready`;
+- branch: `feature/cloud-supabase-foundation`;
+- acesso: protegido por autenticação Vercel;
+- indexação: `noindex`;
+- Supabase: projeto único `guiavempratorres` conectado;
+- variáveis: somente Preview, sem `service_role`;
+- domínio personalizado: não conectado;
+- Production: inalterada.
+
 ## Deployment inicial da Vercel
 
 - deployment inicial: <https://guiavempratorres.vercel.app>;
