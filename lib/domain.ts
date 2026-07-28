@@ -14,6 +14,7 @@ export type ProductService = {
 };
 
 export type Business = {
+  id: string;
   slug: string;
   name: string;
   shortDescription: string;
@@ -21,10 +22,16 @@ export type Business = {
   categorySlugs: string[];
   neighborhood: string;
   city: string;
+  addressLine: string;
   imageUrl: string;
   imageAlt: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
   products: ProductService[];
 };
 

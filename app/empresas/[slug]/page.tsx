@@ -2,17 +2,25 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { businesses, categories } from "@/lib/fixtures";
+import {
+  getPublishedBusinessBySlug,
+  listActiveCategories,
+  listPublishedBusinessesByCategory
+} from "@/lib/data/directory";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return businesses.map(({ slug }) => ({ slug }));
+export async function generateStaticParams() {
+  const categories = await listActiveCategories();
+  const groups = await Promise.all(
+    categories.map((category) => listPublishedBusinessesByCategory(category.slug))
+  );
+  return [...new Set(groups.flat().map(({ slug }) => slug))].map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const business = businesses.find((item) => item.slug === slug);
+  const business = await getPublishedBusinessBySlug(slug);
   if (!business) return {};
   return {
     title: business.name,
@@ -23,10 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BusinessPage({ params }: Props) {
   const { slug } = await params;
-  const business = businesses.find((item) => item.slug === slug);
+  const business = await getPublishedBusinessBySlug(slug);
   if (!business) notFound();
-  const category = categories.find((item) => business.categorySlugs.includes(item.slug));
-  const mapUrl = `https://www.openstreetmap.org/?mlat=${business.latitude}&mlon=${business.longitude}#map=16/${business.latitude}/${business.longitude}`;
+
+  const hasCoordinates = business.latitude !== null && business.longitude !== null;
+  const mapUrl = hasCoordinates
+    ? `https://www.openstreetmap.org/?mlat=${business.latitude}&mlon=${business.longitude}#map=16/${business.latitude}/${business.longitude}`
+    : null;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -34,11 +45,20 @@ export default async function BusinessPage({ params }: Props) {
     description: business.shortDescription,
     address: {
       "@type": "PostalAddress",
+      streetAddress: business.addressLine || undefined,
       addressLocality: business.city,
       addressRegion: "RS",
       addressCountry: "BR"
     }
   };
+  const contacts = [
+    business.phone ? { label: "Telefone", value: business.phone } : null,
+    business.whatsapp ? { label: "WhatsApp", value: business.whatsapp } : null,
+    business.email ? { label: "E-mail", value: business.email } : null,
+    business.websiteUrl ? { label: "Site", value: business.websiteUrl } : null,
+    business.instagramUrl ? { label: "Instagram", value: business.instagramUrl } : null
+  ].filter((contact): contact is { label: string; value: string } => contact !== null);
+
   return (
     <div className="container">
       <script
@@ -48,14 +68,10 @@ export default async function BusinessPage({ params }: Props) {
         }}
       />
       <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/">Início</Link> /{" "}
-        <Link href={`/categorias/${category?.slug ?? "servicos"}`}>
-          {category?.name ?? "Empresas"}
-        </Link>{" "}
-        / {business.name}
+        <Link href="/">Início</Link> / {business.name}
       </nav>
       <header className="page-header">
-        <span className="eyebrow">{category?.name}</span>
+        <span className="eyebrow">Empresa local</span>
         <h1>{business.name}</h1>
         <p className="muted">{business.shortDescription}</p>
       </header>
@@ -80,27 +96,43 @@ export default async function BusinessPage({ params }: Props) {
                 <div key={item.name}>
                   <h3>{item.name}</h3>
                   <p>{item.description}</p>
-                  {item.price !== undefined && (
+                  {item.price !== undefined ? (
                     <p className="price">
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL"
                       }).format(item.price)}
                     </p>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>
           </article>
         </div>
-        <aside className="panel">
-          <h2>Localização</h2>
-          <p>
-            {business.neighborhood}, {business.city} — RS
-          </p>
-          <a className="button secondary" href={mapUrl} target="_blank" rel="noreferrer">
-            Abrir no mapa
-          </a>
+        <aside className="stack">
+          {contacts.length > 0 ? (
+            <div className="panel">
+              <h2>Contatos</h2>
+              {contacts.map((contact) => (
+                <p key={contact.label}>
+                  <strong>{contact.label}:</strong> {contact.value}
+                </p>
+              ))}
+            </div>
+          ) : null}
+          <div className="panel">
+            <h2>Localização</h2>
+            <p>
+              {business.addressLine ? `${business.addressLine}, ` : ""}
+              {business.neighborhood ? `${business.neighborhood}, ` : ""}
+              {business.city} — RS
+            </p>
+            {mapUrl ? (
+              <a className="button secondary" href={mapUrl} target="_blank" rel="noreferrer">
+                Abrir no mapa
+              </a>
+            ) : null}
+          </div>
         </aside>
       </section>
     </div>

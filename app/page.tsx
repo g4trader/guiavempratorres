@@ -1,23 +1,33 @@
 import Image from "next/image";
-import Link from "next/link";
-import { businesses, categories } from "@/lib/fixtures";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import {
+  getValidHomeHeroCampaigns,
+  listActiveCategories,
+  listPublishedBusinessesByCategory
+} from "@/lib/data/directory";
+import { getDataMode } from "@/lib/env";
 
-export default function Home() {
+export default async function Home() {
+  const [campaigns, categories] = await Promise.all([
+    getValidHomeHeroCampaigns(),
+    listActiveCategories()
+  ]);
+  const featuredGroups = await Promise.all(
+    categories.slice(0, 3).map((category) => listPublishedBusinessesByCategory(category.slug))
+  );
+  const featuredBusinesses = featuredGroups.flat().slice(0, 3);
+  const demoMode = getDataMode() === "demo";
+
   return (
     <>
-      <section className="hero">
-        <div className="container hero-card">
-          <div className="hero-copy">
-            <span className="eyebrow">Torres e região em um só lugar</span>
-            <h1>Descubra, escolha e viva o melhor daqui.</h1>
-            <p className="muted">Encontre empresas, profissionais, produtos e serviços locais.</p>
-            <Link className="button" href="#categorias">
-              Ver categorias
-            </Link>
-          </div>
-          <div className="hero-image" role="img" aria-label="Praia com mar azul" />
+      {demoMode ? (
+        <div className="demo-notice" role="status">
+          Modo demonstrativo: este Preview não está conectado ao Supabase.
         </div>
-      </section>
+      ) : null}
+      <div className="hero container">
+        <HeroCarousel campaigns={campaigns} />
+      </div>
       <section className="section container" id="categorias">
         <div className="section-heading">
           <div>
@@ -46,34 +56,36 @@ export default function Home() {
           ))}
         </div>
       </section>
-      <section className="section container">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">Novidades</span>
-            <h2>Empresas para conhecer</h2>
+      {featuredBusinesses.length > 0 ? (
+        <section className="section container">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Descubra</span>
+              <h2>Empresas para conhecer</h2>
+            </div>
           </div>
-        </div>
-        <div className="grid">
-          {businesses.map((business) => (
-            <article className="card" key={business.slug}>
-              <Image
-                className="card-image"
-                src={business.imageUrl}
-                alt={business.imageAlt}
-                width={640}
-                height={400}
-              />
-              <div className="card-body">
-                <h3>{business.name}</h3>
-                <p>{business.shortDescription}</p>
-                <a className="button secondary" href={`/empresas/${business.slug}`}>
-                  Conhecer
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+          <div className="grid">
+            {featuredBusinesses.map((business) => (
+              <article className="card" key={business.slug}>
+                <Image
+                  className="card-image"
+                  src={business.imageUrl}
+                  alt={business.imageAlt}
+                  width={640}
+                  height={400}
+                />
+                <div className="card-body">
+                  <h3>{business.name}</h3>
+                  <p>{business.shortDescription}</p>
+                  <a className="button secondary" href={`/empresas/${business.slug}`}>
+                    Conhecer
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

@@ -2,7 +2,10 @@
 
 ## Regra de ambientes
 
-Produção não é alterada nesta primeira execução. Toda migration nasce em `supabase/migrations`, é testada localmente e aplicada primeiro em staging.
+Produção não é alterada. Toda migration nasce em `supabase/migrations`, passa
+por revisão e proteção de project ref, e então é aplicada no único Supabase
+Cloud autorizado. Não usar Docker, Supabase local, PostgreSQL local ou
+emuladores.
 
 ## Acessos oficiais
 
@@ -11,17 +14,29 @@ Use login via navegador nas CLIs (`gh auth login`, `vercel login`, `supabase log
 ## Rotina
 
 1. `pnpm install --frozen-lockfile`
-2. `pnpm supabase:start`
-3. `pnpm supabase:reset`
-4. `pnpm test:db`
-5. `pnpm lint && pnpm typecheck && pnpm test && pnpm build`
+2. `pnpm db:check`
+3. `pnpm db:lint`
+4. revisar migrations e executar `pnpm db:push`
+5. gerar tipos com `pnpm db:types`
+6. `pnpm lint && pnpm typecheck && pnpm test && pnpm build`
+
+`SUPABASE_PROJECT_REF`, `SUPABASE_PROJECT_NAME` e
+`SUPABASE_ORGANIZATION_ID` são obrigatórios para scripts remotos. A proteção lê
+`supabase/.temp/project-ref`, confirma os metadados remotos pela CLI, rejeita ref
+ausente, desconhecido ou divergente e bloqueia migrations com operações
+destrutivas, sem imprimir secrets.
+
+Durante o desenvolvimento, variáveis Supabase são configuradas na Vercel
+Preview. Service role permanece server-only. Production Vercel não é alterada
+sem autorização.
 
 Deploy de Preview só ocorre após projeto/equipe/variáveis terem sido auditados.
 
 ## Projetos confirmados
 
 - Vercel: equipe `vem-pra-torres`, projeto `guiavempratorres`;
-- Supabase produção: `ggdynlmtvkvrpeyozsxn`, East US (Ohio);
+- Supabase oficial: pendente de criação, nome obrigatório `guiavempratorres`,
+  organização `ljfsuuapozqveecvqwxy`, região `sa-east-1`;
 - GCP: `guiavempratorres`, região aprovada `southamerica-east1`.
 
 ## Deployment inicial da Vercel
@@ -47,7 +62,7 @@ Antes do próximo deploy:
 2. confirmar a branch de produção e a origem Git do deployment;
 3. garantir branches e pull requests em Preview;
 4. garantir que `main` só chegue a Production com autorização;
-5. configurar primeiro um Supabase de staging/preview quando estiver disponível.
+5. confirmar o único projeto Supabase autorizado antes de qualquer integração.
 
 ### Auditoria do primeiro deployment
 
@@ -90,8 +105,24 @@ confirmada pela plataforma.
 - Production requer autorização explícita e comando deliberado com `--prod`;
 - não conectar domínio personalizado, remover proteção ou configurar secrets de
   produção nesta fase;
-- um projeto Supabase de staging deve existir antes de integrar banco ou Auth a
-  qualquer Preview.
+- o único projeto Supabase deve passar pela proteção antes de integrar banco ou
+  Auth a qualquer Preview.
+
+## Backup e recuperação
+
+Antes de inserir dados reais:
+
+- confirmar no painel quais backups e retenção o plano contratado oferece;
+- registrar o responsável por exportações e restaurações;
+- definir exportação periódica compatível com o plano;
+- testar restauração em ambiente seguro quando houver recurso disponível;
+- documentar RPO/RTO e limitações reais do plano.
+
+Antes de migration potencialmente destrutiva, obter autorização explícita,
+registrar ponto de restauração, gerar exportação/backup adequado e revisar
+rollback. O script bloqueia `DROP DATABASE`, `DROP SCHEMA`, `TRUNCATE`,
+`DROP TABLE` e `DELETE FROM`; `db reset`, exclusão de projetos/branches e
+`migration repair` não fazem parte dos scripts do repositório.
 
 A integração GitHub da Vercel ainda depende da conexão da conta Vercel com o
 GitHub. Até ela ser concluída, pushes e pull requests não geram deployments

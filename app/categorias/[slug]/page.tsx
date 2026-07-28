@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { businesses, categories } from "@/lib/fixtures";
+import {
+  getActiveCategoryBySlug,
+  listActiveCategories,
+  listPublishedBusinessesByCategory
+} from "@/lib/data/directory";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return categories.map(({ slug }) => ({ slug }));
+export async function generateStaticParams() {
+  return (await listActiveCategories()).map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const category = categories.find((item) => item.slug === slug);
+  const category = await getActiveCategoryBySlug(slug);
   if (!category) return {};
   return {
     title: category.name,
@@ -23,9 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
-  const category = categories.find((item) => item.slug === slug);
+  const category = await getActiveCategoryBySlug(slug);
   if (!category) notFound();
-  const matches = businesses.filter((business) => business.categorySlugs.includes(slug));
+  const businesses = await listPublishedBusinessesByCategory(slug);
+
   return (
     <div className="container">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -36,9 +41,9 @@ export default async function CategoryPage({ params }: Props) {
         <h1>{category.name}</h1>
         <p className="muted">{category.description}</p>
       </header>
-      {matches.length ? (
+      {businesses.length ? (
         <div className="grid">
-          {matches.map((business) => (
+          {businesses.map((business) => (
             <article className="card" key={business.slug}>
               <Image
                 className="card-image"

@@ -9,18 +9,35 @@ Next.js 16, React 19, TypeScript estrito, Supabase (PostgreSQL/Auth/Storage), Vi
 ## Desenvolvimento
 
 ```bash
-cp .env.example .env.local
 pnpm install
 pnpm dev
 ```
 
-Para banco local, Docker deve estar ativo:
+Serviços persistentes são exclusivamente cloud. Não use Docker, `supabase start`
+ou PostgreSQL local. O projeto usa um único Supabase Cloud chamado
+`guiavempratorres`.
+
+Antes de qualquer operação remota:
 
 ```bash
-pnpm supabase:start
-pnpm supabase:reset
-pnpm test:db
+SUPABASE_PROJECT_REF=<ref-autorizado> \
+SUPABASE_PROJECT_NAME=guiavempratorres \
+SUPABASE_ORGANIZATION_ID=ljfsuuapozqveecvqwxy \
+pnpm db:check
 ```
+
+Com o projeto explicitamente confirmado:
+
+```bash
+pnpm db:lint
+pnpm db:push
+pnpm db:types
+```
+
+Variáveis de Preview são configuradas diretamente na Vercel, somente no target
+Preview. `.env.local` pode ser usado temporariamente para o Next.js, mas nunca é
+versionado. Sem configuração Supabase Cloud, a aplicação entra em modo
+demonstrativo explicitamente identificado.
 
 ## Qualidade
 
@@ -36,15 +53,26 @@ pnpm format:check
 ## Estrutura
 
 - `app`: rotas públicas, administrativas e SEO;
-- `lib`: regras de domínio e fonte temporária fictícia;
+- `lib/data`: única camada de queries server-side;
+- `lib/database.types.ts`: tipos gerados/alinhados ao schema local;
+- `lib`: regras de domínio, autorização e fallback demonstrativo;
 - `supabase`: configuração, migrations, testes e seed;
 - `tests`: testes unitários e E2E;
 - `docs`: arquitetura, design, segurança e operações.
 
 ## Ambientes
 
-Local está disponível após instalação. Preview/staging ainda não está vinculado. O projeto Supabase informado pelo cliente é tratado como produção até confirmação em contrário e não recebeu migrations.
+Edição, lint, typecheck, testes unitários e build rodam localmente. Banco, Auth e
+Storage usam um único Supabase Cloud; durante o desenvolvimento entram apenas
+dados fictícios e o deploy funcional usa Vercel Preview protegido.
 
 ## Limitações conhecidas
 
-O conteúdo público ainda usa fixtures para permitir build sem credenciais. O CRUD/admin, uploads e carrossel visual completo serão conectados após autenticação segura e disponibilização de staging. O logotipo oficial e mídia autorizada ainda não foram fornecidos.
+O Supabase único ainda não está conectado. O CRUD/admin completo e uploads serão
+implementados após autenticação segura. Logo e favicon oficiais já foram
+fornecidos; mídia editorial autorizada ainda está pendente.
+
+## Marca
+
+Ativos institucionais oficiais vivem exclusivamente em `public/brand/` e são
+renderizados pelo componente `components/layout/Logo.tsx`.
