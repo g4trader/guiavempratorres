@@ -5,10 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
+import { databaseUuid } from "@/lib/validation/database";
 import { parseSlug } from "@/lib/validation/slugs";
 
 export async function saveBusinessRating(form: FormData) {
-  const businessId = z.string().uuid().parse(form.get("business_id"));
+  const businessId = databaseUuid.parse(form.get("business_id"));
   const slug = parseSlug(String(form.get("slug") ?? ""));
   const rating = z.coerce.number().int().min(1).max(5).parse(form.get("rating"));
   const client = await createAuthenticatedServerClient();

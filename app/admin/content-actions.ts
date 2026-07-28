@@ -7,11 +7,12 @@ import { z } from "zod";
 import { canManageAdminRoles, canManageCampaigns } from "@/lib/auth/authorization";
 import { slugify } from "@/lib/domain";
 import { createAuthenticatedServerClient, requireAdmin } from "@/lib/supabase/auth-server";
+import { databaseUuid } from "@/lib/validation/database";
 
 const text = (form: FormData, name: string) => String(form.get(name) ?? "").trim();
 const optional = (form: FormData, name: string) => text(form, name) || null;
 const checked = (form: FormData, name: string) => form.get(name) === "on";
-const uuid = (value: FormDataEntryValue | null) => z.string().uuid().parse(value);
+const uuid = (value: FormDataEntryValue | null) => databaseUuid.parse(value);
 const numberOrNull = (value: string) => (value ? Number(value.replace(",", ".")) : null);
 
 function fail(path: string, message: string): never {

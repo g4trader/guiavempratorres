@@ -6,6 +6,7 @@ import type { Route } from "next";
 import { z } from "zod";
 import { requireAdmin, createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
 import { slugify } from "@/lib/domain";
+import { databaseUuid } from "@/lib/validation/database";
 
 const booleanValue = (formData: FormData, name: string) => formData.get(name) === "on";
 const textValue = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
@@ -20,7 +21,7 @@ const planSchema = z.object({
 });
 
 const itemSchema = z.object({
-  business_id: z.string().uuid(),
+  business_id: databaseUuid,
   type: z.enum(["PRODUCT", "SERVICE", "PROMOTION", "MENU", "CATALOG"]),
   title: z.string().min(2).max(140),
   description: z.string().nullable(),
@@ -91,7 +92,7 @@ export async function createPlan(formData: FormData) {
 
 export async function updatePlan(formData: FormData) {
   const { client } = await requireAdmin();
-  const id = z.string().uuid().safeParse(formData.get("id"));
+  const id = databaseUuid.safeParse(formData.get("id"));
   const parsed = parsePlan(formData);
   if (!id.success || !parsed.success) adminError("/admin/planos", "Revise os campos do plano.");
 
@@ -105,7 +106,7 @@ export async function updatePlan(formData: FormData) {
 
 export async function deletePlan(formData: FormData) {
   const { client } = await requireAdmin();
-  const id = z.string().uuid().safeParse(formData.get("id"));
+  const id = databaseUuid.safeParse(formData.get("id"));
   if (!id.success) adminError("/admin/planos", "Plano inválido.");
 
   const { error } = await client.from("plans").delete().eq("id", id.data);
@@ -145,7 +146,7 @@ export async function createBusinessItem(formData: FormData) {
 
 export async function updateBusinessItem(formData: FormData) {
   const { client } = await requireAdmin();
-  const id = z.string().uuid().safeParse(formData.get("id"));
+  const id = databaseUuid.safeParse(formData.get("id"));
   const parsed = parseItem(formData);
   if (!id.success || !parsed.success) adminError("/admin/empresas", "Revise os campos do item.");
 
@@ -160,7 +161,7 @@ export async function updateBusinessItem(formData: FormData) {
 
 export async function deleteBusinessItem(formData: FormData) {
   const { client } = await requireAdmin();
-  const id = z.string().uuid().safeParse(formData.get("id"));
+  const id = databaseUuid.safeParse(formData.get("id"));
   if (!id.success) adminError("/admin/empresas", "Item inválido.");
 
   const { error } = await client.from("business_items").delete().eq("id", id.data);
