@@ -6,11 +6,17 @@ export type Category = {
   imageAlt: string;
 };
 
-export type ProductService = {
-  name: string;
-  type: "product" | "service";
+export type BusinessItemType = "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG";
+
+export type BusinessItem = {
+  id: string;
+  title: string;
+  type: BusinessItemType;
   description: string;
+  image: string | null;
   price?: number;
+  ctaLabel: string | null;
+  ctaUrl: string | null;
 };
 
 export type Business = {
@@ -32,7 +38,7 @@ export type Business = {
   email: string | null;
   websiteUrl: string | null;
   instagramUrl: string | null;
-  products: ProductService[];
+  items: BusinessItem[];
 };
 
 export const isHeroCapacityAvailable = (activeCount: number) =>

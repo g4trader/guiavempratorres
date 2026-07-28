@@ -2,7 +2,7 @@ import { createPublicServerClient } from "@/lib/supabase/server";
 import { businesses as demoBusinesses, categories as demoCategories } from "@/lib/fixtures";
 import { getPublicSupabaseConfig } from "@/lib/env";
 import { parseSlug } from "@/lib/validation/slugs";
-import type { Business, Category, ProductService } from "@/lib/domain";
+import type { Business, BusinessItem, Category } from "@/lib/domain";
 
 export type HeroCampaign = {
   id: string;
@@ -71,7 +71,7 @@ function mapBusiness(
     instagram_url: string | null;
   },
   categorySlugs: string[] = [],
-  products: ProductService[] = []
+  items: BusinessItem[] = []
 ): Business {
   return {
     id: row.id,
@@ -92,7 +92,7 @@ function mapBusiness(
     email: row.email,
     websiteUrl: row.website_url,
     instagramUrl: row.instagram_url,
-    products
+    items
   };
 }
 
@@ -165,25 +165,27 @@ export async function listPublishedBusinessesByCategory(
   return data.map((row) => mapBusiness(row, [categorySlug]));
 }
 
-export async function listActiveProductsServices(businessId: string): Promise<ProductService[]> {
+export async function listActiveBusinessItems(businessId: string): Promise<BusinessItem[]> {
   const client = createPublicServerClient();
-  if (!client) {
-    return demoBusinesses.find((business) => business.id === businessId)?.products ?? [];
-  }
+  if (!client) return [];
 
   const { data, error } = await client
-    .from("products_services")
-    .select("name,type,description,price")
+    .from("business_items")
+    .select("id,title,type,description,image,price,cta_label,cta_url")
     .eq("business_id", businessId)
-    .eq("is_active", true)
+    .eq("active", true)
     .order("display_order");
-  if (error) throw new Error("Não foi possível carregar produtos e serviços.");
+  if (error) throw new Error("Não foi possível carregar os itens da empresa.");
 
   return data.map((item) => ({
-    name: item.name,
+    id: item.id,
+    title: item.title,
     type: item.type,
     description: item.description ?? "",
-    price: item.price ?? undefined
+    image: resolvePublicAsset(item.image),
+    price: item.price ?? undefined,
+    ctaLabel: item.cta_label,
+    ctaUrl: item.cta_url
   }));
 }
 
@@ -203,8 +205,8 @@ export async function getPublishedBusinessBySlug(slugValue: string): Promise<Bus
   if (error) throw new Error("Não foi possível carregar a empresa.");
   if (!data) return null;
 
-  const products = await listActiveProductsServices(data.id);
-  return mapBusiness(data, [], products);
+  const items = await listActiveBusinessItems(data.id);
+  return mapBusiness(data, [], items);
 }
 
 export async function getValidHomeHeroCampaigns(): Promise<HeroCampaign[]> {

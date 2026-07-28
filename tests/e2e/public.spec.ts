@@ -19,12 +19,20 @@ test("visitante navega pelo hero, categoria e empresa", async ({ page }) => {
   await expect(page).toHaveURL(/\/categorias\/gastronomia$/);
 
   await page.getByRole("link", { name: "Ver empresa" }).click();
-  await expect(page.getByRole("heading", { name: "Produtos e serviços" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Itens" })).toBeVisible();
   await expect(page.getByText("Menu do dia")).toBeVisible();
   await expect(page.getByRole("link", { name: "Abrir no mapa" })).toHaveAttribute(
     "href",
     /openstreetmap/
   );
+});
+
+test("área administrativa exige autenticação", async ({ page }) => {
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { name: "Área administrativa" })).toBeVisible();
+  await expect(page.getByLabel("E-mail")).toBeVisible();
+  await expect(page.getByLabel("Senha")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
 });
 
 test("favicon e manifest usam a estrutura institucional", async ({ request }) => {

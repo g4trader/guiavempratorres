@@ -90,11 +90,11 @@ export default async function BusinessPage({ params }: Props) {
             <p>{business.description}</p>
           </article>
           <article className="panel">
-            <h2>Produtos e serviços</h2>
+            <h2>Itens</h2>
             <div className="stack">
-              {business.products.map((item) => (
-                <div key={item.name}>
-                  <h3>{item.name}</h3>
+              {business.items.map((item) => (
+                <div key={item.id}>
+                  <h3>{item.title}</h3>
                   <p>{item.description}</p>
                   {item.price !== undefined ? (
                     <p className="price">
@@ -103,6 +103,11 @@ export default async function BusinessPage({ params }: Props) {
                         currency: "BRL"
                       }).format(item.price)}
                     </p>
+                  ) : null}
+                  {item.ctaLabel && item.ctaUrl ? (
+                    <a className="button secondary" href={item.ctaUrl}>
+                      {item.ctaLabel}
+                    </a>
                   ) : null}
                 </div>
               ))}

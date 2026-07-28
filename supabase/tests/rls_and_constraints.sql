@@ -1,12 +1,20 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(21);
 
 select has_table('public', 'businesses', 'businesses existe');
 select has_table('public', 'ad_campaigns', 'ad_campaigns existe');
+select has_table('public', 'plans', 'plans existe');
+select has_table('public', 'business_items', 'business_items existe');
 select col_is_unique('public', 'categories', 'slug', 'slug de categoria é único');
 select col_is_unique('public', 'businesses', 'slug', 'slug de empresa é único');
+
+select results_eq(
+  $$ select count(*)::bigint from public.businesses where plan_id is not null $$,
+  $$ values (6::bigint) $$,
+  'todas as empresas pertencem a um plano'
+);
 
 insert into auth.users (id, email) values
   ('90000000-0000-0000-0000-000000000001', 'editor@example.invalid'),
@@ -33,6 +41,12 @@ select results_eq(
   'anónimo lê empresas publicadas'
 );
 
+select results_eq(
+  $$ select count(*)::bigint from public.business_items where active $$,
+  $$ values (10::bigint) $$,
+  'anónimo lê itens ativos de empresas publicadas'
+);
+
 select is_empty(
   $$ select id from public.businesses where slug = 'estudio-mar-de-mentirinha' $$,
   'anónimo não lê rascunhos'
@@ -56,6 +70,11 @@ select set_config(
 select lives_ok(
   $$ update public.categories set description = 'Edição autorizada' where slug = 'gastronomia' $$,
   'editor gere conteúdo editorial'
+);
+
+select lives_ok(
+  $$ update public.plans set max_items = max_items where slug = 'plano-inicial' $$,
+  'editor gere planos comerciais'
 );
 
 select results_eq(

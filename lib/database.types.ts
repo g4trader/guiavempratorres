@@ -262,6 +262,62 @@ export type Database = {
           }
         ];
       };
+      business_items: {
+        Row: {
+          active: boolean;
+          business_id: string;
+          created_at: string;
+          cta_label: string | null;
+          cta_url: string | null;
+          description: string | null;
+          display_order: number;
+          id: string;
+          image: string | null;
+          price: number | null;
+          title: string;
+          type: Database["public"]["Enums"]["business_item_type"];
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          business_id: string;
+          created_at?: string;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          description?: string | null;
+          display_order?: number;
+          id?: string;
+          image?: string | null;
+          price?: number | null;
+          title: string;
+          type: Database["public"]["Enums"]["business_item_type"];
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          business_id?: string;
+          created_at?: string;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          description?: string | null;
+          display_order?: number;
+          id?: string;
+          image?: string | null;
+          price?: number | null;
+          title?: string;
+          type?: Database["public"]["Enums"]["business_item_type"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_items_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       business_hours: {
         Row: {
           business_id: string;
@@ -364,6 +420,7 @@ export type Database = {
           name: string;
           neighborhood: string | null;
           phone: string | null;
+          plan_id: string;
           postal_code: string | null;
           published_at: string | null;
           seo_description: string | null;
@@ -392,6 +449,7 @@ export type Database = {
           name: string;
           neighborhood?: string | null;
           phone?: string | null;
+          plan_id: string;
           postal_code?: string | null;
           published_at?: string | null;
           seo_description?: string | null;
@@ -420,6 +478,7 @@ export type Database = {
           name?: string;
           neighborhood?: string | null;
           phone?: string | null;
+          plan_id?: string;
           postal_code?: string | null;
           published_at?: string | null;
           seo_description?: string | null;
@@ -432,7 +491,15 @@ export type Database = {
           website_url?: string | null;
           whatsapp?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "businesses_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "plans";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       categories: {
         Row: {
@@ -476,6 +543,66 @@ export type Database = {
           seo_title?: string | null;
           slug?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      plans: {
+        Row: {
+          created_at: string;
+          featured_category: boolean;
+          featured_home: boolean;
+          gallery_enabled: boolean;
+          hero_allowed: boolean;
+          id: string;
+          instagram_enabled: boolean;
+          max_images: number;
+          max_items: number;
+          name: string;
+          premium_badge: boolean;
+          priority: number;
+          slug: string;
+          updated_at: string;
+          video_enabled: boolean;
+          website_enabled: boolean;
+          whatsapp_enabled: boolean;
+        };
+        Insert: {
+          created_at?: string;
+          featured_category?: boolean;
+          featured_home?: boolean;
+          gallery_enabled?: boolean;
+          hero_allowed?: boolean;
+          id?: string;
+          instagram_enabled?: boolean;
+          max_images?: number;
+          max_items?: number;
+          name: string;
+          premium_badge?: boolean;
+          priority?: number;
+          slug: string;
+          updated_at?: string;
+          video_enabled?: boolean;
+          website_enabled?: boolean;
+          whatsapp_enabled?: boolean;
+        };
+        Update: {
+          created_at?: string;
+          featured_category?: boolean;
+          featured_home?: boolean;
+          gallery_enabled?: boolean;
+          hero_allowed?: boolean;
+          id?: string;
+          instagram_enabled?: boolean;
+          max_images?: number;
+          max_items?: number;
+          name?: string;
+          premium_badge?: boolean;
+          priority?: number;
+          slug?: string;
+          updated_at?: string;
+          video_enabled?: boolean;
+          website_enabled?: boolean;
+          whatsapp_enabled?: boolean;
         };
         Relationships: [];
       };
@@ -574,6 +701,7 @@ export type Database = {
     };
     Enums: {
       admin_role: "super_admin" | "admin" | "editor";
+      business_item_type: "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG";
       business_status: "draft" | "published" | "suspended" | "archived";
       campaign_status: "draft" | "active" | "paused" | "archived";
       item_type: "product" | "service";
@@ -703,6 +831,7 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "admin", "editor"],
+      business_item_type: ["PRODUCT", "SERVICE", "PROMOTION", "MENU", "CATALOG"],
       business_status: ["draft", "published", "suspended", "archived"],
       campaign_status: ["draft", "active", "paused", "archived"],
       item_type: ["product", "service"],

@@ -65,14 +65,26 @@ export const businesses: Business[] = [
     email: null,
     websiteUrl: null,
     instagramUrl: null,
-    products: [
+    items: [
       {
-        name: "Menu do dia",
-        type: "service",
+        id: "demo-item-1",
+        title: "Menu do dia",
+        type: "MENU",
         description: "Sequência sazonal preparada pela casa.",
-        price: 79
+        image: null,
+        price: 79,
+        ctaLabel: null,
+        ctaUrl: null
       },
-      { name: "Experiência do chef", type: "service", description: "Menu degustação sob reserva." }
+      {
+        id: "demo-item-2",
+        title: "Experiência do chef",
+        type: "SERVICE",
+        description: "Menu degustação sob reserva.",
+        image: null,
+        ctaLabel: null,
+        ctaUrl: null
+      }
     ]
   },
   {
@@ -95,12 +107,16 @@ export const businesses: Business[] = [
     email: null,
     websiteUrl: null,
     instagramUrl: null,
-    products: [
+    items: [
       {
-        name: "Diária casal",
-        type: "service",
+        id: "demo-item-3",
+        title: "Diária casal",
+        type: "SERVICE",
         description: "Quarto com café da manhã.",
-        price: 320
+        image: null,
+        price: 320,
+        ctaLabel: null,
+        ctaUrl: null
       }
     ]
   },
@@ -124,12 +140,16 @@ export const businesses: Business[] = [
     email: null,
     websiteUrl: null,
     instagramUrl: null,
-    products: [
+    items: [
       {
-        name: "Roteiro de um dia",
-        type: "service",
+        id: "demo-item-4",
+        title: "Roteiro de um dia",
+        type: "SERVICE",
         description: "Transporte e acompanhamento.",
-        price: 190
+        image: null,
+        price: 190,
+        ctaLabel: null,
+        ctaUrl: null
       }
     ]
   }
