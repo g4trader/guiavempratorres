@@ -726,6 +726,54 @@ body:has(.admin-login) {
   color: #721c24;
   background: #f8d7da;
 }
+.admin-feedback {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 0.9rem 1rem;
+  color: #fff;
+  background: #137a65;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 16px 40px rgba(8, 48, 62, 0.24);
+}
+.admin-feedback.error {
+  background: #9f3030;
+}
+.admin-feedback > span {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+}
+.admin-feedback p {
+  margin: 0;
+  font-weight: 750;
+}
+.admin-feedback button {
+  padding: 0.25rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+@media (max-width: 640px) {
+  .admin-feedback {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+}
 .image-upload {
   display: grid;
   gap: 0.5rem;

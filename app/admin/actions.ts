@@ -88,6 +88,7 @@ export async function createPlan(formData: FormData) {
   const { error } = await client.from("plans").insert({ ...parsed.data, ...planFlags(formData) });
   if (error) adminError("/admin/planos", "Não foi possível criar o plano.");
   revalidatePath("/admin/planos");
+  redirect("/admin/planos?mensagem=Plano criado com sucesso.");
 }
 
 export async function updatePlan(formData: FormData) {
@@ -102,6 +103,7 @@ export async function updatePlan(formData: FormData) {
     .eq("id", id.data);
   if (error) adminError("/admin/planos", "Não foi possível atualizar o plano.");
   revalidatePath("/admin/planos");
+  redirect("/admin/planos?mensagem=Plano atualizado com sucesso.");
 }
 
 export async function deletePlan(formData: FormData) {
@@ -112,6 +114,7 @@ export async function deletePlan(formData: FormData) {
   const { error } = await client.from("plans").delete().eq("id", id.data);
   if (error) adminError("/admin/planos", "O plano está em uso ou não pode ser excluído.");
   revalidatePath("/admin/planos");
+  redirect("/admin/planos?mensagem=Plano excluído com sucesso.");
 }
 
 function parseItem(formData: FormData) {
@@ -142,6 +145,7 @@ export async function createBusinessItem(formData: FormData) {
   if (error) adminError("/admin/empresas", "Não foi possível criar o item.");
   revalidatePath("/admin/itens");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Item criado com sucesso.");
 }
 
 export async function updateBusinessItem(formData: FormData) {
@@ -157,6 +161,7 @@ export async function updateBusinessItem(formData: FormData) {
   if (error) adminError("/admin/empresas", "Não foi possível atualizar o item.");
   revalidatePath("/admin/itens");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Item atualizado com sucesso.");
 }
 
 export async function deleteBusinessItem(formData: FormData) {
@@ -168,4 +173,5 @@ export async function deleteBusinessItem(formData: FormData) {
   if (error) adminError("/admin/empresas", "Não foi possível excluir o item.");
   revalidatePath("/admin/itens");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Item excluído com sucesso.");
 }

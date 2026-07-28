@@ -2,11 +2,15 @@ import { redirect } from "next/navigation";
 import { updateAdminRole } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { canManageAdminRoles } from "@/lib/auth/authorization";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
-export default async function UsersAdminPage() {
+type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
+
+export default async function UsersAdminPage({ searchParams }: PageProps) {
   const { client, role } = await requireAdmin();
+  const { erro, mensagem } = await searchParams;
   if (!canManageAdminRoles(role)) redirect("/admin?erro=permissao");
   const { data, error } = await client
     .from("profiles")
@@ -24,6 +28,7 @@ export default async function UsersAdminPage() {
           </div>
           <span>{data.length} usuários</span>
         </div>
+        <AdminFeedback error={erro} message={mensagem} />
         <AdminCreatePanel title="Adicionar usuário">
           <p>
             Novos usuários devem concluir o cadastro no Supabase Auth. Depois disso, eles aparecem

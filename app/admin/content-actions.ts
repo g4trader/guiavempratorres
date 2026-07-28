@@ -38,6 +38,7 @@ export async function saveCategory(form: FormData) {
   if (error) fail("/admin/categorias", "Não foi possível salvar a categoria.");
   revalidatePath("/admin/categorias");
   revalidatePath("/");
+  redirect("/admin/categorias?mensagem=Categoria salva com sucesso.");
 }
 
 export async function deleteCategory(form: FormData) {
@@ -48,6 +49,7 @@ export async function deleteCategory(form: FormData) {
     .eq("id", uuid(form.get("id")));
   if (error) fail("/admin/categorias", "A categoria está em uso ou não pode ser excluída.");
   revalidatePath("/admin/categorias");
+  redirect("/admin/categorias?mensagem=Categoria excluída com sucesso.");
 }
 
 export async function saveBusiness(form: FormData) {
@@ -114,6 +116,7 @@ export async function saveBusiness(form: FormData) {
   revalidatePath("/admin/empresas");
   revalidatePath(`/empresas/${payload.slug}`);
   revalidatePath("/");
+  redirect("/admin/empresas?mensagem=Empresa salva com sucesso.");
 }
 
 export async function deleteBusiness(form: FormData) {
@@ -124,6 +127,7 @@ export async function deleteBusiness(form: FormData) {
     .eq("id", uuid(form.get("id")));
   if (error) fail("/admin/empresas", "A empresa possui vínculos e não pode ser excluída.");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Empresa excluída com sucesso.");
 }
 
 export async function saveGalleryImage(form: FormData) {
@@ -141,6 +145,7 @@ export async function saveGalleryImage(form: FormData) {
   });
   if (error) fail("/admin/empresas", "Não foi possível adicionar a imagem.");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Imagem adicionada à galeria.");
 }
 
 export async function deleteGalleryImage(form: FormData) {
@@ -159,6 +164,7 @@ export async function deleteGalleryImage(form: FormData) {
   const { error } = await client.from("business_media").delete().eq("id", id);
   if (error) fail("/admin/empresas", "Não foi possível remover a imagem.");
   revalidatePath("/admin/empresas");
+  redirect("/admin/empresas?mensagem=Imagem removida da galeria.");
 }
 
 export async function saveCampaign(form: FormData) {
@@ -205,6 +211,7 @@ export async function saveCampaign(form: FormData) {
   revalidatePath("/admin/campanhas");
   revalidatePath("/");
   revalidatePath("/categorias/[slug]", "page");
+  redirect("/admin/campanhas?mensagem=Banner salvo com sucesso.");
 }
 
 export async function deleteCampaign(form: FormData) {
@@ -216,6 +223,7 @@ export async function deleteCampaign(form: FormData) {
     .eq("id", uuid(form.get("id")));
   if (error) fail("/admin/campanhas", "Não foi possível excluir a campanha.");
   revalidatePath("/admin/campanhas");
+  redirect("/admin/campanhas?mensagem=Banner excluído com sucesso.");
 }
 
 export async function requestPasswordReset(form: FormData) {
@@ -244,4 +252,5 @@ export async function updateAdminRole(form: FormData) {
   const { error } = await client.from("admin_roles").upsert({ user_id: userId, role: nextRole });
   if (error) fail("/admin/usuarios", "Não foi possível atualizar o papel.");
   revalidatePath("/admin/usuarios");
+  redirect("/admin/usuarios?mensagem=Papel atualizado com sucesso.");
 }

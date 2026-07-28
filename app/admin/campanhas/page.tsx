@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { deleteCampaign, saveCampaign } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { CampaignAudienceFields } from "@/components/admin/CampaignAudienceFields";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
@@ -10,8 +11,11 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { canManageCampaigns } from "@/lib/auth/authorization";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
-export default async function CampaignsAdminPage() {
+type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
+
+export default async function CampaignsAdminPage({ searchParams }: PageProps) {
   const { client, role } = await requireAdmin();
+  const { erro, mensagem } = await searchParams;
   if (!canManageCampaigns(role)) redirect("/admin?erro=permissao");
   const [
     campaignsResult,
@@ -53,6 +57,7 @@ export default async function CampaignsAdminPage() {
           </div>
           <span>{campaignsResult.data.length} campanhas</span>
         </div>
+        <AdminFeedback error={erro} message={mensagem} />
         <AdminCreatePanel title="Nova campanha">
           <CampaignForm
             campaign={{

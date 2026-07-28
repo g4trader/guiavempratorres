@@ -1,11 +1,12 @@
 import { createPlan, deletePlan, updatePlan } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { PlanForm } from "@/components/admin/PlanForm";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
-type Props = { searchParams: Promise<{ erro?: string }> };
+type Props = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
 
 export default async function PlansPage({ searchParams }: Props) {
   const { client } = await requireAdmin();
@@ -13,7 +14,7 @@ export default async function PlansPage({ searchParams }: Props) {
     ascending: false
   });
   if (error) throw new Error("Não foi possível carregar os planos.");
-  const { erro } = await searchParams;
+  const { erro, mensagem } = await searchParams;
 
   return (
     <>
@@ -26,11 +27,7 @@ export default async function PlansPage({ searchParams }: Props) {
           </div>
           <span>{plans.length} cadastrados</span>
         </div>
-        {erro ? (
-          <p className="form-message error" role="alert">
-            {erro}
-          </p>
-        ) : null}
+        <AdminFeedback error={erro} message={mensagem} />
         <AdminCreatePanel title="Novo plano">
           <PlanForm action={createPlan} submitLabel="Criar plano" />
         </AdminCreatePanel>

@@ -31,6 +31,7 @@ test("edita empresas originadas do seed sem erro de UUID", async ({ page }) => {
     await details.getByRole("button", { name: "Salvar empresa" }).click();
     const response = await responsePromise;
     expect(response.status(), id).toBeLessThan(500);
+    await expect(page.getByRole("status")).toContainText("Empresa salva com sucesso.");
     await page.goto("/admin/empresas");
   }
 });

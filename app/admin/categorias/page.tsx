@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { deleteCategory, saveCategory } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -20,8 +21,11 @@ type Category = {
   seo_description: string | null;
 };
 
-export default async function CategoriesAdminPage() {
+type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
+
+export default async function CategoriesAdminPage({ searchParams }: PageProps) {
   const { client } = await requireAdmin();
+  const { erro, mensagem } = await searchParams;
   const { data, error } = await client.from("categories").select("*").order("display_order");
   if (error) throw new Error("Não foi possível carregar as categorias.");
   return (
@@ -35,6 +39,7 @@ export default async function CategoriesAdminPage() {
           </div>
           <span>{data.length} cadastradas</span>
         </div>
+        <AdminFeedback error={erro} message={mensagem} />
         <AdminCreatePanel title="Nova categoria">
           <CategoryForm category={{ id: randomUUID() }} />
         </AdminCreatePanel>

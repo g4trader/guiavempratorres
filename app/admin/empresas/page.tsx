@@ -12,6 +12,7 @@ import {
 } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
@@ -20,8 +21,11 @@ import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
-export default async function BusinessesAdminPage() {
+type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
+
+export default async function BusinessesAdminPage({ searchParams }: PageProps) {
   const { client } = await requireAdmin();
+  const { erro, mensagem } = await searchParams;
   const [businessesResult, plansResult, categoriesResult, relationsResult, mediaResult, itemsResult] =
     await Promise.all([
       client.from("businesses").select("*").order("name"),
@@ -52,6 +56,7 @@ export default async function BusinessesAdminPage() {
           </div>
           <span>{businessesResult.data.length} cadastradas</span>
         </div>
+        <AdminFeedback error={erro} message={mensagem} />
         <AdminCreatePanel title="Nova empresa">
           <BusinessForm
             business={{ id: randomUUID(), city: "Torres", status: "draft" }}

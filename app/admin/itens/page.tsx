@@ -2,11 +2,14 @@ import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/ap
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
-type Props = { searchParams: Promise<{ erro?: string; busca?: string; tipo?: string }> };
+type Props = {
+  searchParams: Promise<{ erro?: string; mensagem?: string; busca?: string; tipo?: string }>;
+};
 
 export default async function ItemsPage({ searchParams }: Props) {
   const { client } = await requireAdmin();
@@ -39,11 +42,7 @@ export default async function ItemsPage({ searchParams }: Props) {
           </div>
           <span>{items.length} encontrados</span>
         </div>
-        {params.erro ? (
-          <p className="form-message error" role="alert">
-            {params.erro}
-          </p>
-        ) : null}
+        <AdminFeedback error={params.erro} message={params.mensagem} />
         <form className="panel admin-filters">
           <label>
             Pesquisa
