@@ -143,7 +143,7 @@ select throws_ok(
        (select id from public.ad_placements where code = 'HOME_HERO'),
        'active', now(), now() - interval '1 day', '/empresas/bistro-horizonte-teste'
      ) $$,
-  '23514',
+  '22000',
   null,
   'período inválido é bloqueado'
 );

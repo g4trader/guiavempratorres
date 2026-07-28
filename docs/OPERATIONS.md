@@ -35,9 +35,23 @@ Deploy de Preview só ocorre após projeto/equipe/variáveis terem sido auditado
 ## Projetos confirmados
 
 - Vercel: equipe `vem-pra-torres`, projeto `guiavempratorres`;
-- Supabase oficial: pendente de criação, nome obrigatório `guiavempratorres`,
-  organização `ljfsuuapozqveecvqwxy`, região `sa-east-1`;
+- Supabase oficial: `guiavempratorres`, project ref
+  `lcfkoltbcpaoauzlegsl`, organização `ljfsuuapozqveecvqwxy`, região
+  `sa-east-1`, estado `ACTIVE_HEALTHY`;
 - GCP: `guiavempratorres`, região aprovada `southamerica-east1`.
+
+### Ativação do Supabase Cloud
+
+Ativação validada em 2026-07-27:
+
+- o repositório foi vinculado somente ao projeto oficial em São Paulo;
+- as migrations `20260727210000_initial_schema.sql` e
+  `20260727211000_storage.sql` foram aplicadas;
+- o seed contém exclusivamente dados fictícios versionados;
+- o lint remoto não encontrou erros;
+- a suíte pgTAP foi executada remotamente em transação com rollback;
+- o projeto anterior em Ohio não está vinculado ao repositório;
+- nenhum secret de produção ou deploy de produção foi configurado.
 
 ## Deployment inicial da Vercel
 
