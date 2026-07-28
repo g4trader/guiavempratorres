@@ -4,6 +4,7 @@ import { deleteCampaign, saveCampaign } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
+import { CampaignAudienceFields } from "@/components/admin/CampaignAudienceFields";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { canManageCampaigns } from "@/lib/auth/authorization";
@@ -150,50 +151,14 @@ function CampaignForm({
         name="placement_id"
         value={campaign.placement_id ?? heroPlacement?.id ?? ""}
       />
-      <div className="admin-form-row">
-        <label>
-          Exibição do Hero
-          <select name="audience" required defaultValue={campaign.audience ?? "HOME"}>
-            <option value="HOME">Somente na Home</option>
-            <option value="SITE">Em todo o site</option>
-            <option value="CATEGORIES">Categorias específicas</option>
-          </select>
-        </label>
-        <label>
-          Empresa
-          <select name="business_id" required defaultValue={campaign.business_id ?? ""}>
-            <option value="">Selecione</option>
-            {businesses.map((business) => (
-              <option key={business.id} value={business.id}>
-                {business.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Status
-          <select name="status" defaultValue={campaign.status}>
-            <option value="draft">Rascunho</option>
-            <option value="active">Ativa</option>
-            <option value="paused">Pausada</option>
-            <option value="archived">Arquivada</option>
-          </select>
-        </label>
-      </div>
-      <fieldset className="checkbox-grid">
-        <legend>Categorias específicas</legend>
-        {categories.map((category) => (
-          <label key={category.id}>
-            <input
-              type="checkbox"
-              name="category_ids"
-              value={category.id}
-              defaultChecked={categoryIds.includes(category.id)}
-            />
-            {category.name}
-          </label>
-        ))}
-      </fieldset>
+      <CampaignAudienceFields
+        audience={campaign.audience ?? "HOME"}
+        businesses={businesses}
+        businessId={campaign.business_id ?? ""}
+        categories={categories}
+        categoryIds={categoryIds}
+        status={campaign.status}
+      />
       <div className="admin-form-row">
         <label>
           Início

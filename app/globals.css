@@ -555,6 +555,9 @@ body:has(.admin-login) {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
 }
+.checkbox-grid[hidden] {
+  display: none;
+}
 .checkbox-grid label,
 .checkbox-line {
   display: flex;
