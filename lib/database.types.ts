@@ -262,6 +262,47 @@ export type Database = {
           }
         ];
       };
+      business_hours: {
+        Row: {
+          business_id: string;
+          closes_at: string | null;
+          created_at: string;
+          day_of_week: number;
+          id: string;
+          is_closed: boolean;
+          opens_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          business_id: string;
+          closes_at?: string | null;
+          created_at?: string;
+          day_of_week: number;
+          id?: string;
+          is_closed?: boolean;
+          opens_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          closes_at?: string | null;
+          created_at?: string;
+          day_of_week?: number;
+          id?: string;
+          is_closed?: boolean;
+          opens_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_hours_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       business_items: {
         Row: {
           active: boolean;
@@ -311,47 +352,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "business_items_business_id_fkey";
-            columns: ["business_id"];
-            isOneToOne: false;
-            referencedRelation: "businesses";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      business_hours: {
-        Row: {
-          business_id: string;
-          closes_at: string | null;
-          created_at: string;
-          day_of_week: number;
-          id: string;
-          is_closed: boolean;
-          opens_at: string | null;
-          updated_at: string;
-        };
-        Insert: {
-          business_id: string;
-          closes_at?: string | null;
-          created_at?: string;
-          day_of_week: number;
-          id?: string;
-          is_closed?: boolean;
-          opens_at?: string | null;
-          updated_at?: string;
-        };
-        Update: {
-          business_id?: string;
-          closes_at?: string | null;
-          created_at?: string;
-          day_of_week?: number;
-          id?: string;
-          is_closed?: boolean;
-          opens_at?: string | null;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "business_hours_business_id_fkey";
             columns: ["business_id"];
             isOneToOne: false;
             referencedRelation: "businesses";
