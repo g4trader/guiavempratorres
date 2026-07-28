@@ -242,6 +242,22 @@ body:has(.admin-login) {
   background: #e5ecef;
 }
 
+.admin-status-icon.is-draft {
+  color: #4b6474;
+  background: #e5eef2;
+}
+
+.admin-status-icon.is-paused {
+  color: #7b4b08;
+  background: #ffecbd;
+  box-shadow: 0 0 0 4px rgba(224, 179, 74, 0.12);
+}
+
+.admin-status-icon.is-archived {
+  color: #65737d;
+  background: #e2e6e9;
+}
+
 .admin-list details[open] summary::after {
   transform: rotate(-90deg);
 }
@@ -380,6 +396,11 @@ body:has(.admin-login) {
 
 .admin-item-actions {
   gap: 0.5rem;
+}
+
+.admin-item-actions .admin-status-icon {
+  margin-left: 0;
+  margin-right: 0.25rem;
 }
 
 .admin-icon-button,

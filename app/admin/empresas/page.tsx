@@ -13,6 +13,7 @@ import {
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { AdminModal } from "@/components/admin/AdminModal";
+import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -62,7 +63,7 @@ export default async function BusinessesAdminPage() {
             <details className="panel" key={business.id}>
               <summary>
                 <strong>{business.name}</strong>
-                <span>{business.status}</span>
+                <AdminStatusIcon status={business.status} />
               </summary>
               <BusinessForm
                 business={business}
@@ -136,11 +137,14 @@ function BusinessItemsManager({
             <div className="admin-item-row" key={item.id}>
               <div>
                 <strong>{item.title}</strong>
-                <span>
-                  {item.type} · {item.active ? "Ativo" : "Inativo"}
-                </span>
+                <span>{item.type}</span>
               </div>
               <div className="admin-item-actions">
+                <AdminStatusIcon
+                  status={item.active}
+                  activeLabel="Item ativo"
+                  inactiveLabel="Item inativo"
+                />
                 <AdminModal title={`Editar · ${item.title}`} triggerLabel={`Editar ${item.title}`} compact>
                   <BusinessItemForm
                     action={updateBusinessItem}

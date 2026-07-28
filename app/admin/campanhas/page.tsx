@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { deleteCampaign, saveCampaign } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { canManageCampaigns } from "@/lib/auth/authorization";
@@ -76,7 +77,7 @@ export default async function CampaignsAdminPage() {
                       ?.name
                   }
                 </strong>
-                <span>{campaign.status}</span>
+                <AdminStatusIcon status={campaign.status} />
               </summary>
               <CampaignForm
                 campaign={campaign}

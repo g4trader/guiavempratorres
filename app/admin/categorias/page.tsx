@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { deleteCategory, saveCategory } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
+import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -42,13 +43,10 @@ export default async function CategoriesAdminPage() {
             <details className="panel" key={category.id}>
               <summary>
                 <strong>{category.name}</strong>
-                <span
-                  className={`admin-status-icon ${category.is_active ? "is-active" : "is-inactive"}`}
-                  title={category.is_active ? "Categoria ativa" : "Categoria inativa"}
-                  aria-label={category.is_active ? "Categoria ativa" : "Categoria inativa"}
-                >
-                  <span aria-hidden="true">{category.is_active ? "✓" : "—"}</span>
-                </span>
+                <AdminStatusIcon
+                  status={category.is_active}
+                  activeLabel="Categoria ativa"
+                />
               </summary>
               <CategoryForm category={category} />
               <form action={deleteCategory} className="danger-zone">

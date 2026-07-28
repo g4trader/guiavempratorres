@@ -1,5 +1,6 @@
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
@@ -78,6 +79,11 @@ export default async function ItemsPage({ searchParams }: Props) {
                 <span>
                   {item.businesses?.name} · {item.type}
                 </span>
+                <AdminStatusIcon
+                  status={item.active}
+                  activeLabel="Item ativo"
+                  inactiveLabel="Item inativo"
+                />
               </summary>
               <BusinessItemForm
                 action={updateBusinessItem}
