@@ -1581,6 +1581,73 @@ h2 {
   margin: 0.5rem 0 1.25rem;
 }
 
+.business-card-actions,
+.business-card-links {
+  display: flex;
+  align-items: center;
+}
+
+.business-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.business-card .card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.business-card-actions {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.business-card-links {
+  gap: 0.5rem;
+}
+
+.business-card-link {
+  display: grid;
+  width: 2.65rem;
+  height: 2.65rem;
+  place-items: center;
+  color: var(--color-ink);
+  background: #f5f9fa;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.business-card-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.business-card-link:hover {
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+.business-card-link.whatsapp:hover {
+  background: #25d366;
+}
+
+.business-card-link.instagram:hover {
+  background: #d62976;
+}
+
+.business-card-link.maps:hover {
+  background: #4285f4;
+}
+
 .premium-badge {
   margin-bottom: 0.65rem;
   color: #78420e;

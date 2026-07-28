@@ -37,6 +37,18 @@ test("busca encontra empresas, categorias e itens", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Bistrô Horizonte Teste" })).toBeVisible();
 });
 
+test("cards de empresas exibem atalhos de contato e localização", async ({ page }) => {
+  await page.goto("/");
+  const homeCard = page.locator(".business-card").first();
+  await expect(homeCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
+  await expect(homeCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
+
+  await page.goto("/categorias/gastronomia");
+  const categoryCard = page.locator(".business-card").first();
+  await expect(categoryCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
+  await expect(categoryCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
+});
+
 test("área administrativa exige autenticação", async ({ page }) => {
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Área administrativa" })).toBeVisible();
