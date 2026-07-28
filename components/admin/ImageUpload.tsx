@@ -11,6 +11,33 @@ type Bucket =
   | "product-service-images"
   | "ad-creatives";
 
+const uploadRules: Record<Bucket, { maxBytes: number; acceptedTypes: string[] }> = {
+  "category-images": {
+    maxBytes: 5 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  },
+  "business-logos": {
+    maxBytes: 2 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/svg+xml"]
+  },
+  "business-hero-images": {
+    maxBytes: 8 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  },
+  "business-gallery": {
+    maxBytes: 8 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  },
+  "product-service-images": {
+    maxBytes: 5 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  },
+  "ad-creatives": {
+    maxBytes: 8 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  }
+};
+
 export function ImageUpload({
   bucket,
   entityId,
@@ -29,10 +56,19 @@ export function ImageUpload({
   const [preview, setPreview] = useState(currentPath ? publicUrl(currentPath) : "");
   const [status, setStatus] = useState("");
   const [dragging, setDragging] = useState(false);
+  const rule = uploadRules[bucket];
 
   async function upload(file: File) {
-    if (!file.type.startsWith("image/")) {
-      setStatus("Selecione uma imagem válida.");
+    if (!rule.acceptedTypes.includes(file.type)) {
+      setStatus(
+        bucket === "business-logos"
+          ? "Formato inválido. Use JPG, PNG, WebP, AVIF ou SVG."
+          : "Formato inválido. Use JPG, PNG, WebP ou AVIF."
+      );
+      return;
+    }
+    if (file.size > rule.maxBytes) {
+      setStatus(`Arquivo muito pesado. O limite é ${rule.maxBytes / 1024 / 1024} MB.`);
       return;
     }
     setStatus("Enviando…");
@@ -102,7 +138,7 @@ export function ImageUpload({
         ref={inputRef}
         className="sr-only"
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml"
+        accept={rule.acceptedTypes.join(",")}
         onChange={(event) => {
           const file = event.target.files?.[0];
           if (file) void upload(file);
