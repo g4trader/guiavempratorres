@@ -76,9 +76,34 @@ img {
   gap: 1rem;
 }
 .brand {
-  font: 700 1.35rem/1 var(--font-heading);
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  color: var(--color-brand-primary);
+}
+.brand-logo {
+  width: 10.5rem;
+  height: auto;
+}
+.footer-logo {
+  width: 10.5rem;
+  height: auto;
+  margin-bottom: 0.75rem;
+}
+.admin-logo {
+  width: 10rem;
+  height: auto;
+  margin-bottom: 1rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .nav-links {
   display: flex;
@@ -122,6 +147,61 @@ img {
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
+}
+.hero-carousel {
+  position: relative;
+}
+.hero-campaign-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 28rem;
+  object-fit: cover;
+}
+.hero-empty {
+  grid-template-columns: 1fr;
+}
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.carousel-arrow,
+.carousel-dot {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.carousel-arrow {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  font-size: 1.25rem;
+}
+.carousel-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+.carousel-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  border-radius: 999px;
+}
+.carousel-dot[aria-current="true"] {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary);
+}
+.demo-notice {
+  padding: 0.65rem 1rem;
+  text-align: center;
+  color: var(--color-text);
+  background: #fff4cf;
+  border-bottom: 1px solid #e0b34a;
+  font-size: 0.9rem;
 }
 .hero-copy {
   padding: clamp(2rem, 6vw, 4.5rem);
@@ -258,6 +338,10 @@ h2 {
   .hero-image {
     grid-row: 1;
     min-height: 16rem;
+  }
+  .hero-campaign-image {
+    min-height: 16rem;
+    aspect-ratio: 4 / 3;
   }
   .grid {
     grid-template-columns: 1fr 1fr;

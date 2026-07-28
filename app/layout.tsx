@@ -1,12 +1,39 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Logo } from "@/components/layout/Logo";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: { default: "Guia Vem Pra Torres", template: "%s | Guia Vem Pra Torres" },
   description: "Empresas, profissionais, produtos e serviços de Torres e região.",
-  openGraph: { locale: "pt_BR", type: "website", siteName: "Guia Vem Pra Torres" }
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/placeholders/apple-touch-icon.svg", type: "image/svg+xml" }]
+  },
+  openGraph: {
+    locale: "pt_BR",
+    type: "website",
+    siteName: "Guia Vem Pra Torres",
+    images: [
+      {
+        url: "/placeholders/hero-desktop.svg",
+        width: 1600,
+        height: 720,
+        alt: "Placeholder do Guia Vem Pra Torres"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/placeholders/hero-desktop.svg"]
+  }
+};
+
+export const viewport = {
+  themeColor: "#2d9d78"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -19,7 +46,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <header className="site-header">
           <nav className="container nav" aria-label="Navegação principal">
             <Link className="brand" href="/">
-              Vem pra Torres · Guia
+              <Logo priority className="brand-logo" />
+              <span className="sr-only">Guia Vem Pra Torres</span>
             </Link>
             <div className="nav-links">
               <Link href="/#categorias">Categorias</Link>
@@ -34,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <footer className="site-footer">
           <div className="container footer-grid">
             <div>
-              <strong>Guia Vem Pra Torres</strong>
+              <Logo variant="light" className="footer-logo" />
               <p>Descubra o melhor de Torres e região.</p>
             </div>
             <div>
