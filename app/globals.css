@@ -656,6 +656,44 @@ body:has(.admin-login) {
   display: grid;
   gap: 2rem;
 }
+.contact-ctas {
+  display: grid;
+  gap: 0.75rem;
+  margin-block: 1rem 1.25rem;
+}
+.social-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 3.25rem;
+  padding: 0.8rem 1.15rem;
+  color: white;
+  border-radius: 999px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 9px 22px rgba(8, 42, 61, 0.13);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.social-cta:hover {
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 13px 28px rgba(8, 42, 61, 0.2);
+}
+.social-cta svg {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.social-cta.whatsapp {
+  background: #25d366;
+}
+.social-cta.instagram {
+  background: linear-gradient(110deg, #ffb02e 0%, #f02e75 48%, #7528c6 100%);
+}
 .admin-list {
   display: grid;
   gap: 1rem;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedBusinessBySlug } from "@/lib/data/directory";
 import { BusinessRating } from "@/components/business/BusinessRating";
+import { InstagramIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { GalleryImage } from "@/components/media/GalleryImage";
 import { HeroImage } from "@/components/media/HeroImage";
 import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
@@ -78,13 +79,6 @@ export default async function BusinessPage({ params }: Props) {
         : undefined
   };
   const contacts = [
-    business.whatsapp
-      ? {
-          label: "WhatsApp",
-          value: business.whatsapp,
-          href: `https://wa.me/${business.whatsapp.replace(/\D/g, "")}`
-        }
-      : null,
     business.phone
       ? {
           label: "Telefone",
@@ -94,9 +88,6 @@ export default async function BusinessPage({ params }: Props) {
       : null,
     business.websiteUrl
       ? { label: "Website", value: business.websiteUrl, href: business.websiteUrl }
-      : null,
-    business.instagramUrl
-      ? { label: "Instagram", value: business.instagramUrl, href: business.instagramUrl }
       : null,
     business.email
       ? { label: "E-mail", value: business.email, href: `mailto:${business.email}` }
@@ -183,9 +174,37 @@ export default async function BusinessPage({ params }: Props) {
             business={business}
             currentRating={userRating?.rating ?? null}
           />
-          {contacts.length > 0 ? (
+          {contacts.length > 0 || business.whatsapp || business.instagramUrl ? (
             <div className="panel">
               <h2>Contatos</h2>
+              {business.whatsapp || business.instagramUrl ? (
+                <div className="contact-ctas">
+                  {business.whatsapp ? (
+                    <a
+                      className="social-cta whatsapp"
+                      href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Falar com ${business.name} pelo WhatsApp`}
+                    >
+                      <WhatsAppIcon />
+                      <span>Chamar no WhatsApp</span>
+                    </a>
+                  ) : null}
+                  {business.instagramUrl ? (
+                    <a
+                      className="social-cta instagram"
+                      href={business.instagramUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Ver ${business.name} no Instagram`}
+                    >
+                      <InstagramIcon />
+                      <span>Ver no Instagram</span>
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
               {contacts.map((contact) => (
                 <p key={contact.label}>
                   <a href={contact.href} target="_blank" rel="noreferrer">
