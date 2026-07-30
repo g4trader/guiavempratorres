@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { z } from "zod";
+import { explainDatabaseError } from "@/lib/admin/action-errors";
 import { requireAdmin, createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
 import { slugify } from "@/lib/domain";
 import { databaseUuid } from "@/lib/validation/database";
@@ -20,17 +21,21 @@ const planSchema = z.object({
   priority: z.coerce.number().int()
 });
 
-const itemSchema = z.object({
-  business_id: databaseUuid,
-  type: z.enum(["PRODUCT", "SERVICE", "PROMOTION", "MENU", "CATALOG"]),
-  title: z.string().min(2).max(140),
-  description: z.string().nullable(),
-  image: z.string().nullable(),
-  price: z.number().min(0).nullable(),
-  cta_label: z.string().nullable(),
-  cta_url: z.string().url().nullable(),
-  display_order: z.coerce.number().int().min(0)
-});
+const itemSchema = z
+  .object({
+    business_id: databaseUuid,
+    type: z.enum(["PRODUCT", "SERVICE", "PROMOTION", "MENU", "CATALOG"]),
+    title: z.string().min(2).max(140),
+    description: z.string().nullable(),
+    image: z.string().nullable(),
+    price: z.number().min(0).nullable(),
+    cta_label: z.string().nullable(),
+    cta_url: z.string().url().nullable(),
+    display_order: z.coerce.number().int().min(0)
+  })
+  .refine((item) => Boolean(item.cta_label) === Boolean(item.cta_url), {
+    message: "Informe o texto e o link do CTA juntos."
+  });
 
 function adminError(
   path: "/admin" | "/admin/planos" | "/admin/itens" | "/admin/empresas",
@@ -39,12 +44,23 @@ function adminError(
   redirect(`${path}?erro=${encodeURIComponent(message)}` as Route);
 }
 
+function planValidationMessage(parsed: z.ZodSafeParseResult<z.infer<typeof planSchema>>) {
+  if (parsed.success) return null;
+  const field = parsed.error.issues[0]?.path[0];
+  if (field === "name") return "O nome do plano deve ter entre 2 e 100 caracteres.";
+  if (field === "slug") return "O slug deve conter apenas letras minúsculas, números e hífens.";
+  if (field === "max_images") return "O máximo de imagens deve ser um número inteiro igual ou maior que zero.";
+  if (field === "max_items") return "O máximo de itens deve ser um número inteiro igual ou maior que zero.";
+  if (field === "priority") return "A prioridade deve ser um número inteiro.";
+  return "Revise os campos obrigatórios do plano.";
+}
+
 export async function signIn(formData: FormData) {
   const client = await createAuthenticatedServerClient();
   if (!client) adminError("/admin", "Supabase não configurado.");
-
   const email = textValue(formData, "email");
   const password = String(formData.get("password") ?? "");
+  if (!email || !password) adminError("/admin", "Informe o e-mail e a senha.");
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error) adminError("/admin", "E-mail ou senha inválidos.");
   redirect("/admin");
@@ -81,40 +97,44 @@ function planFlags(formData: FormData) {
 }
 
 export async function createPlan(formData: FormData) {
+  const path = "/admin/planos";
   const { client } = await requireAdmin();
   const parsed = parsePlan(formData);
-  if (!parsed.success) adminError("/admin/planos", "Revise os campos do plano.");
-
+  const validationMessage = planValidationMessage(parsed);
+  if (!parsed.success) adminError(path, validationMessage!);
   const { error } = await client.from("plans").insert({ ...parsed.data, ...planFlags(formData) });
-  if (error) adminError("/admin/planos", "Não foi possível criar o plano.");
-  revalidatePath("/admin/planos");
-  redirect("/admin/planos?mensagem=Plano criado com sucesso.");
+  if (error) adminError(path, explainDatabaseError(error, "Não foi possível criar o plano."));
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Plano criado com sucesso.`);
 }
 
 export async function updatePlan(formData: FormData) {
+  const path = "/admin/planos";
   const { client } = await requireAdmin();
   const id = databaseUuid.safeParse(formData.get("id"));
+  if (!id.success) adminError(path, "Plano inválido. Atualize a página e tente novamente.");
   const parsed = parsePlan(formData);
-  if (!id.success || !parsed.success) adminError("/admin/planos", "Revise os campos do plano.");
-
+  const validationMessage = planValidationMessage(parsed);
+  if (!parsed.success) adminError(path, validationMessage!);
   const { error } = await client
     .from("plans")
     .update({ ...parsed.data, ...planFlags(formData) })
     .eq("id", id.data);
-  if (error) adminError("/admin/planos", "Não foi possível atualizar o plano.");
-  revalidatePath("/admin/planos");
-  redirect("/admin/planos?mensagem=Plano atualizado com sucesso.");
+  if (error) adminError(path, explainDatabaseError(error, "Não foi possível atualizar o plano."));
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Plano atualizado com sucesso.`);
 }
 
 export async function deletePlan(formData: FormData) {
+  const path = "/admin/planos";
   const { client } = await requireAdmin();
   const id = databaseUuid.safeParse(formData.get("id"));
-  if (!id.success) adminError("/admin/planos", "Plano inválido.");
-
+  if (!id.success) adminError(path, "Plano inválido. Atualize a página e tente novamente.");
   const { error } = await client.from("plans").delete().eq("id", id.data);
-  if (error) adminError("/admin/planos", "O plano está em uso ou não pode ser excluído.");
-  revalidatePath("/admin/planos");
-  redirect("/admin/planos?mensagem=Plano excluído com sucesso.");
+  if (error)
+    adminError(path, explainDatabaseError(error, "O plano está vinculado a empresas e não pode ser excluído."));
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Plano excluído com sucesso.`);
 }
 
 function parseItem(formData: FormData) {
@@ -129,49 +149,61 @@ function parseItem(formData: FormData) {
     image: optionalText(formData, "image"),
     price: priceText ? Number(priceText) : null,
     cta_label: ctaLabel,
-    cta_url: ctaLabel ? ctaUrl : null,
+    cta_url: ctaUrl,
     display_order: formData.get("display_order")
   });
 }
 
+function itemValidationMessage(parsed: ReturnType<typeof parseItem>) {
+  if (parsed.success) return null;
+  const field = parsed.error.issues[0]?.path[0];
+  if (field === "business_id") return "Selecione uma empresa válida para o item.";
+  if (field === "title") return "O título do item deve ter entre 2 e 140 caracteres.";
+  if (field === "price") return "O preço deve ser um número igual ou maior que zero.";
+  if (field === "cta_url") return "Informe um link completo e válido para o CTA, começando com https://.";
+  if (field === "display_order") return "A ordem deve ser um número inteiro igual ou maior que zero.";
+  return parsed.error.issues[0]?.message ?? "Revise os campos obrigatórios do item.";
+}
+
 export async function createBusinessItem(formData: FormData) {
+  const path = "/admin/empresas";
   const { client } = await requireAdmin();
   const parsed = parseItem(formData);
-  if (!parsed.success) adminError("/admin/empresas", "Revise os campos do item.");
-
+  if (!parsed.success) adminError(path, itemValidationMessage(parsed)!);
   const { error } = await client
     .from("business_items")
     .insert({ ...parsed.data, active: booleanValue(formData, "active") });
-  if (error) adminError("/admin/empresas", "Não foi possível criar o item.");
+  if (error) adminError(path, explainDatabaseError(error, "Não foi possível criar o item."));
   revalidatePath("/admin/itens");
-  revalidatePath("/admin/empresas");
-  redirect("/admin/empresas?mensagem=Item criado com sucesso.");
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Item criado com sucesso.`);
 }
 
 export async function updateBusinessItem(formData: FormData) {
+  const path = "/admin/empresas";
   const { client } = await requireAdmin();
   const id = databaseUuid.safeParse(formData.get("id"));
+  if (!id.success) adminError(path, "Item inválido. Atualize a página e tente novamente.");
   const parsed = parseItem(formData);
-  if (!id.success || !parsed.success) adminError("/admin/empresas", "Revise os campos do item.");
-
+  if (!parsed.success) adminError(path, itemValidationMessage(parsed)!);
   const { error } = await client
     .from("business_items")
     .update({ ...parsed.data, active: booleanValue(formData, "active") })
     .eq("id", id.data);
-  if (error) adminError("/admin/empresas", "Não foi possível atualizar o item.");
+  if (error) adminError(path, explainDatabaseError(error, "Não foi possível atualizar o item."));
   revalidatePath("/admin/itens");
-  revalidatePath("/admin/empresas");
-  redirect("/admin/empresas?mensagem=Item atualizado com sucesso.");
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Item atualizado com sucesso.`);
 }
 
 export async function deleteBusinessItem(formData: FormData) {
+  const path = "/admin/empresas";
   const { client } = await requireAdmin();
   const id = databaseUuid.safeParse(formData.get("id"));
-  if (!id.success) adminError("/admin/empresas", "Item inválido.");
-
+  if (!id.success) adminError(path, "Item inválido. Atualize a página e tente novamente.");
   const { error } = await client.from("business_items").delete().eq("id", id.data);
-  if (error) adminError("/admin/empresas", "Não foi possível excluir o item.");
+  if (error) adminError(path, explainDatabaseError(error, "Não foi possível excluir o item."));
   revalidatePath("/admin/itens");
-  revalidatePath("/admin/empresas");
-  redirect("/admin/empresas?mensagem=Item excluído com sucesso.");
+  revalidatePath(path);
+  redirect(`${path}?mensagem=Item excluído com sucesso.`);
 }

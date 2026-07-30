@@ -72,9 +72,14 @@ function CategoryForm({ category }: { category: Partial<Category> & { id: string
   return (
     <form action={saveCategory} className="admin-form">
       <input type="hidden" name="id" value={category.id} />
+      <p className="field-hint">
+        <strong className="required-mark">*</strong> Campos obrigatórios
+      </p>
       <div className="admin-form-row">
         <label>
-          Nome
+          <span>
+            Nome <strong className="required-mark">*</strong>
+          </span>
           <input name="name" required defaultValue={category.name} />
         </label>
         <label>

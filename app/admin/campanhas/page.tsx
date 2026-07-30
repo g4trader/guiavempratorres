@@ -6,6 +6,7 @@ import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { CampaignAudienceFields } from "@/components/admin/CampaignAudienceFields";
+import { CampaignPeriodFields } from "@/components/admin/CampaignPeriodFields";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { canManageCampaigns } from "@/lib/auth/authorization";
@@ -151,6 +152,9 @@ function CampaignForm({
   return (
     <form action={saveCampaign} className="admin-form">
       <input type="hidden" name="id" value={campaign.id} />
+      <p className="field-hint">
+        <strong className="required-mark">*</strong> Campos obrigatórios
+      </p>
       <input
         type="hidden"
         name="placement_id"
@@ -164,37 +168,20 @@ function CampaignForm({
         categoryIds={categoryIds}
         status={campaign.status}
       />
-      <div className="admin-form-row">
-        <label>
-          Início
-          <input
-            name="starts_at"
-            type="datetime-local"
-            required
-            defaultValue={campaign.starts_at.slice(0, 16)}
-          />
-        </label>
-        <label>
-          Fim
-          <input
-            name="ends_at"
-            type="datetime-local"
-            required
-            defaultValue={campaign.ends_at.slice(0, 16)}
-          />
-        </label>
-        <label>
-          Ordem
-          <input name="display_order" type="number" min="0" defaultValue={campaign.display_order} />
-        </label>
-      </div>
+      <CampaignPeriodFields
+        startsAt={campaign.starts_at.slice(0, 16)}
+        endsAt={campaign.ends_at.slice(0, 16)}
+        displayOrder={campaign.display_order}
+      />
       <div className="admin-form-row">
         <label>
           Prioridade
           <input name="priority" type="number" defaultValue={campaign.priority} />
         </label>
         <label>
-          Caminho interno
+          <span>
+            Caminho interno <strong className="required-mark">*</strong>
+          </span>
           <input
             name="internal_path"
             required
@@ -221,7 +208,9 @@ function CampaignForm({
         />
       </div>
       <label>
-        Texto alternativo
+        <span>
+          Texto alternativo <strong className="required-mark">*</strong>
+        </span>
         <input name="image_alt" required defaultValue={creative?.image_alt ?? ""} />
       </label>
       <label>

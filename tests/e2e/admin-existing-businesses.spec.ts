@@ -24,6 +24,24 @@ test("edita empresas originadas do seed sem erro de UUID", async ({ page }) => {
     });
     const id = await details.locator('input[name="id"]').first().inputValue();
     if (!id.startsWith("20000000-")) continue;
+    if (index === 0) {
+      const commercial = details.locator(".admin-commercial-fieldset");
+      const featured = commercial.getByRole("checkbox", {
+        name: "Exibir em “Empresas em destaque”"
+      });
+      if (!(await featured.isChecked())) await featured.check();
+      const order = commercial.getByLabel("Ordem");
+      await order.fill("");
+      await expect(commercial.getByText("Informe a ordem de exibição do destaque.")).toBeVisible();
+      await order.fill("1");
+      const startsAt = commercial.getByLabel("Início da veiculação");
+      const endsAt = commercial.getByLabel("Fim da veiculação");
+      await startsAt.fill("2026-08-01T10:00");
+      await endsAt.fill("2026-08-01T10:00");
+      await expect(commercial.getByText("A data final deve ser posterior à data inicial.")).toBeVisible();
+      await page.goto("/admin/empresas");
+      continue;
+    }
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes("/admin/empresas") && response.request().method() === "POST"

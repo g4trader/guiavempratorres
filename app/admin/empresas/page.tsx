@@ -16,6 +16,7 @@ import { AdminFeedback } from "@/components/admin/AdminFeedback";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
+import { BusinessCommercialFields } from "@/components/admin/BusinessCommercialFields";
 import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -193,9 +194,14 @@ function BusinessForm({
   return (
     <form action={saveBusiness} className="admin-form">
       <input type="hidden" name="id" value={business.id} />
+      <p className="field-hint">
+        <strong className="required-mark">*</strong> Campos obrigatórios
+      </p>
       <div className="admin-form-row">
         <label>
-          Nome
+          <span>
+            Nome <strong className="required-mark">*</strong>
+          </span>
           <input name="name" required defaultValue={value("name")} />
         </label>
         <label>
@@ -203,7 +209,9 @@ function BusinessForm({
           <input name="slug" defaultValue={value("slug")} />
         </label>
         <label>
-          Plano
+          <span>
+            Plano <strong className="required-mark">*</strong>
+          </span>
           <select name="plan_id" required defaultValue={value("plan_id")}>
             <option value="">Selecione</option>
             {plans.map((plan) => (
@@ -228,45 +236,12 @@ function BusinessForm({
             : `${value("rating_count")} avaliações de usuários do Guia`}
         </span>
       </div>
-      <fieldset className="admin-commercial-fieldset">
-        <legend>Destaque comercial na Home</legend>
-        <label className="checkbox-line">
-          <input
-            name="featured_home"
-            type="checkbox"
-            defaultChecked={Boolean(business.featured_home)}
-          />
-          Exibir em “Empresas em destaque”
-        </label>
-        <div className="admin-form-row">
-          <label>
-            Ordem
-            <input
-              name="featured_home_order"
-              type="number"
-              min="0"
-              defaultValue={value("featured_home_order")}
-            />
-          </label>
-          <label>
-            Início da veiculação
-            <input
-              name="featured_home_starts_at"
-              type="datetime-local"
-              defaultValue={String(value("featured_home_starts_at")).slice(0, 16)}
-            />
-          </label>
-          <label>
-            Fim da veiculação
-            <input
-              name="featured_home_ends_at"
-              type="datetime-local"
-              defaultValue={String(value("featured_home_ends_at")).slice(0, 16)}
-            />
-          </label>
-        </div>
-        <small>O plano da empresa também precisa permitir destaque na Home.</small>
-      </fieldset>
+      <BusinessCommercialFields
+        featured={Boolean(business.featured_home)}
+        order={String(value("featured_home_order"))}
+        startsAt={String(value("featured_home_starts_at")).slice(0, 16)}
+        endsAt={String(value("featured_home_ends_at")).slice(0, 16)}
+      />
       <label>
         Resumo
         <input name="short_description" defaultValue={value("short_description")} />
@@ -342,7 +317,9 @@ function BusinessForm({
           <input name="neighborhood" defaultValue={value("neighborhood")} />
         </label>
         <label>
-          Cidade
+          <span>
+            Cidade <strong className="required-mark">*</strong>
+          </span>
           <input name="city" required defaultValue={value("city") || "Torres"} />
         </label>
       </div>

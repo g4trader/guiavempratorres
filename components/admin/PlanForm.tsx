@@ -40,8 +40,13 @@ export function PlanForm({
   return (
     <form action={action} className="admin-form">
       {values.id ? <input type="hidden" name="id" value={values.id} /> : null}
+      <p className="field-hint">
+        <strong className="required-mark">*</strong> Campos obrigatórios
+      </p>
       <label>
-        Nome
+        <span>
+          Nome <strong className="required-mark">*</strong>
+        </span>
         <input name="name" required minLength={2} maxLength={100} defaultValue={values.name} />
       </label>
       <label>
@@ -50,7 +55,9 @@ export function PlanForm({
       </label>
       <div className="admin-form-row">
         <label>
-          Máximo de imagens
+          <span>
+            Máximo de imagens <strong className="required-mark">*</strong>
+          </span>
           <input
             name="max_images"
             type="number"
@@ -60,7 +67,9 @@ export function PlanForm({
           />
         </label>
         <label>
-          Máximo de itens
+          <span>
+            Máximo de itens <strong className="required-mark">*</strong>
+          </span>
           <input
             name="max_items"
             type="number"
@@ -70,7 +79,9 @@ export function PlanForm({
           />
         </label>
         <label>
-          Prioridade
+          <span>
+            Prioridade <strong className="required-mark">*</strong>
+          </span>
           <input name="priority" type="number" required defaultValue={values.priority ?? 0} />
         </label>
       </div>

@@ -336,6 +336,34 @@ body:has(.admin-login) {
   border-radius: var(--radius-sm);
 }
 
+.required-mark {
+  color: #b42318;
+  font-family: var(--font-body);
+  font-weight: 800;
+}
+
+.field-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.35rem;
+  color: #b42318;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-form input[aria-invalid="true"],
+.admin-form select[aria-invalid="true"],
+.admin-form textarea[aria-invalid="true"] {
+  border-color: #d92d20;
+  box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.1);
+}
+
 .admin-commercial-fieldset legend {
   padding-inline: 0.5rem;
   color: var(--color-brand-primary-dark);
