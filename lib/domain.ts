@@ -1,19 +1,29 @@
 export type Category = {
+  id: string;
   slug: string;
   name: string;
   description: string;
   imageUrl: string;
   imageAlt: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
 };
 
-export type ProductService = {
-  name: string;
-  type: "product" | "service";
+export type BusinessItemType = "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG";
+
+export type BusinessItem = {
+  id: string;
+  title: string;
+  type: BusinessItemType;
   description: string;
+  image: string | null;
   price?: number;
+  ctaLabel: string | null;
+  ctaUrl: string | null;
 };
 
 export type Business = {
+  id: string;
   slug: string;
   name: string;
   shortDescription: string;
@@ -21,11 +31,41 @@ export type Business = {
   categorySlugs: string[];
   neighborhood: string;
   city: string;
+  addressLine: string;
   imageUrl: string;
   imageAlt: string;
-  latitude: number;
-  longitude: number;
-  products: ProductService[];
+  logoUrl: string | null;
+  gallery: { id: string; url: string; alt: string }[];
+  premium: boolean;
+  featuredHome: boolean;
+  featuredHomeSelected: boolean;
+  featuredHomeOrder: number;
+  featuredHomeStartsAt: string | null;
+  featuredHomeEndsAt: string | null;
+  featuredCategory: boolean;
+  planPriority: number;
+  publishedAt: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
+  ratingAverage: number;
+  ratingCount: number;
+  items: BusinessItem[];
+};
+
+export type SearchResult = {
+  id: string;
+  kind: "business" | "category" | "item";
+  title: string;
+  description: string;
+  href: string;
+  context: string;
 };
 
 export const isHeroCapacityAvailable = (activeCount: number) =>

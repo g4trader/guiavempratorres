@@ -14,8 +14,17 @@ Referência: <https://vempratorres.com.br/>. Auditoria inicial em 2026-07-27 sob
 - rodapé observado em `#15222d`, com texto secundário `#7c92a3`/`#c7d4dd`;
 - WhatsApp usa a cor oficial `#25d366`.
 
-## Limitações e ativos
+## Ativos institucionais oficiais
 
-O navegador integrado para inspeção de estilos computados não estava disponível nesta sessão. A auditoria foi feita nos assets públicos reais, mas deve ser complementada em desktop/mobile antes da aprovação visual. Nenhum código proprietário foi copiado. O logotipo não foi incorporado: seu direito de uso e um arquivo-fonte oficial precisam ser confirmados; a interface usa uma marca textual temporária.
+- logo oficial: `public/brand/logo_vempratorres.png`;
+- favicon oficial: `public/brand/favicon.svg`.
+
+Esses arquivos foram fornecidos dentro do repositório e são as únicas fontes
+institucionais autorizadas. O site de referência não é fonte para download,
+extração ou cópia de ativos.
+
+## Limitações
+
+O navegador integrado para inspeção de estilos computados não estava disponível nesta sessão. A auditoria foi feita nos assets públicos reais, mas deve ser complementada em desktop/mobile antes da aprovação visual. Nenhum código proprietário foi copiado.
 
 Fotos atuais vêm do Unsplash apenas como placeholders de desenvolvimento e devem ser substituídas por mídia autorizada no Supabase Storage.
