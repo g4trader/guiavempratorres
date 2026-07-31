@@ -78,6 +78,7 @@ export type Database = {
           business_id: string
           created_at: string
           display_order: number
+          display_locations: string[]
           ends_at: string
           id: string
           internal_path: string
@@ -92,6 +93,7 @@ export type Database = {
           business_id: string
           created_at?: string
           display_order?: number
+          display_locations?: string[]
           ends_at: string
           id?: string
           internal_path: string
@@ -106,6 +108,7 @@ export type Database = {
           business_id?: string
           created_at?: string
           display_order?: number
+          display_locations?: string[]
           ends_at?: string
           id?: string
           internal_path?: string

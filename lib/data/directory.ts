@@ -404,25 +404,26 @@ async function getValidHeroCampaigns(options: {
       .eq("category_id", options.categoryId);
     allowedCampaignIds = relations?.map((relation) => relation.campaign_id) ?? [];
   }
-  let query = client
+  const query = client
     .from("ad_campaigns")
-    .select("id,business_id,internal_path,audience")
+    .select("id,business_id,internal_path,audience,display_locations")
     .eq("placement_id", placement.id)
     .eq("status", "active")
     .lte("starts_at", now)
     .gt("ends_at", now)
     .order("priority", { ascending: false })
     .order("display_order");
-  if (options.audience === "home") {
-    query = query.in("audience", ["HOME", "SITE"]);
-  } else if (options.audience === "tourist-attractions") {
-    query = query.in("audience", ["TOURIST_ATTRACTIONS", "SITE"]);
-  } else {
-    query = allowedCampaignIds.length
-      ? query.or(`audience.eq.SITE,id.in.(${allowedCampaignIds.join(",")})`)
-      : query.eq("audience", "SITE");
-  }
-  const { data: campaigns, error } = await query.limit(Math.min(placement.maximum_active_ads, 5));
+  const { data: campaignRows, error } = await query;
+  const campaigns = (campaignRows ?? [])
+    .filter((campaign) => {
+      const locations = campaign.display_locations ?? [campaign.audience];
+      if (locations.includes("SITE")) return true;
+      if (options.audience === "home") return locations.includes("HOME");
+      if (options.audience === "tourist-attractions")
+        return locations.includes("TOURIST_ATTRACTIONS");
+      return locations.includes("CATEGORIES") && allowedCampaignIds.includes(campaign.id);
+    })
+    .slice(0, Math.min(placement.maximum_active_ads, 5));
   if (error || campaigns.length === 0) return [];
   const [{ data: creatives }, { data: businesses }] = await Promise.all([
     client

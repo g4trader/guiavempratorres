@@ -2,42 +2,67 @@
 
 import { useState } from "react";
 
-type CampaignAudience = "HOME" | "SITE" | "CATEGORIES" | "TOURIST_ATTRACTIONS";
+type CampaignLocation = "HOME" | "SITE" | "CATEGORIES" | "TOURIST_ATTRACTIONS";
 
 export function CampaignAudienceFields({
-  audience,
+  displayLocations,
   businesses,
   businessId,
   categories,
   categoryIds,
   status
 }: {
-  audience: CampaignAudience;
+  displayLocations: CampaignLocation[];
   businesses: { id: string; name: string }[];
   businessId: string;
   categories: { id: string; name: string }[];
   categoryIds: string[];
   status: string;
 }) {
-  const [selectedAudience, setSelectedAudience] = useState<CampaignAudience>(audience);
+  const [selectedLocations, setSelectedLocations] = useState<CampaignLocation[]>(displayLocations);
+
+  function toggleLocation(location: CampaignLocation, checked: boolean) {
+    if (location === "SITE") {
+      setSelectedLocations(checked ? ["SITE"] : []);
+      return;
+    }
+    setSelectedLocations((current) => {
+      const withoutSite = current.filter((item) => item !== "SITE");
+      return checked
+        ? [...withoutSite.filter((item) => item !== location), location]
+        : withoutSite.filter((item) => item !== location);
+    });
+  }
 
   return (
     <>
+      <fieldset className="checkbox-grid campaign-location-grid">
+        <legend>Exibição do Hero</legend>
+        {(
+          [
+            ["SITE", "Em todo o site"],
+            ["HOME", "Home"],
+            ["TOURIST_ATTRACTIONS", "Pontos turísticos"],
+            ["CATEGORIES", "Categorias específicas"]
+          ] as const
+        ).map(([value, label]) => (
+          <label key={value}>
+            <input
+              type="checkbox"
+              name="display_locations"
+              value={value}
+              checked={selectedLocations.includes(value)}
+              onChange={(event) => toggleLocation(value, event.target.checked)}
+            />
+            {label}
+          </label>
+        ))}
+        <p className="field-hint campaign-location-hint">
+          “Em todo o site” substitui as demais opções. Para exibições específicas, marque uma ou
+          mais seções.
+        </p>
+      </fieldset>
       <div className="admin-form-row">
-        <label>
-          Exibição do Hero
-          <select
-            name="audience"
-            required
-            value={selectedAudience}
-            onChange={(event) => setSelectedAudience(event.target.value as CampaignAudience)}
-          >
-            <option value="HOME">Somente na Home</option>
-            <option value="SITE">Em todo o site</option>
-            <option value="CATEGORIES">Categorias específicas</option>
-            <option value="TOURIST_ATTRACTIONS">Pontos turísticos</option>
-          </select>
-        </label>
         <label>
           Empresa
           <select name="business_id" required defaultValue={businessId}>
@@ -59,7 +84,10 @@ export function CampaignAudienceFields({
           </select>
         </label>
       </div>
-      <fieldset className="checkbox-grid" hidden={selectedAudience !== "CATEGORIES"}>
+      <fieldset
+        className="checkbox-grid"
+        hidden={!selectedLocations.includes("CATEGORIES") || selectedLocations.includes("SITE")}
+      >
         <legend>Categorias específicas</legend>
         {categories.map((category) => (
           <label key={category.id}>

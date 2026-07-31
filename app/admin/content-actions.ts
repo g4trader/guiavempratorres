@@ -276,20 +276,38 @@ export async function saveCampaign(form: FormData) {
   const { client, role } = await requireAdmin();
   if (!canManageCampaigns(role)) fail("/admin", "Acesso restrito a administradores.");
   const id = parseUuid(form.get("id"), path, "Campanha");
-  const audience = z
-    .enum(["HOME", "SITE", "CATEGORIES", "TOURIST_ATTRACTIONS"])
-    .safeParse(form.get("audience"));
+  const locationSchema = z.enum(["HOME", "SITE", "CATEGORIES", "TOURIST_ATTRACTIONS"]);
+  const displayLocations = form
+    .getAll("display_locations")
+    .map((value) => locationSchema.safeParse(value));
   const status = z.enum(["draft", "active", "paused", "archived"]).safeParse(form.get("status"));
-  if (!audience.success) fail(path, "Selecione onde o Hero será exibido.");
+  if (!displayLocations.length || displayLocations.some((result) => !result.success))
+    fail(path, "Selecione ao menos uma seção para exibir o Hero.");
+  const locations = displayLocations.flatMap((result) => (result.success ? [result.data] : []));
+  if (locations.includes("SITE") && locations.length > 1)
+    fail(path, "Ao selecionar “Em todo o site”, desmarque as outras opções de exibição.");
   if (!status.success) fail(path, "Selecione um status válido para a campanha.");
   const startsAt = parseDate(optional(form, "starts_at"), path, "Data inicial");
   const endsAt = parseDate(optional(form, "ends_at"), path, "Data final");
   if (!startsAt || !endsAt) fail(path, "Informe as datas inicial e final da campanha.");
   if (new Date(endsAt).getTime() <= new Date(startsAt).getTime())
     fail(path, "A data final da campanha deve ser posterior à data inicial.");
+  const categoryIds = form
+    .getAll("category_ids")
+    .map((value) => parseUuid(value, path, "Categoria"));
+  if (locations.includes("CATEGORIES") && !categoryIds.length)
+    fail(path, "Selecione ao menos uma categoria para esta campanha.");
+  const legacyAudience = locations.includes("SITE")
+    ? "SITE"
+    : locations.includes("CATEGORIES")
+      ? "CATEGORIES"
+      : locations.includes("TOURIST_ATTRACTIONS") && !locations.includes("HOME")
+        ? "TOURIST_ATTRACTIONS"
+        : "HOME";
   const payload = {
     id,
-    audience: audience.data,
+    audience: legacyAudience,
+    display_locations: locations,
     business_id: parseUuid(form.get("business_id"), path, "Empresa"),
     placement_id: parseUuid(form.get("placement_id"), path, "Posição"),
     status: status.data,
@@ -301,12 +319,8 @@ export async function saveCampaign(form: FormData) {
   };
   const { error } = await client.from("ad_campaigns").upsert(payload);
   if (error) fail(path, explainDatabaseError(error, "Não foi possível salvar o banner."));
-  const categoryIds = form
-    .getAll("category_ids")
-    .map((value) => parseUuid(value, path, "Categoria"));
   await client.from("ad_campaign_categories").delete().eq("campaign_id", id);
-  if (payload.audience === "CATEGORIES") {
-    if (!categoryIds.length) fail(path, "Selecione ao menos uma categoria para esta campanha.");
+  if (locations.includes("CATEGORIES")) {
     const { error: categoriesError } = await client
       .from("ad_campaign_categories")
       .insert(categoryIds.map((categoryId) => ({ campaign_id: id, category_id: categoryId })));
@@ -339,6 +353,7 @@ export async function saveCampaign(form: FormData) {
   revalidatePath(path);
   revalidatePath("/");
   revalidatePath("/categorias/[slug]", "page");
+  revalidatePath("/pontos-turisticos");
   redirect(`${path}?mensagem=Banner salvo com sucesso.`);
 }
 

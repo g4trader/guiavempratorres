@@ -597,6 +597,12 @@ body:has(.admin-login) {
   width: auto;
   min-height: auto;
 }
+.campaign-location-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.campaign-location-hint {
+  grid-column: 1 / -1;
+}
 .rating-stars {
   display: inline-flex;
   gap: 0.15rem;

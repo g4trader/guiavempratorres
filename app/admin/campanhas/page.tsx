@@ -122,6 +122,7 @@ type Campaign = {
   priority: number;
   internal_path?: string;
   audience?: string;
+  display_locations?: string[];
 };
 
 type Creative = {
@@ -161,12 +162,21 @@ function CampaignForm({
         value={campaign.placement_id ?? heroPlacement?.id ?? ""}
       />
       <CampaignAudienceFields
-        audience={
-          campaign.audience === "SITE" ||
-          campaign.audience === "CATEGORIES" ||
-          campaign.audience === "TOURIST_ATTRACTIONS"
-            ? campaign.audience
-            : "HOME"
+        displayLocations={
+          campaign.display_locations?.length
+            ? (campaign.display_locations as (
+                | "HOME"
+                | "SITE"
+                | "CATEGORIES"
+                | "TOURIST_ATTRACTIONS"
+              )[])
+            : [
+                campaign.audience === "SITE" ||
+                campaign.audience === "CATEGORIES" ||
+                campaign.audience === "TOURIST_ATTRACTIONS"
+                  ? campaign.audience
+                  : "HOME"
+              ]
         }
         businesses={businesses}
         businessId={campaign.business_id ?? ""}
