@@ -378,8 +378,12 @@ export async function getValidCategoryHeroCampaigns(categoryId: string): Promise
   return getValidHeroCampaigns({ audience: "category", categoryId });
 }
 
+export async function getValidTouristAttractionsHeroCampaigns(): Promise<HeroCampaign[]> {
+  return getValidHeroCampaigns({ audience: "tourist-attractions" });
+}
+
 async function getValidHeroCampaigns(options: {
-  audience: "home" | "category";
+  audience: "home" | "category" | "tourist-attractions";
   categoryId?: string;
 }): Promise<HeroCampaign[]> {
   const client = createPublicServerClient();
@@ -409,12 +413,15 @@ async function getValidHeroCampaigns(options: {
     .gt("ends_at", now)
     .order("priority", { ascending: false })
     .order("display_order");
-  query =
-    options.audience === "home"
-      ? query.in("audience", ["HOME", "SITE"])
-      : allowedCampaignIds.length
-        ? query.or(`audience.eq.SITE,id.in.(${allowedCampaignIds.join(",")})`)
-        : query.eq("audience", "SITE");
+  if (options.audience === "home") {
+    query = query.in("audience", ["HOME", "SITE"]);
+  } else if (options.audience === "tourist-attractions") {
+    query = query.in("audience", ["TOURIST_ATTRACTIONS", "SITE"]);
+  } else {
+    query = allowedCampaignIds.length
+      ? query.or(`audience.eq.SITE,id.in.(${allowedCampaignIds.join(",")})`)
+      : query.eq("audience", "SITE");
+  }
   const { data: campaigns, error } = await query.limit(Math.min(placement.maximum_active_ads, 5));
   if (error || campaigns.length === 0) return [];
   const [{ data: creatives }, { data: businesses }] = await Promise.all([

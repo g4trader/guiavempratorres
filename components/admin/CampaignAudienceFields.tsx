@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type CampaignAudience = "HOME" | "SITE" | "CATEGORIES";
+type CampaignAudience = "HOME" | "SITE" | "CATEGORIES" | "TOURIST_ATTRACTIONS";
 
 export function CampaignAudienceFields({
   audience,
@@ -35,6 +35,7 @@ export function CampaignAudienceFields({
             <option value="HOME">Somente na Home</option>
             <option value="SITE">Em todo o site</option>
             <option value="CATEGORIES">Categorias específicas</option>
+            <option value="TOURIST_ATTRACTIONS">Pontos turísticos</option>
           </select>
         </label>
         <label>

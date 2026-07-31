@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CategoryImage } from "@/components/media/CategoryImage";
+import { getValidTouristAttractionsHeroCampaigns } from "@/lib/data/directory";
 import { listPublishedTouristAttractions } from "@/lib/data/tourist-attractions";
 
 export const dynamic = "force-dynamic";
@@ -10,39 +12,49 @@ export const metadata: Metadata = {
 };
 
 export default async function TouristAttractionsPage() {
-  const attractions = await listPublishedTouristAttractions();
+  const [attractions, campaigns] = await Promise.all([
+    listPublishedTouristAttractions(),
+    getValidTouristAttractionsHeroCampaigns()
+  ]);
   return (
-    <div className="container section tourist-attractions-listing">
-      <header className="page-header">
-        <span className="eyebrow">Explore Torres</span>
-        <h1>Pontos turísticos</h1>
-        <p className="muted">
-          Descubra lugares que fazem parte da paisagem e da história de Torres.
-        </p>
-      </header>
-      {attractions.length ? (
-        <div className="grid category-grid">
-          {attractions.map((attraction) => (
-            <article className="card category-card clickable-card" key={attraction.id}>
-              <Link
-                className="card-cover-link"
-                href={`/pontos-turisticos/${attraction.slug}`}
-                aria-label={`Conhecer ${attraction.title}`}
-              />
-              <CategoryImage src={attraction.cardImageUrl} alt={attraction.cardImageAlt} />
-              <div className="card-body">
-                <h2>{attraction.title}</h2>
-                {attraction.excerpt ? <p>{attraction.excerpt}</p> : null}
-                <span className="button secondary card-visual-cta" aria-hidden="true">
-                  Conhecer
-                </span>
-              </div>
-            </article>
-          ))}
+    <>
+      {campaigns.length ? (
+        <div className="hero category-page-hero">
+          <HeroCarousel campaigns={campaigns} />
         </div>
-      ) : (
-        <div className="empty">Nenhum ponto turístico publicado.</div>
-      )}
-    </div>
+      ) : null}
+      <div className="container section tourist-attractions-listing">
+        <header className="page-header">
+          <span className="eyebrow">Explore Torres</span>
+          <h1>Pontos turísticos</h1>
+          <p className="muted">
+            Descubra lugares que fazem parte da paisagem e da história de Torres.
+          </p>
+        </header>
+        {attractions.length ? (
+          <div className="grid category-grid">
+            {attractions.map((attraction) => (
+              <article className="card category-card clickable-card" key={attraction.id}>
+                <Link
+                  className="card-cover-link"
+                  href={`/pontos-turisticos/${attraction.slug}`}
+                  aria-label={`Conhecer ${attraction.title}`}
+                />
+                <CategoryImage src={attraction.cardImageUrl} alt={attraction.cardImageAlt} />
+                <div className="card-body">
+                  <h2>{attraction.title}</h2>
+                  {attraction.excerpt ? <p>{attraction.excerpt}</p> : null}
+                  <span className="button secondary card-visual-cta" aria-hidden="true">
+                    Conhecer
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty">Nenhum ponto turístico publicado.</div>
+        )}
+      </div>
+    </>
   );
 }

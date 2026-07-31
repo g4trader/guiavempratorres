@@ -276,7 +276,9 @@ export async function saveCampaign(form: FormData) {
   const { client, role } = await requireAdmin();
   if (!canManageCampaigns(role)) fail("/admin", "Acesso restrito a administradores.");
   const id = parseUuid(form.get("id"), path, "Campanha");
-  const audience = z.enum(["HOME", "SITE", "CATEGORIES"]).safeParse(form.get("audience"));
+  const audience = z
+    .enum(["HOME", "SITE", "CATEGORIES", "TOURIST_ATTRACTIONS"])
+    .safeParse(form.get("audience"));
   const status = z.enum(["draft", "active", "paused", "archived"]).safeParse(form.get("status"));
   if (!audience.success) fail(path, "Selecione onde o Hero será exibido.");
   if (!status.success) fail(path, "Selecione um status válido para a campanha.");

@@ -162,7 +162,9 @@ function CampaignForm({
       />
       <CampaignAudienceFields
         audience={
-          campaign.audience === "SITE" || campaign.audience === "CATEGORIES"
+          campaign.audience === "SITE" ||
+          campaign.audience === "CATEGORIES" ||
+          campaign.audience === "TOURIST_ATTRACTIONS"
             ? campaign.audience
             : "HOME"
         }
