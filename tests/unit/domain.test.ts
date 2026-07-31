@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isHeroCapacityAvailable, slugify } from "@/lib/domain";
+import { isHeroCapacityAvailable, seededShuffle, slugify } from "@/lib/domain";
 import {
   canManageAdminRoles,
   canManageCampaigns,
@@ -33,5 +33,21 @@ describe("limite do hero", () => {
   it("aceita até o quinto anúncio", () => {
     expect(isHeroCapacityAvailable(4)).toBe(true);
     expect(isHeroCapacityAvailable(5)).toBe(false);
+  });
+});
+
+describe("ordem aleatória das empresas", () => {
+  const businesses = ["a", "b", "c", "d", "e", "f"];
+
+  it("mantém a mesma ordem durante a paginação com a mesma semente", () => {
+    expect(seededShuffle(businesses, "visita-1")).toEqual(seededShuffle(businesses, "visita-1"));
+  });
+
+  it("produz ordens diferentes para visitas diferentes sem perder itens", () => {
+    const first = seededShuffle(businesses, "visita-1");
+    const second = seededShuffle(businesses, "visita-2");
+    expect(first).not.toEqual(second);
+    expect([...first].sort()).toEqual(businesses);
+    expect([...second].sort()).toEqual(businesses);
   });
 });

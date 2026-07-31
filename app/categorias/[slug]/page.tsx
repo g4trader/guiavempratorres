@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ pagina?: string; ordem?: string }>;
+  searchParams: Promise<{ pagina?: string; semente?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -38,11 +39,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const category = await getActiveCategoryBySlug(slug);
   if (!category) notFound();
   const page = Math.max(1, Number(query.pagina) || 1);
-  const order = ["priority", "recent", "name"].includes(query.ordem ?? "")
-    ? (query.ordem ?? "priority")
-    : "priority";
+  const seed = /^[a-zA-Z0-9-]{1,64}$/.test(query.semente ?? "") ? query.semente! : randomUUID();
   const [result, campaigns] = await Promise.all([
-    listPublishedBusinessesByCategory(slug, page, 9, order),
+    listPublishedBusinessesByCategory(slug, page, 9, "random", seed),
     getValidCategoryHeroCampaigns(category.id)
   ]);
 
@@ -65,19 +64,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             {result.total} {result.total === 1 ? "empresa encontrada" : "empresas encontradas"}
           </p>
         </header>
-        <form className="listing-toolbar">
-          <label>
-            Ordenar por
-            <select name="ordem" defaultValue={order}>
-              <option value="priority">Premium e destaques</option>
-              <option value="recent">Mais recentes</option>
-              <option value="name">Nome</option>
-            </select>
-          </label>
-          <button className="button secondary" type="submit">
-            Ordenar
-          </button>
-        </form>
         {result.businesses.length ? (
           <div className="grid">
             {result.businesses.map((business) => (
@@ -93,7 +79,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               <Link
                 key={number}
                 aria-current={number === page ? "page" : undefined}
-                href={`/categorias/${slug}?pagina=${number}&ordem=${order}`}
+                href={`/categorias/${slug}?pagina=${number}&semente=${seed}`}
               >
                 {number}
               </Link>

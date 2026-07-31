@@ -2,6 +2,7 @@ import { createPublicServerClient } from "@/lib/supabase/server";
 import { getPublicSupabaseConfig } from "@/lib/env";
 import { parseSlug } from "@/lib/validation/slugs";
 import type { Business, BusinessItem, Category, SearchResult } from "@/lib/domain";
+import { seededShuffle } from "@/lib/domain";
 
 export type HeroCampaign = {
   id: string;
@@ -214,7 +215,8 @@ export async function listPublishedBusinessesByCategory(
   categorySlugValue: string,
   page = 1,
   pageSize = 9,
-  order = "priority"
+  order = "priority",
+  seed = "default"
 ): Promise<{ businesses: Business[]; total: number; totalPages: number }> {
   const client = createPublicServerClient();
   if (!client) return { businesses: [], total: 0, totalPages: 0 };
@@ -235,13 +237,16 @@ export async function listPublishedBusinessesByCategory(
     (business) => ({ ...business, categorySlugs: [categorySlug] })
   );
   const sorted =
-    order === "recent"
-      ? businesses.sort(
-          (a, b) => new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime()
-        )
-      : order === "name"
-        ? businesses.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
-        : sortCommercialPriority(businesses, true);
+    order === "random"
+      ? seededShuffle(businesses, seed)
+      : order === "recent"
+        ? businesses.sort(
+            (a, b) =>
+              new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime()
+          )
+        : order === "name"
+          ? businesses.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+          : sortCommercialPriority(businesses, true);
   const safePage = Math.max(1, page);
   return {
     businesses: sorted.slice((safePage - 1) * pageSize, safePage * pageSize),
@@ -410,9 +415,7 @@ async function getValidHeroCampaigns(options: {
       : allowedCampaignIds.length
         ? query.or(`audience.eq.SITE,id.in.(${allowedCampaignIds.join(",")})`)
         : query.eq("audience", "SITE");
-  const { data: campaigns, error } = await query.limit(
-    Math.min(placement.maximum_active_ads, 5)
-  );
+  const { data: campaigns, error } = await query.limit(Math.min(placement.maximum_active_ads, 5));
   if (error || campaigns.length === 0) return [];
   const [{ data: creatives }, { data: businesses }] = await Promise.all([
     client

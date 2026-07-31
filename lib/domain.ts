@@ -72,6 +72,27 @@ export type SearchResult = {
 export const isHeroCapacityAvailable = (activeCount: number) =>
   Number.isInteger(activeCount) && activeCount >= 0 && activeCount < 5;
 
+export function seededShuffle<T>(values: T[], seed: string): T[] {
+  let state = 2166136261;
+  for (const character of seed) {
+    state ^= character.charCodeAt(0);
+    state = Math.imul(state, 16777619);
+  }
+  const random = () => {
+    state += 0x6d2b79f5;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+  const shuffled = [...values];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
+  }
+  return shuffled;
+}
+
 export const slugify = (value: string) =>
   value
     .normalize("NFD")
