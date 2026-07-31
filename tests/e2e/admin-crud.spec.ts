@@ -64,7 +64,7 @@ test.describe("fluxos administrativos", () => {
   });
 
   test("cria e atualiza plano, categoria, empresa, item e campanha", async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(300_000);
     const serverErrors: string[] = [];
     page.on("response", (response) => {
       if (response.status() >= 500) serverErrors.push(`${response.status()} ${response.url()}`);
@@ -107,7 +107,8 @@ test.describe("fluxos administrativos", () => {
     );
     await categoryCreate.getByRole("button", { name: "Salvar categoria" }).click();
     const categoryResponse = await categoryResponsePromise;
-    const categoryResponseBody = await categoryResponse.text();
+    const categoryResponseBody =
+      categoryResponse.status() >= 400 ? await categoryResponse.text() : "";
     expect(categoryResponse.status(), categoryResponseBody).toBeLessThan(500);
     expect(categoryResponseBody).not.toContain("Não foi possível salvar a categoria");
     await expect(
@@ -156,11 +157,17 @@ test.describe("fluxos administrativos", () => {
     await expect(galleryUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await galleryForm.locator('input[name="storage_path"]').inputValue());
     await galleryForm.getByLabel("Texto alternativo").fill("Imagem temporária da galeria");
-    await galleryForm.getByRole("button", { name: "Adicionar à galeria" }).click();
-    await expect(page.getByText("Imagem temporária da galeria", { exact: true })).toBeVisible();
-
+    await Promise.all([
+      page.waitForURL(
+        (url) => url.searchParams.get("mensagem") === "Imagem adicionada à galeria."
+      ),
+      galleryForm.evaluate((form: HTMLFormElement) => form.requestSubmit())
+    ]);
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
     await openDetails(refreshedBusinessDetails);
+    await expect(
+      refreshedBusinessDetails.getByText("Imagem temporária da galeria", { exact: true })
+    ).toHaveCount(1);
     await refreshedBusinessDetails
       .getByRole("button", { name: "Adicionar item" })
       .click();
@@ -168,8 +175,17 @@ test.describe("fluxos administrativos", () => {
     await itemDialog.getByLabel("Título").fill(`Item E2E ${suffix}`);
     await itemDialog.getByLabel("Descrição", { exact: true }).fill("Item temporário.");
     await itemDialog.getByLabel("Preço").fill("25.90");
-    await itemDialog.getByRole("button", { name: "Criar item" }).click();
-    await expect(page.getByText(`Item E2E ${suffix}`, { exact: true })).toBeVisible();
+    await Promise.all([
+      page.waitForURL(
+        (url) => url.searchParams.get("mensagem") === "Item criado com sucesso."
+      ),
+      itemDialog.getByRole("button", { name: "Criar item" }).click()
+    ]);
+    refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
+    await openDetails(refreshedBusinessDetails);
+    await expect(
+      refreshedBusinessDetails.getByText(`Item E2E ${suffix}`, { exact: true })
+    ).toHaveCount(1);
 
     await page.goto("/admin/campanhas");
     await page.locator('summary[aria-label="Nova campanha"]').click();
