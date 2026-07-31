@@ -49,9 +49,11 @@ export default async function BusinessPage({ params }: Props) {
       : { data: null };
 
   const hasCoordinates = business.latitude !== null && business.longitude !== null;
-  const mapUrl = hasCoordinates
-    ? `https://www.google.com/maps/search/?api=1&query=${business.latitude},${business.longitude}`
-    : null;
+  const mapUrl =
+    business.googleMapsUrl ||
+    (hasCoordinates
+      ? `https://www.google.com/maps/search/?api=1&query=${business.latitude},${business.longitude}`
+      : null);
   const mapEmbedUrl = hasCoordinates
     ? `https://www.google.com/maps?q=${business.latitude},${business.longitude}&z=15&output=embed`
     : null;

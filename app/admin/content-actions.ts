@@ -65,7 +65,8 @@ export async function deleteCategory(form: FormData) {
     .from("categories")
     .delete()
     .eq("id", parseUuid(form.get("id"), path, "Categoria"));
-  if (error) fail(path, explainDatabaseError(error, "A categoria está em uso e não pode ser excluída."));
+  if (error)
+    fail(path, explainDatabaseError(error, "A categoria está em uso e não pode ser excluída."));
   revalidatePath(path);
   redirect(`${path}?mensagem=Categoria excluída com sucesso.`);
 }
@@ -83,7 +84,14 @@ export async function saveBusiness(form: FormData) {
   const name = text(form, "name");
   if (name.length < 2) fail(path, "O nome da empresa deve ter pelo menos 2 caracteres.");
   const city = text(form, "city");
-  if (!city) fail(path, "Informe a cidade da empresa.");
+  const googleMapsUrl = optional(form, "google_maps_url");
+  if (!city || !googleMapsUrl)
+    fail(path, "Importe a localização usando um link válido do Google Maps antes de salvar.");
+  if (googleMapsUrl !== text(form, "location_verified_url"))
+    fail(
+      path,
+      "O link do Google Maps foi alterado. Clique em “Preencher localização” antes de salvar."
+    );
 
   const featuredHome = checked(form, "featured_home");
   const featuredOrderText = text(form, "featured_home_order");
@@ -117,7 +125,10 @@ export async function saveBusiness(form: FormData) {
     (latitude !== null && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) ||
     (longitude !== null && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
   )
-    fail(path, "Informe coordenadas válidas: latitude entre -90 e 90 e longitude entre -180 e 180.");
+    fail(
+      path,
+      "Informe coordenadas válidas: latitude entre -90 e 90 e longitude entre -180 e 180."
+    );
 
   const heroImagePath = optional(form, "hero_image_path");
   const heroImageAlt = optional(form, "hero_image_alt");
@@ -137,8 +148,9 @@ export async function saveBusiness(form: FormData) {
     address_line: optional(form, "address_line"),
     neighborhood: optional(form, "neighborhood"),
     city,
-    state: "RS",
+    state: text(form, "state") || "RS",
     postal_code: optional(form, "postal_code"),
+    google_maps_url: googleMapsUrl,
     latitude,
     longitude,
     phone: optional(form, "phone"),
@@ -159,17 +171,27 @@ export async function saveBusiness(form: FormData) {
         : null
   };
   const { error } = await client.from("businesses").upsert(payload);
-  if (error) fail(path, explainDatabaseError(error, "Não foi possível salvar a empresa. Revise os campos informados."));
+  if (error)
+    fail(
+      path,
+      explainDatabaseError(error, "Não foi possível salvar a empresa. Revise os campos informados.")
+    );
 
-  const categoryIds = form.getAll("category_ids").map((value) =>
-    parseUuid(value, path, "Categoria")
-  );
+  const categoryIds = form
+    .getAll("category_ids")
+    .map((value) => parseUuid(value, path, "Categoria"));
   const { error: relationDeleteError } = await client
     .from("business_categories")
     .delete()
     .eq("business_id", id);
   if (relationDeleteError)
-    fail(path, explainDatabaseError(relationDeleteError, "A empresa foi salva, mas não foi possível atualizar suas categorias."));
+    fail(
+      path,
+      explainDatabaseError(
+        relationDeleteError,
+        "A empresa foi salva, mas não foi possível atualizar suas categorias."
+      )
+    );
   if (categoryIds.length) {
     const { error: relationError } = await client.from("business_categories").insert(
       categoryIds.map((categoryId, index) => ({
@@ -179,7 +201,13 @@ export async function saveBusiness(form: FormData) {
       }))
     );
     if (relationError)
-      fail(path, explainDatabaseError(relationError, "A empresa foi salva, mas não foi possível vincular as categorias selecionadas."));
+      fail(
+        path,
+        explainDatabaseError(
+          relationError,
+          "A empresa foi salva, mas não foi possível vincular as categorias selecionadas."
+        )
+      );
   }
   revalidatePath(path);
   revalidatePath(`/empresas/${payload.slug}`);
@@ -216,7 +244,8 @@ export async function saveGalleryImage(form: FormData) {
     display_order: Number(text(form, "display_order") || 0),
     is_active: true
   });
-  if (error) fail(path, explainDatabaseError(error, "Não foi possível adicionar a imagem à galeria."));
+  if (error)
+    fail(path, explainDatabaseError(error, "Não foi possível adicionar a imagem à galeria."));
   revalidatePath(path);
   redirect(`${path}?mensagem=Imagem adicionada à galeria.`);
 }
@@ -236,7 +265,8 @@ export async function deleteGalleryImage(form: FormData) {
       .remove([image.storage_path.slice("business-gallery/".length)]);
   }
   const { error } = await client.from("business_media").delete().eq("id", id);
-  if (error) fail(path, explainDatabaseError(error, "Não foi possível remover a imagem da galeria."));
+  if (error)
+    fail(path, explainDatabaseError(error, "Não foi possível remover a imagem da galeria."));
   revalidatePath(path);
   redirect(`${path}?mensagem=Imagem removida da galeria.`);
 }
@@ -279,7 +309,10 @@ export async function saveCampaign(form: FormData) {
       .from("ad_campaign_categories")
       .insert(categoryIds.map((categoryId) => ({ campaign_id: id, category_id: categoryId })));
     if (categoriesError)
-      fail(path, explainDatabaseError(categoriesError, "Não foi possível vincular as categorias ao banner."));
+      fail(
+        path,
+        explainDatabaseError(categoriesError, "Não foi possível vincular as categorias ao banner.")
+      );
   }
   const desktopImagePath = text(form, "desktop_image_path");
   const imageAlt = text(form, "image_alt");
@@ -297,7 +330,10 @@ export async function saveCampaign(form: FormData) {
     { onConflict: "campaign_id" }
   );
   if (creativeError)
-    fail(path, explainDatabaseError(creativeError, "Não foi possível salvar as imagens do banner."));
+    fail(
+      path,
+      explainDatabaseError(creativeError, "Não foi possível salvar as imagens do banner.")
+    );
   revalidatePath(path);
   revalidatePath("/");
   revalidatePath("/categorias/[slug]", "page");
@@ -330,10 +366,14 @@ export async function updatePassword(form: FormData) {
   const client = await createAuthenticatedServerClient();
   if (!client) fail("/admin", "Supabase não configurado.");
   const password = z.string().min(8).safeParse(form.get("password"));
-  if (!password.success) fail("/admin/redefinir-senha", "A senha deve ter pelo menos 8 caracteres.");
+  if (!password.success)
+    fail("/admin/redefinir-senha", "A senha deve ter pelo menos 8 caracteres.");
   const { error } = await client.auth.updateUser({ password: password.data });
   if (error)
-    fail("/admin/redefinir-senha", explainDatabaseError(error, "Não foi possível alterar a senha."));
+    fail(
+      "/admin/redefinir-senha",
+      explainDatabaseError(error, "Não foi possível alterar a senha.")
+    );
   redirect("/admin?mensagem=senha-alterada");
 }
 

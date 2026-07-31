@@ -10,10 +10,12 @@ export function BusinessCard({ business }: { business: Business }) {
     business.latitude !== null && business.longitude !== null
       ? `${business.latitude},${business.longitude}`
       : [business.addressLine, business.neighborhood, business.city].filter(Boolean).join(", ");
-  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+  const mapUrl =
+    business.googleMapsUrl ||
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
   return (
-    <article className="card business-card">
+    <article className="card business-card clickable-card">
       <BusinessCardImage src={business.imageUrl} alt={business.imageAlt} />
       <div className="card-body">
         {business.premium ? <span className="premium-badge">Premium</span> : null}
@@ -36,7 +38,7 @@ export function BusinessCard({ business }: { business: Business }) {
           <p>{[business.neighborhood, business.city].filter(Boolean).join(", ")}</p>
         ) : null}
         <div className="business-card-actions">
-          <Link className="button secondary" href={`/empresas/${business.slug}`}>
+          <Link className="button secondary card-primary-link" href={`/empresas/${business.slug}`}>
             Ver empresa
           </Link>
           <div className="business-card-links" aria-label={`Atalhos de ${business.name}`}>

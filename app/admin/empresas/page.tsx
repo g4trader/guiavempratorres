@@ -1,9 +1,5 @@
 import { randomUUID } from "node:crypto";
-import {
-  createBusinessItem,
-  deleteBusinessItem,
-  updateBusinessItem
-} from "@/app/admin/actions";
+import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import {
   deleteBusiness,
   deleteGalleryImage,
@@ -17,6 +13,7 @@ import { AdminModal } from "@/components/admin/AdminModal";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { BusinessCommercialFields } from "@/components/admin/BusinessCommercialFields";
+import { BusinessLocationFields } from "@/components/admin/BusinessLocationFields";
 import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -27,15 +24,21 @@ type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> }
 export default async function BusinessesAdminPage({ searchParams }: PageProps) {
   const { client } = await requireAdmin();
   const { erro, mensagem } = await searchParams;
-  const [businessesResult, plansResult, categoriesResult, relationsResult, mediaResult, itemsResult] =
-    await Promise.all([
-      client.from("businesses").select("*").order("name"),
-      client.from("plans").select("id,name").order("priority", { ascending: false }),
-      client.from("categories").select("id,name").order("display_order"),
-      client.from("business_categories").select("business_id,category_id"),
-      client.from("business_media").select("*").eq("kind", "gallery").order("display_order"),
-      client.from("business_items").select("*").order("display_order")
-    ]);
+  const [
+    businessesResult,
+    plansResult,
+    categoriesResult,
+    relationsResult,
+    mediaResult,
+    itemsResult
+  ] = await Promise.all([
+    client.from("businesses").select("*").order("name"),
+    client.from("plans").select("id,name").order("priority", { ascending: false }),
+    client.from("categories").select("id,name").order("display_order"),
+    client.from("business_categories").select("business_id,category_id"),
+    client.from("business_media").select("*").eq("kind", "gallery").order("display_order"),
+    client.from("business_items").select("*").order("display_order")
+  ]);
   if (
     businessesResult.error ||
     plansResult.error ||
@@ -152,7 +155,11 @@ function BusinessItemsManager({
                   activeLabel="Item ativo"
                   inactiveLabel="Item inativo"
                 />
-                <AdminModal title={`Editar · ${item.title}`} triggerLabel={`Editar ${item.title}`} compact>
+                <AdminModal
+                  title={`Editar · ${item.title}`}
+                  triggerLabel={`Editar ${item.title}`}
+                  compact
+                >
                   <BusinessItemForm
                     action={updateBusinessItem}
                     businesses={[business]}
@@ -224,7 +231,11 @@ function BusinessForm({
       </div>
       <div className="admin-rating-summary" aria-label="Avaliação da empresa">
         <div>
-          <strong>{Number(value("rating_average") || 5).toFixed(1).replace(".", ",")}</strong>
+          <strong>
+            {Number(value("rating_average") || 5)
+              .toFixed(1)
+              .replace(".", ",")}
+          </strong>
           <RatingStars
             value={Number(value("rating_average") || 5)}
             label={`${Number(value("rating_average") || 5).toFixed(1)} de 5 estrelas`}
@@ -302,37 +313,19 @@ function BusinessForm({
             defaultValue={String(value("published_at")).slice(0, 16)}
           />
         </label>
-        <label>
-          CEP
-          <input name="postal_code" defaultValue={value("postal_code")} />
-        </label>
       </div>
-      <div className="admin-form-row">
-        <label>
-          Endereço
-          <input name="address_line" defaultValue={value("address_line")} />
-        </label>
-        <label>
-          Bairro
-          <input name="neighborhood" defaultValue={value("neighborhood")} />
-        </label>
-        <label>
-          <span>
-            Cidade <strong className="required-mark">*</strong>
-          </span>
-          <input name="city" required defaultValue={value("city") || "Torres"} />
-        </label>
-      </div>
-      <div className="admin-form-row">
-        <label>
-          Latitude
-          <input name="latitude" type="number" step="any" defaultValue={value("latitude")} />
-        </label>
-        <label>
-          Longitude
-          <input name="longitude" type="number" step="any" defaultValue={value("longitude")} />
-        </label>
-      </div>
+      <BusinessLocationFields
+        initial={{
+          googleMapsUrl: value("google_maps_url") as string,
+          addressLine: value("address_line") as string,
+          neighborhood: value("neighborhood") as string,
+          city: value("city") as string,
+          state: value("state") as string,
+          postalCode: value("postal_code") as string,
+          latitude: value("latitude") as number | undefined,
+          longitude: value("longitude") as number | undefined
+        }}
+      />
       <div className="admin-form-row">
         <label>
           WhatsApp

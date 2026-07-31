@@ -28,6 +28,7 @@ type BusinessRow = {
   address_line: string | null;
   latitude: number | null;
   longitude: number | null;
+  google_maps_url: string | null;
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
@@ -59,7 +60,7 @@ type BusinessRow = {
 };
 
 const businessSelect =
-  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,phone,whatsapp,email,website_url,instagram_url,rating_average,rating_count,published_at,seo_title,seo_description,featured_home,featured_home_order,featured_home_starts_at,featured_home_ends_at,plans(premium_badge,featured_home,featured_category,priority)";
+  "id,slug,name,short_description,description,logo_path,hero_image_path,hero_image_alt,neighborhood,city,address_line,latitude,longitude,google_maps_url,phone,whatsapp,email,website_url,instagram_url,rating_average,rating_count,published_at,seo_title,seo_description,featured_home,featured_home_order,featured_home_starts_at,featured_home_ends_at,plans(premium_badge,featured_home,featured_category,priority)";
 
 export function resolvePublicAsset(path: string | null): string | null {
   if (!path || path.startsWith("/") || path.startsWith("https://")) return path;
@@ -129,6 +130,7 @@ function mapBusiness(
     seoDescription: row.seo_description,
     latitude: row.latitude,
     longitude: row.longitude,
+    googleMapsUrl: row.google_maps_url,
     phone: row.phone,
     whatsapp: row.whatsapp,
     email: row.email,

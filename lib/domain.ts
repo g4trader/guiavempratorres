@@ -49,6 +49,7 @@ export type Business = {
   seoDescription: string | null;
   latitude: number | null;
   longitude: number | null;
+  googleMapsUrl: string | null;
   phone: string | null;
   whatsapp: string | null;
   email: string | null;

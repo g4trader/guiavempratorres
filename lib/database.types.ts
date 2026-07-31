@@ -485,6 +485,7 @@ export type Database = {
           hero_image_alt: string | null;
           hero_image_path: string | null;
           id: string;
+          google_maps_url: string | null;
           instagram_url: string | null;
           latitude: number | null;
           logo_path: string | null;
@@ -520,6 +521,7 @@ export type Database = {
           hero_image_alt?: string | null;
           hero_image_path?: string | null;
           id?: string;
+          google_maps_url?: string | null;
           instagram_url?: string | null;
           latitude?: number | null;
           logo_path?: string | null;
@@ -555,6 +557,7 @@ export type Database = {
           hero_image_alt?: string | null;
           hero_image_path?: string | null;
           id?: string;
+          google_maps_url?: string | null;
           instagram_url?: string | null;
           latitude?: number | null;
           logo_path?: string | null;
