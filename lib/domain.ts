@@ -69,6 +69,30 @@ export type SearchResult = {
   context: string;
 };
 
+export type TouristAttractionBlock =
+  | { id: string; type: "H1" | "H2" | "PARAGRAPH"; text: string }
+  | { id: string; type: "IMAGE"; imagePath: string; imageAlt: string };
+
+export type TouristAttraction = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  cardImageUrl: string;
+  cardImageAlt: string;
+  contentBlocks: TouristAttractionBlock[];
+  googleMapsUrl: string | null;
+  addressLine: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  latitude: number | null;
+  longitude: number | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+};
+
 export const isHeroCapacityAvailable = (activeCount: number) =>
   Number.isInteger(activeCount) && activeCount >= 0 && activeCount < 5;
 

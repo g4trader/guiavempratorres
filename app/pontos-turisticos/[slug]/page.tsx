@@ -1,0 +1,98 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getPublishedTouristAttractionBySlug } from "@/lib/data/tourist-attractions";
+import { resolvePublicAsset } from "@/lib/data/directory";
+
+export const dynamic = "force-dynamic";
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const attraction = await getPublishedTouristAttractionBySlug((await params).slug);
+  if (!attraction) return {};
+  return {
+    title: attraction.seoTitle ?? attraction.title,
+    description: attraction.seoDescription ?? attraction.excerpt,
+    alternates: { canonical: `/pontos-turisticos/${attraction.slug}` },
+    openGraph: {
+      title: attraction.title,
+      description: attraction.excerpt,
+      images: [{ url: attraction.cardImageUrl, alt: attraction.cardImageAlt }]
+    }
+  };
+}
+
+export default async function TouristAttractionPage({ params }: Props) {
+  const attraction = await getPublishedTouristAttractionBySlug((await params).slug);
+  if (!attraction) notFound();
+  const mapEmbedUrl =
+    attraction.latitude !== null && attraction.longitude !== null
+      ? `https://www.google.com/maps?q=${attraction.latitude},${attraction.longitude}&z=15&output=embed`
+      : null;
+  return (
+    <article className="container section tourist-attraction-page">
+      <nav className="breadcrumbs" aria-label="Breadcrumb">
+        <Link href="/">Início</Link> / <Link href="/pontos-turisticos">Pontos turísticos</Link> /{" "}
+        {attraction.title}
+      </nav>
+      <header className="page-header">
+        <span className="eyebrow">Ponto turístico</span>
+        <h1>{attraction.title}</h1>
+        {attraction.excerpt ? <p className="muted">{attraction.excerpt}</p> : null}
+      </header>
+      <div className="tourist-content-blocks">
+        {attraction.contentBlocks.map((block) => {
+          if (block.type === "H1") return <h1 key={block.id}>{block.text}</h1>;
+          if (block.type === "H2") return <h2 key={block.id}>{block.text}</h2>;
+          if (block.type === "PARAGRAPH") return <p key={block.id}>{block.text}</p>;
+          if (block.type !== "IMAGE") return null;
+          const src = resolvePublicAsset(block.imagePath);
+          return src ? (
+            <figure key={block.id}>
+              <Image
+                src={src}
+                alt={block.imageAlt}
+                width={1200}
+                height={800}
+                sizes="(max-width: 900px) 100vw, 900px"
+              />
+            </figure>
+          ) : null;
+        })}
+      </div>
+      <section className="tourist-location" aria-labelledby="localizacao-ponto">
+        <h2 id="localizacao-ponto">Localização</h2>
+        {mapEmbedUrl ? (
+          <iframe
+            src={mapEmbedUrl}
+            title={`Mapa de ${attraction.title}`}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        ) : null}
+        <p>
+          {[
+            attraction.addressLine,
+            attraction.neighborhood,
+            attraction.city,
+            attraction.state,
+            attraction.postalCode
+          ]
+            .filter(Boolean)
+            .join(", ")}
+        </p>
+        {attraction.googleMapsUrl ? (
+          <a
+            className="button secondary"
+            href={attraction.googleMapsUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Abrir no Google Maps
+          </a>
+        ) : null}
+      </section>
+    </article>
+  );
+}

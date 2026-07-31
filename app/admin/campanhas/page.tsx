@@ -121,7 +121,7 @@ type Campaign = {
   display_order: number;
   priority: number;
   internal_path?: string;
-  audience?: "HOME" | "SITE" | "CATEGORIES";
+  audience?: string;
 };
 
 type Creative = {
@@ -161,7 +161,11 @@ function CampaignForm({
         value={campaign.placement_id ?? heroPlacement?.id ?? ""}
       />
       <CampaignAudienceFields
-        audience={campaign.audience ?? "HOME"}
+        audience={
+          campaign.audience === "SITE" || campaign.audience === "CATEGORIES"
+            ? campaign.audience
+            : "HOME"
+        }
         businesses={businesses}
         businessId={campaign.business_id ?? ""}
         categories={categories}

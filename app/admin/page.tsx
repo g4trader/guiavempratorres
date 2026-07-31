@@ -26,9 +26,10 @@ export default async function AdminPage({ searchParams }: Props) {
       .maybeSingle();
     if (membership) {
       const { client: adminClient } = await requireAdmin();
-      const [plans, categories, businesses, campaigns, users] = await Promise.all([
+      const [plans, categories, attractions, businesses, campaigns, users] = await Promise.all([
         adminClient.from("plans").select("*", { count: "exact", head: true }),
         adminClient.from("categories").select("*", { count: "exact", head: true }),
+        adminClient.from("tourist_attractions").select("*", { count: "exact", head: true }),
         adminClient.from("businesses").select("*", { count: "exact", head: true }),
         adminClient.from("ad_campaigns").select("*", { count: "exact", head: true }),
         adminClient.from("profiles").select("*", { count: "exact", head: true })
@@ -36,6 +37,7 @@ export default async function AdminPage({ searchParams }: Props) {
       const stats = [
         ["Planos", plans.count ?? 0, "/admin/planos"],
         ["Categorias", categories.count ?? 0, "/admin/categorias"],
+        ["Pontos turísticos", attractions.count ?? 0, "/admin/pontos-turisticos"],
         ["Páginas de empresas", businesses.count ?? 0, "/admin/empresas"],
         ["Banners", campaigns.count ?? 0, "/admin/campanhas"],
         ["Usuários", users.count ?? 0, "/admin/usuarios"]

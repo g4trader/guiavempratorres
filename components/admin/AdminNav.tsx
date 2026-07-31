@@ -7,6 +7,7 @@ const links: { label: string; href: string }[] = [
   { label: "Dashboard", href: "/admin" },
   { label: "Planos", href: "/admin/planos" },
   { label: "Categorias", href: "/admin/categorias" },
+  { label: "Pontos turísticos", href: "/admin/pontos-turisticos" },
   { label: "Páginas de empresas", href: "/admin/empresas" },
   { label: "Banners", href: "/admin/campanhas" },
   { label: "Usuários", href: "/admin/usuarios" }

@@ -53,6 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="nav-links">
               <Link href={"/buscar" as Route}>Buscar</Link>
               <Link href="/#categorias">Categorias</Link>
+              <Link href="/pontos-turisticos">Pontos turísticos</Link>
               <Link href="/admin">Área administrativa</Link>
               <Link className="button header-cta" href="/#categorias">
                 Explorar
@@ -71,6 +72,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <strong>Navegue</strong>
               <p>
                 <Link href="/#categorias">Categorias</Link>
+              </p>
+              <p>
+                <Link href="/pontos-turisticos">Pontos turísticos</Link>
               </p>
               <p>
                 <Link href={"/buscar" as Route}>Buscar</Link>

@@ -9,7 +9,8 @@ type Bucket =
   | "business-hero-images"
   | "business-gallery"
   | "product-service-images"
-  | "ad-creatives";
+  | "ad-creatives"
+  | "tourist-attraction-images";
 
 const uploadRules: Record<Bucket, { maxBytes: number; acceptedTypes: string[] }> = {
   "category-images": {
@@ -35,6 +36,10 @@ const uploadRules: Record<Bucket, { maxBytes: number; acceptedTypes: string[] }>
   "ad-creatives": {
     maxBytes: 8 * 1024 * 1024,
     acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  },
+  "tourist-attraction-images": {
+    maxBytes: 8 * 1024 * 1024,
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
   }
 };
 
@@ -43,13 +48,15 @@ export function ImageUpload({
   entityId,
   name,
   currentPath = null,
-  label
+  label,
+  onPathChange
 }: {
   bucket: Bucket;
   entityId: string;
   name: string;
   currentPath?: string | null;
   label: string;
+  onPathChange?: (path: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [path, setPath] = useState(currentPath ?? "");
@@ -92,6 +99,7 @@ export function ImageUpload({
     }
     const nextPath = `${bucket}/${objectPath}`;
     setPath(nextPath);
+    onPathChange?.(nextPath);
     setPreview(publicUrl(nextPath));
     setStatus("Imagem enviada. Salve o formulário.");
   }
@@ -102,6 +110,7 @@ export function ImageUpload({
       await client.storage.from(bucket).remove([path.slice(bucket.length + 1)]);
     }
     setPath("");
+    onPathChange?.("");
     setPreview("");
     setStatus("Imagem removida. Salve o formulário.");
   }
