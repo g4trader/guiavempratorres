@@ -16,6 +16,11 @@ export function BusinessCard({ business }: { business: Business }) {
 
   return (
     <article className="card business-card clickable-card">
+      <Link
+        className="card-cover-link"
+        href={`/empresas/${business.slug}`}
+        aria-label={`Ver empresa ${business.name}`}
+      />
       <BusinessCardImage src={business.imageUrl} alt={business.imageAlt} />
       <div className="card-body">
         {business.premium ? <span className="premium-badge">Premium</span> : null}
@@ -38,9 +43,9 @@ export function BusinessCard({ business }: { business: Business }) {
           <p>{[business.neighborhood, business.city].filter(Boolean).join(", ")}</p>
         ) : null}
         <div className="business-card-actions">
-          <Link className="button secondary card-primary-link" href={`/empresas/${business.slug}`}>
+          <span className="button secondary card-visual-cta" aria-hidden="true">
             Ver empresa
-          </Link>
+          </span>
           <div className="business-card-links" aria-label={`Atalhos de ${business.name}`}>
             {whatsappNumber ? (
               <a

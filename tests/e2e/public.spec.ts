@@ -13,11 +13,11 @@ test("visitante navega pelo hero, categoria e empresa", async ({ page }) => {
   await page
     .getByRole("article")
     .filter({ has: page.getByRole("heading", { name: "Gastronomia" }) })
-    .getByRole("link", { name: "Ver categoria" })
+    .getByRole("link", { name: "Ver categoria Gastronomia" })
     .click();
   await expect(page).toHaveURL(/\/categorias\/gastronomia$/);
 
-  await page.getByRole("link", { name: "Ver empresa" }).click();
+  await page.getByRole("link", { name: /Ver empresa/ }).first().click();
   await expect(page.getByRole("heading", { name: "Itens" })).toBeVisible();
   await expect(page.getByText("Prato Modelo")).toBeVisible();
   await expect(page.getByRole("link", { name: "Abrir no mapa" })).toHaveAttribute(
@@ -49,6 +49,23 @@ test("cards de empresas exibem atalhos de contato e localização", async ({ pag
   await expect(categoryCard.locator(".business-card-rating")).toBeVisible();
   await expect(categoryCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
   await expect(categoryCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
+});
+
+test("cards completos de categoria e empresa são clicáveis", async ({ page }) => {
+  await page.goto("/");
+  const categoryCard = page.locator(".category-card").first();
+  await categoryCard.scrollIntoViewIfNeeded();
+  const categoryImageBox = await categoryCard.locator(".category-image-frame").boundingBox();
+  expect(categoryImageBox).not.toBeNull();
+  await page.mouse.click(categoryImageBox!.x + 20, categoryImageBox!.y + 20);
+  await expect(page).toHaveURL(/\/categorias\/[^/]+$/);
+
+  const businessCard = page.locator(".business-card").first();
+  await businessCard.scrollIntoViewIfNeeded();
+  const businessImageBox = await businessCard.locator(".business-card-image-frame").boundingBox();
+  expect(businessImageBox).not.toBeNull();
+  await page.mouse.click(businessImageBox!.x + 20, businessImageBox!.y + 20);
+  await expect(page).toHaveURL(/\/empresas\/[^/]+$/);
 });
 
 test("área administrativa exige autenticação", async ({ page }) => {

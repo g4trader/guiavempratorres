@@ -122,6 +122,12 @@ test.describe("fluxos administrativos", () => {
     await businessCreate.getByLabel("Plano").selectOption({ label: planName });
     await businessCreate.getByLabel("Resumo").fill("Empresa temporária para validação E2E.");
     await businessCreate.getByLabel("Status").selectOption("published");
+    await businessCreate
+      .getByLabel("Link do Google Maps")
+      .fill("https://www.google.com/maps/place/Torres/@-29.3357,-49.726,15z");
+    await businessCreate.getByRole("button", { name: "Preencher localização" }).click();
+    await expect(businessCreate.getByText("Localização importada com sucesso.")).toBeVisible();
+    await expect(businessCreate.locator('input[name="city"]')).toHaveValue("Torres");
     await businessCreate.getByLabel("WhatsApp").fill("5551999999999");
     await businessCreate.getByLabel("Instagram").fill("https://instagram.com/vempratorres");
     await businessCreate.getByRole("button", { name: "Salvar empresa" }).click();

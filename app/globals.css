@@ -1625,16 +1625,20 @@ h2 {
   cursor: pointer;
 }
 
-.card-primary-link::after {
+.card-cover-link {
   position: absolute;
   inset: 0;
-  content: "";
+  z-index: 1;
   border-radius: inherit;
 }
 
-.clickable-card:focus-within {
+.clickable-card:has(.card-cover-link:focus-visible) {
   outline: 3px solid color-mix(in srgb, var(--color-brand-primary) 55%, transparent);
   outline-offset: 4px;
+}
+
+.card-visual-cta {
+  pointer-events: none;
 }
 
 .business-card .card-body {

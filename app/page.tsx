@@ -84,16 +84,18 @@ export default async function Home() {
           <div className="grid category-grid">
             {categories.map((category) => (
               <article className="card category-card clickable-card" key={category.slug}>
+                <Link
+                  className="card-cover-link"
+                  href={`/categorias/${category.slug}`}
+                  aria-label={`Ver categoria ${category.name}`}
+                />
                 <CategoryImage src={category.imageUrl} alt={category.imageAlt} />
                 <div className="card-body">
                   <h3>{category.name}</h3>
                   {category.description ? <p>{category.description}</p> : null}
-                  <Link
-                    className="button secondary card-primary-link"
-                    href={`/categorias/${category.slug}`}
-                  >
+                  <span className="button secondary card-visual-cta" aria-hidden="true">
                     Ver categoria
-                  </Link>
+                  </span>
                 </div>
               </article>
             ))}
