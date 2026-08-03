@@ -1388,7 +1388,8 @@ body {
   position: relative;
   width: min(calc(100% - 3rem), var(--container-max-width));
   margin-inline: auto;
-  overflow: visible;
+  overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
 .hero-image-frame {
@@ -1404,6 +1405,50 @@ body {
 .hero-banner-link {
   display: block;
   width: 100%;
+}
+
+.hero-slide {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  will-change: transform;
+}
+
+.hero-slide-previous {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  animation: hero-slide-out-right 700ms cubic-bezier(0.22, 0.75, 0.2, 1) both;
+}
+
+.hero-slide-current {
+  z-index: 2;
+}
+
+.hero-slide-current.is-transitioning {
+  animation: hero-slide-in-left 700ms cubic-bezier(0.22, 0.75, 0.2, 1) both;
+}
+
+.hero .campaign-image img {
+  animation: none;
+}
+
+@keyframes hero-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes hero-slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .campaign-image,
