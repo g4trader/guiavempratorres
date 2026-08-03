@@ -51,7 +51,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <span className="sr-only">Guia Vem Pra Torres</span>
             </Link>
             <div className="nav-links">
-              <Link href={"/buscar" as Route}>Buscar</Link>
               <Link href="/#categorias">Categorias</Link>
               <Link href="/pontos-turisticos">Pontos turísticos</Link>
               <Link href="/admin">Área administrativa</Link>
