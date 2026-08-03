@@ -18,9 +18,6 @@ export function HeroCarousel({ campaigns }: { campaigns: HeroCampaign[] }) {
   if (campaigns.length === 0) return null;
 
   const active = campaigns[activeIndex];
-  const move = (direction: -1 | 1) => {
-    setActiveIndex((current) => (current + direction + campaigns.length) % campaigns.length);
-  };
 
   return (
     <section
@@ -44,35 +41,17 @@ export function HeroCarousel({ campaigns }: { campaigns: HeroCampaign[] }) {
           />
         </a>
         {campaigns.length > 1 ? (
-          <div className="carousel-controls hero-banner-controls">
-            <button
-              className="carousel-arrow"
-              type="button"
-              onClick={() => move(-1)}
-              aria-label="Destaque anterior"
-            >
-              ←
-            </button>
-            <div className="carousel-dots" aria-label="Selecionar destaque">
-              {campaigns.map((campaign, index) => (
-                <button
-                  key={campaign.id}
-                  type="button"
-                  className="carousel-dot"
+          <div className="carousel-dots hero-banner-pagination" aria-label="Banner atual">
+            {campaigns.map((campaign, index) => (
+              <button
+                key={campaign.id}
+                type="button"
+                className="carousel-dot"
                 aria-label={`Ir para banner ${index + 1}: ${campaign.imageAlt}`}
-                  aria-current={index === activeIndex ? "true" : undefined}
-                  onClick={() => setActiveIndex(index)}
-                />
-              ))}
-            </div>
-            <button
-              className="carousel-arrow"
-              type="button"
-              onClick={() => move(1)}
-              aria-label="Próximo destaque"
-            >
-              →
-            </button>
+                aria-current={index === activeIndex ? "true" : undefined}
+                onClick={() => setActiveIndex(index)}
+              />
+            ))}
           </div>
         ) : null}
       </div>

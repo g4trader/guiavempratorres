@@ -1436,21 +1436,9 @@ body {
   background: transparent;
 }
 
-.hero-banner-controls {
+.hero-banner-pagination {
   position: absolute;
   z-index: 3;
-  inset: 0 1rem;
-  justify-content: space-between;
-  pointer-events: none;
-}
-
-.hero-banner-controls .carousel-arrow,
-.hero-banner-controls .carousel-dot {
-  pointer-events: auto;
-}
-
-.hero-banner-controls .carousel-dots {
-  position: absolute;
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
