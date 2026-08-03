@@ -287,6 +287,8 @@ export async function saveCampaign(form: FormData) {
   if (locations.includes("SITE") && locations.length > 1)
     fail(path, "Ao selecionar “Em todo o site”, desmarque as outras opções de exibição.");
   if (!status.success) fail(path, "Selecione um status válido para a campanha.");
+  const destinationType = z.enum(["INTERNAL", "EXTERNAL"]).safeParse(form.get("destination_type"));
+  if (!destinationType.success) fail(path, "Selecione o tipo de destino do banner.");
   const startsAt = parseDate(optional(form, "starts_at"), path, "Data inicial");
   const endsAt = parseDate(optional(form, "ends_at"), path, "Data final");
   if (!startsAt || !endsAt) fail(path, "Informe as datas inicial e final da campanha.");
@@ -304,18 +306,36 @@ export async function saveCampaign(form: FormData) {
       : locations.includes("TOURIST_ATTRACTIONS") && !locations.includes("HOME")
         ? "TOURIST_ATTRACTIONS"
         : "HOME";
+  const businessId = parseUuid(form.get("business_id"), path, "Empresa");
+  const { data: destinationBusiness, error: destinationBusinessError } = await client
+    .from("businesses")
+    .select("slug")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (destinationBusinessError || !destinationBusiness)
+    fail(path, "A empresa selecionada não foi encontrada.");
+  const internalPath = `/empresas/${destinationBusiness.slug}`;
+  let destinationUrl = internalPath;
+  if (destinationType.data === "EXTERNAL") {
+    const parsedUrl = z.string().url().safeParse(text(form, "destination_url"));
+    if (!parsedUrl.success || !/^https?:\/\//i.test(parsedUrl.data))
+      fail(path, "Informe uma URL externa completa, iniciada por http:// ou https://.");
+    destinationUrl = parsedUrl.data;
+  }
   const payload = {
     id,
     audience: legacyAudience,
     display_locations: locations,
-    business_id: parseUuid(form.get("business_id"), path, "Empresa"),
+    business_id: businessId,
     placement_id: parseUuid(form.get("placement_id"), path, "Posição"),
     status: status.data,
     starts_at: startsAt,
     ends_at: endsAt,
     display_order: Number(text(form, "display_order") || 0),
     priority: Number(text(form, "priority") || 0),
-    internal_path: text(form, "internal_path")
+    internal_path: internalPath,
+    destination_type: destinationType.data,
+    destination_url: destinationUrl
   };
   const { error } = await client.from("ad_campaigns").upsert(payload);
   if (error) fail(path, explainDatabaseError(error, "Não foi possível salvar o banner."));
@@ -340,8 +360,8 @@ export async function saveCampaign(form: FormData) {
       desktop_image_path: desktopImagePath,
       mobile_image_path: optional(form, "mobile_image_path"),
       image_alt: imageAlt,
-      title: optional(form, "title"),
-      description: optional(form, "description")
+      title: null,
+      description: null
     },
     { onConflict: "campaign_id" }
   );

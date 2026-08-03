@@ -121,6 +121,8 @@ type Campaign = {
   display_order: number;
   priority: number;
   internal_path?: string;
+  destination_type?: string;
+  destination_url?: string;
   audience?: string;
   display_locations?: string[];
 };
@@ -180,6 +182,8 @@ function CampaignForm({
         }
         businesses={businesses}
         businessId={campaign.business_id ?? ""}
+        destinationType={campaign.destination_type === "EXTERNAL" ? "EXTERNAL" : "INTERNAL"}
+        destinationUrl={campaign.destination_type === "EXTERNAL" ? campaign.destination_url ?? "" : ""}
         categories={categories}
         categoryIds={categoryIds}
         status={campaign.status}
@@ -193,18 +197,6 @@ function CampaignForm({
         <label>
           Prioridade
           <input name="priority" type="number" defaultValue={campaign.priority} />
-        </label>
-        <label>
-          <span>
-            Caminho interno <strong className="required-mark">*</strong>
-          </span>
-          <input
-            name="internal_path"
-            required
-            pattern="/empresas/[a-z0-9-]+"
-            defaultValue={campaign.internal_path ?? ""}
-            placeholder="/empresas/nome"
-          />
         </label>
       </div>
       <div className="admin-form-row">
@@ -228,14 +220,6 @@ function CampaignForm({
           Texto alternativo <strong className="required-mark">*</strong>
         </span>
         <input name="image_alt" required defaultValue={creative?.image_alt ?? ""} />
-      </label>
-      <label>
-        Título
-        <input name="title" defaultValue={creative?.title ?? ""} />
-      </label>
-      <label>
-        Descrição
-        <textarea name="description" rows={3} defaultValue={creative?.description ?? ""} />
       </label>
       <button className="button" type="submit">
         Salvar campanha

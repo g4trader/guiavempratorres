@@ -8,6 +8,8 @@ export function CampaignAudienceFields({
   displayLocations,
   businesses,
   businessId,
+  destinationType,
+  destinationUrl,
   categories,
   categoryIds,
   status
@@ -15,11 +17,14 @@ export function CampaignAudienceFields({
   displayLocations: CampaignLocation[];
   businesses: { id: string; name: string }[];
   businessId: string;
+  destinationType: "INTERNAL" | "EXTERNAL";
+  destinationUrl: string;
   categories: { id: string; name: string }[];
   categoryIds: string[];
   status: string;
 }) {
   const [selectedLocations, setSelectedLocations] = useState<CampaignLocation[]>(displayLocations);
+  const [selectedDestinationType, setSelectedDestinationType] = useState(destinationType);
 
   function toggleLocation(location: CampaignLocation, checked: boolean) {
     if (location === "SITE") {
@@ -64,7 +69,20 @@ export function CampaignAudienceFields({
       </fieldset>
       <div className="admin-form-row">
         <label>
-          Empresa
+          Destino do banner
+          <select
+            name="destination_type"
+            value={selectedDestinationType}
+            onChange={(event) =>
+              setSelectedDestinationType(event.target.value as "INTERNAL" | "EXTERNAL")
+            }
+          >
+            <option value="INTERNAL">Empresa cadastrada</option>
+            <option value="EXTERNAL">Link externo</option>
+          </select>
+        </label>
+        <label>
+          {selectedDestinationType === "INTERNAL" ? "Empresa de destino" : "Empresa anunciante"}
           <select name="business_id" required defaultValue={businessId}>
             <option value="">Selecione</option>
             {businesses.map((business) => (
@@ -74,6 +92,24 @@ export function CampaignAudienceFields({
             ))}
           </select>
         </label>
+        {selectedDestinationType === "EXTERNAL" ? (
+          <label>
+            <span>
+              URL externa <strong className="required-mark">*</strong>
+            </span>
+            <input
+              name="destination_url"
+              type="url"
+              required
+              defaultValue={destinationUrl}
+              placeholder="https://exemplo.com.br"
+            />
+          </label>
+        ) : (
+          <p className="field-hint destination-hint">
+            O banner abrirá automaticamente a página da empresa selecionada.
+          </p>
+        )}
         <label>
           Status
           <select name="status" defaultValue={status}>

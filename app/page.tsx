@@ -51,9 +51,11 @@ export default async function Home() {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c")
         }}
       />
-      <div className="hero">
-        <HeroCarousel campaigns={campaigns} />
-      </div>
+      {campaigns.length ? (
+        <div className="hero">
+          <HeroCarousel campaigns={campaigns} />
+        </div>
+      ) : null}
       <section className="search-section container" aria-labelledby="buscar-titulo">
         <h2 id="buscar-titulo">O que você procura em Torres?</h2>
         <form action="/buscar" className="search-form">

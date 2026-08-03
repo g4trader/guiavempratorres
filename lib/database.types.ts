@@ -79,6 +79,8 @@ export type Database = {
           created_at: string
           display_order: number
           display_locations: string[]
+          destination_type: string
+          destination_url: string
           ends_at: string
           id: string
           internal_path: string
@@ -94,6 +96,8 @@ export type Database = {
           created_at?: string
           display_order?: number
           display_locations?: string[]
+          destination_type?: string
+          destination_url?: string
           ends_at: string
           id?: string
           internal_path: string
@@ -109,6 +113,8 @@ export type Database = {
           created_at?: string
           display_order?: number
           display_locations?: string[]
+          destination_type?: string
+          destination_url?: string
           ends_at?: string
           id?: string
           internal_path?: string

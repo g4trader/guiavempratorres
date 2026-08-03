@@ -6,13 +6,11 @@ import { seededShuffle } from "@/lib/domain";
 
 export type HeroCampaign = {
   id: string;
-  title: string;
-  description: string;
   imageDesktop: string;
   imageMobile: string | null;
   imageAlt: string;
-  internalPath: string;
-  businessName: string;
+  destinationUrl: string;
+  isExternal: boolean;
 };
 
 type BusinessRow = {
@@ -406,7 +404,9 @@ async function getValidHeroCampaigns(options: {
   }
   const query = client
     .from("ad_campaigns")
-    .select("id,business_id,internal_path,audience,display_locations")
+    .select(
+      "id,business_id,internal_path,destination_type,destination_url,audience,display_locations"
+    )
     .eq("placement_id", placement.id)
     .eq("status", "active")
     .lte("starts_at", now)
@@ -423,12 +423,13 @@ async function getValidHeroCampaigns(options: {
         return locations.includes("TOURIST_ATTRACTIONS");
       return locations.includes("CATEGORIES") && allowedCampaignIds.includes(campaign.id);
     })
+    .sort(() => Math.random() - 0.5)
     .slice(0, Math.min(placement.maximum_active_ads, 5));
   if (error || campaigns.length === 0) return [];
   const [{ data: creatives }, { data: businesses }] = await Promise.all([
     client
       .from("ad_creatives")
-      .select("campaign_id,desktop_image_path,mobile_image_path,image_alt,title,description")
+      .select("campaign_id,desktop_image_path,mobile_image_path,image_alt")
       .in(
         "campaign_id",
         campaigns.map(({ id }) => id)
@@ -449,13 +450,11 @@ async function getValidHeroCampaigns(options: {
     return [
       {
         id: campaign.id,
-        title: creative.title ?? business.name,
-        description: creative.description ?? "",
         imageDesktop: resolvePublicAsset(creative.desktop_image_path) ?? "",
         imageMobile: resolvePublicAsset(creative.mobile_image_path),
         imageAlt: creative.image_alt,
-        internalPath: campaign.internal_path,
-        businessName: business.name
+        destinationUrl: campaign.destination_url || campaign.internal_path,
+        isExternal: campaign.destination_type === "EXTERNAL"
       }
     ];
   });
