@@ -15,7 +15,7 @@ export function CampaignAudienceFields({
   status
 }: {
   displayLocations: CampaignLocation[];
-  businesses: { id: string; name: string }[];
+  businesses: { id: string; name: string; slug: string }[];
   businessId: string;
   destinationType: "INTERNAL" | "EXTERNAL";
   destinationUrl: string;
@@ -25,6 +25,10 @@ export function CampaignAudienceFields({
 }) {
   const [selectedLocations, setSelectedLocations] = useState<CampaignLocation[]>(displayLocations);
   const [selectedDestinationType, setSelectedDestinationType] = useState(destinationType);
+  const [selectedBusinessId, setSelectedBusinessId] = useState(businessId);
+  const [externalDestinationUrl, setExternalDestinationUrl] = useState(destinationUrl);
+  const selectedBusiness = businesses.find((business) => business.id === selectedBusinessId);
+  const internalDestinationUrl = selectedBusiness ? `/empresas/${selectedBusiness.slug}` : "";
 
   function toggleLocation(location: CampaignLocation, checked: boolean) {
     if (location === "SITE") {
@@ -83,7 +87,12 @@ export function CampaignAudienceFields({
         </label>
         <label>
           {selectedDestinationType === "INTERNAL" ? "Empresa de destino" : "Empresa anunciante"}
-          <select name="business_id" required defaultValue={businessId}>
+          <select
+            name="business_id"
+            required
+            value={selectedBusinessId}
+            onChange={(event) => setSelectedBusinessId(event.target.value)}
+          >
             <option value="">Selecione</option>
             {businesses.map((business) => (
               <option key={business.id} value={business.id}>
@@ -95,20 +104,50 @@ export function CampaignAudienceFields({
         {selectedDestinationType === "EXTERNAL" ? (
           <label>
             <span>
-              URL externa <strong className="required-mark">*</strong>
+              Link de destino <strong className="required-mark">*</strong>
             </span>
             <input
               name="destination_url"
               type="url"
               required
-              defaultValue={destinationUrl}
+              value={externalDestinationUrl}
+              onChange={(event) => setExternalDestinationUrl(event.target.value)}
               placeholder="https://exemplo.com.br"
             />
+            {/^https?:\/\//i.test(externalDestinationUrl) ? (
+              <a
+                className="field-hint destination-preview-link"
+                href={externalDestinationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir destino em nova aba
+              </a>
+            ) : null}
           </label>
         ) : (
-          <p className="field-hint destination-hint">
-            O banner abrirá automaticamente a página da empresa selecionada.
-          </p>
+          <label>
+            Link de destino
+            <input
+              value={internalDestinationUrl}
+              readOnly
+              aria-describedby={`destination-help-${businessId || "new"}`}
+              placeholder="Selecione uma empresa"
+            />
+            <span className="field-hint" id={`destination-help-${businessId || "new"}`}>
+              Gerado automaticamente. Para mudar o link, selecione outra empresa.
+            </span>
+            {internalDestinationUrl ? (
+              <a
+                className="field-hint destination-preview-link"
+                href={internalDestinationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir destino em nova aba
+              </a>
+            ) : null}
+          </label>
         )}
         <label>
           Status
