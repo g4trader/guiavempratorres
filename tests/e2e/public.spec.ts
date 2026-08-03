@@ -1,14 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 test("visitante navega pelo hero, categoria e empresa", async ({ page }) => {
+  await page.clock.install();
   await page.goto("/");
   await expect(page.getByRole("banner").getByAltText("Vem Pra Torres")).toBeVisible();
   await expect(page.getByRole("contentinfo").getByAltText("Vem Pra Torres")).toBeVisible();
   await expect(page.getByRole("region", { name: "Empresas em destaque" })).toBeVisible();
 
-  const firstTitle = await page.getByRole("heading", { level: 1 }).textContent();
-  await page.getByRole("button", { name: "Próximo destaque" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(firstTitle ?? "");
+  const bannerLink = page.getByRole("link", { name: /^Abrir anúncio:/ });
+  const firstDestination = await bannerLink.getAttribute("href");
+  await page.clock.fastForward(7000);
+  await expect(bannerLink).not.toHaveAttribute("href", firstDestination ?? "");
 
   await page
     .getByRole("article")
