@@ -250,25 +250,28 @@ export async function saveGalleryImage(form: FormData) {
   const path = "/admin/empresas";
   const { client } = await requireAdmin();
   const businessId = parseUuid(form.get("business_id"), path, "Empresa");
-  const storagePath = text(form, "storage_path");
-  if (!storagePath) fail(path, "Envie uma imagem antes de adicionar à galeria.");
-  const imageAlt = text(form, "image_alt");
-  if (!imageAlt) fail(path, "Informe o texto alternativo da imagem da galeria.");
+  const storagePaths = form.getAll("storage_path").map((value) => String(value).trim()).filter(Boolean);
+  if (!storagePaths.length) fail(path, "Envie ao menos uma imagem antes de adicionar à galeria.");
+  const imageAlts = form.getAll("image_alt").map((value) => String(value).trim());
+  if (imageAlts.length !== storagePaths.length || imageAlts.some((value) => !value))
+    fail(path, "Informe o texto alternativo de todas as imagens da galeria.");
   const displayOrder = Number(text(form, "display_order") || 0);
   if (!Number.isInteger(displayOrder) || displayOrder < 0)
     fail(path, "A ordem da imagem deve ser um número inteiro igual ou maior que zero.");
-  const { error } = await client.from("business_media").insert({
-    business_id: businessId,
-    kind: "gallery",
-    storage_path: storagePath,
-    image_alt: imageAlt,
-    display_order: displayOrder,
-    is_active: true
-  });
+  const { error } = await client.from("business_media").insert(
+    storagePaths.map((storagePath, index) => ({
+      business_id: businessId,
+      kind: "gallery" as const,
+      storage_path: storagePath,
+      image_alt: imageAlts[index],
+      display_order: displayOrder + index,
+      is_active: true
+    }))
+  );
   if (error)
     fail(path, explainDatabaseError(error, "Não foi possível adicionar a imagem à galeria."));
   revalidatePath(path);
-  redirect(`${path}?mensagem=Imagem adicionada à galeria.`);
+  redirect(`${path}?mensagem=${storagePaths.length} ${storagePaths.length === 1 ? "imagem adicionada" : "imagens adicionadas"} à galeria.`);
 }
 
 export async function deleteGalleryImage(form: FormData) {

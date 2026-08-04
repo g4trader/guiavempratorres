@@ -17,6 +17,7 @@ import { BusinessLocationFields } from "@/components/admin/BusinessLocationField
 import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { GalleryUpload } from "@/components/admin/GalleryUpload";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
 type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
@@ -374,7 +375,6 @@ function GalleryManager({
   businessId: string;
   images: { id: string; storage_path: string; image_alt: string; display_order: number }[];
 }) {
-  const uploadId = randomUUID();
   return (
     <section className="gallery-admin">
       <h3>Galeria</h3>
@@ -389,23 +389,13 @@ function GalleryManager({
       ))}
       <form action={saveGalleryImage} className="admin-form">
         <input type="hidden" name="business_id" value={businessId} />
-        <ImageUpload
-          bucket="business-gallery"
-          entityId={businessId}
-          name="storage_path"
-          label="Nova imagem da galeria"
-        />
+        <GalleryUpload entityId={businessId} />
         <label>
-          Texto alternativo
-          <input name="image_alt" required />
-        </label>
-        <label>
-          Ordem
+          Ordem inicial
           <input name="display_order" type="number" min="0" defaultValue={images.length} />
         </label>
-        <input type="hidden" value={uploadId} readOnly />
         <button className="button secondary" type="submit">
-          Adicionar à galeria
+          Adicionar imagens à galeria
         </button>
       </form>
     </section>

@@ -839,6 +839,45 @@ body:has(.admin-login) {
   max-height: 12rem;
   object-fit: contain;
 }
+
+.gallery-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 11rem;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.gallery-dropzone small {
+  color: var(--color-text-muted);
+}
+
+.gallery-upload-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.gallery-upload-preview {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.gallery-upload-preview img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  border-radius: calc(var(--radius-md) / 2);
+  background: #f8fbfd;
+}
 .upload-actions {
   display: flex;
   align-items: center;
