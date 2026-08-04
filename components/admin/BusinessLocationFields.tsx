@@ -28,6 +28,7 @@ export function BusinessLocationFields({ initial }: { initial: InitialLocation }
       if (!response.ok || !payload.location)
         throw new Error(payload.error || "Não foi possível importar a localização.");
       setLocation(payload.location);
+      setUrl(payload.location.googleMapsUrl);
       setVerifiedUrl(payload.location.googleMapsUrl);
       setStatus("Localização importada com sucesso.");
     } catch (error) {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   coordinatesFromGoogleMapsUrl,
-  isAllowedGoogleMapsUrl
+  isAllowedGoogleMapsUrl,
+  isPersistableGoogleMapsUrl
 } from "@/lib/google-maps";
 
 describe("Google Maps location import", () => {
@@ -10,6 +11,12 @@ describe("Google Maps location import", () => {
     expect(isAllowedGoogleMapsUrl("https://www.google.com/maps/place/Torres")).toBe(true);
     expect(isAllowedGoogleMapsUrl("http://www.google.com/maps/place/Torres")).toBe(false);
     expect(isAllowedGoogleMapsUrl("https://google.com.example.org/maps/place/Torres")).toBe(false);
+  });
+
+  it("aceita para persistência somente formatos compatíveis com o banco", () => {
+    expect(isPersistableGoogleMapsUrl("https://maps.app.goo.gl/example")).toBe(true);
+    expect(isPersistableGoogleMapsUrl("https://www.google.com/maps/place/Torres")).toBe(true);
+    expect(isPersistableGoogleMapsUrl("https://goo.gl/example")).toBe(false);
   });
 
   it("extracts coordinates from map viewport URLs", () => {

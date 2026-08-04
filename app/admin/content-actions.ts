@@ -7,6 +7,7 @@ import { z } from "zod";
 import { explainDatabaseError } from "@/lib/admin/action-errors";
 import { canManageAdminRoles, canManageCampaigns } from "@/lib/auth/authorization";
 import { slugify } from "@/lib/domain";
+import { isPersistableGoogleMapsUrl } from "@/lib/google-maps";
 import { createAuthenticatedServerClient, requireAdmin } from "@/lib/supabase/auth-server";
 import { databaseUuid } from "@/lib/validation/database";
 
@@ -83,6 +84,9 @@ export async function saveBusiness(form: FormData) {
 
   const name = text(form, "name");
   if (name.length < 2) fail(path, "O nome da empresa deve ter pelo menos 2 caracteres.");
+  if (name.length > 140) fail(path, "O nome da empresa deve ter no máximo 140 caracteres.");
+  const slug = slugify(text(form, "slug") || name);
+  if (!slug) fail(path, "Informe um nome que permita gerar um endereço válido para a empresa.");
   const city = text(form, "city");
   const googleMapsUrl = optional(form, "google_maps_url");
   if (!city || !googleMapsUrl)
@@ -92,6 +96,14 @@ export async function saveBusiness(form: FormData) {
       path,
       "O link do Google Maps foi alterado. Clique em “Preencher localização” antes de salvar."
     );
+  if (!isPersistableGoogleMapsUrl(googleMapsUrl))
+    fail(
+      path,
+      "O link importado não está em um formato aceito. Use “Preencher localização” novamente com um link copiado do Google Maps."
+    );
+  const state = (text(form, "state") || "RS").toUpperCase();
+  if (!/^[A-Z]{2}$/.test(state))
+    fail(path, "A UF da localização deve conter exatamente duas letras, como RS.");
 
   const featuredHome = checked(form, "featured_home");
   const featuredOrderText = text(form, "featured_home_order");
@@ -138,7 +150,7 @@ export async function saveBusiness(form: FormData) {
     id,
     plan_id: planId,
     name,
-    slug: text(form, "slug") || slugify(name),
+    slug,
     short_description: optional(form, "short_description"),
     description: optional(form, "description"),
     logo_path: optional(form, "logo_path"),
@@ -148,7 +160,7 @@ export async function saveBusiness(form: FormData) {
     address_line: optional(form, "address_line"),
     neighborhood: optional(form, "neighborhood"),
     city,
-    state: text(form, "state") || "RS",
+    state,
     postal_code: optional(form, "postal_code"),
     google_maps_url: googleMapsUrl,
     latitude,

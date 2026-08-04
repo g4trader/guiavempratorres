@@ -22,4 +22,13 @@ describe("explainDatabaseError", () => {
       )
     ).toBe("No destaque da Home, a data final deve ser posterior à data inicial.");
   });
+
+  it("explica formato inválido do link do Google Maps", () => {
+    expect(
+      explainDatabaseError(
+        { code: "23514", message: "violates businesses_google_maps_url_check" },
+        "Falha genérica."
+      )
+    ).toContain("O link do Google Maps não está em um formato aceito");
+  });
 });

@@ -26,6 +26,23 @@ export function isAllowedGoogleMapsUrl(value: string) {
   }
 }
 
+export function isPersistableGoogleMapsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return false;
+    const host = url.hostname.toLowerCase();
+    return (
+      ((host === "google.com" || host === "www.google.com") &&
+        url.pathname.startsWith("/maps")) ||
+      host === "maps.google.com" ||
+      host === "maps.app.goo.gl" ||
+      (host === "goo.gl" && url.pathname.startsWith("/maps"))
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function coordinatesFromGoogleMapsUrl(value: string) {
   const decoded = decodeURIComponent(value);
   const patterns = [
@@ -86,6 +103,10 @@ export async function resolveGoogleMapsLocation(value: string): Promise<Business
     throw new Error("Informe um link HTTPS válido do Google Maps.");
 
   const expandedUrl = await expandGoogleMapsUrl(value);
+  if (!isPersistableGoogleMapsUrl(expandedUrl))
+    throw new Error(
+      "O Google Maps retornou um link em formato incompatível. Gere um novo link em Compartilhar → Copiar link."
+    );
   const coordinates = coordinatesFromGoogleMapsUrl(expandedUrl);
   if (!coordinates)
     throw new Error(
@@ -124,7 +145,7 @@ export async function resolveGoogleMapsLocation(value: string): Promise<Business
   const addressLine = [route, number].filter(Boolean).join(", ") || result.formatted_address;
 
   return {
-    googleMapsUrl: value,
+    googleMapsUrl: expandedUrl,
     addressLine,
     neighborhood: component(components, ["sublocality_level_1", "sublocality", "neighborhood"]),
     city: component(components, ["administrative_area_level_2", "locality", "postal_town"]),
