@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { explainDatabaseError } from "@/lib/admin/action-errors";
 import { slugify } from "@/lib/domain";
+import { isPersistableGoogleMapsUrl } from "@/lib/google-maps";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 import { databaseUuid } from "@/lib/validation/database";
 
@@ -36,6 +37,8 @@ export async function saveTouristAttraction(form: FormData) {
   if (!idResult.success) fail("Ponto turístico inválido. Atualize a página e tente novamente.");
   const title = text(form, "title");
   if (title.length < 2) fail("Informe um título com pelo menos 2 caracteres.");
+  const slug = slugify(text(form, "slug") || title);
+  if (!slug) fail("Informe um título que permita gerar um slug válido.");
   const statusResult = z
     .enum(["draft", "published", "suspended", "archived"])
     .safeParse(form.get("status"));
@@ -50,19 +53,24 @@ export async function saveTouristAttraction(form: FormData) {
   if (!blocksResult.success) fail("Revise os blocos: textos e imagens precisam estar preenchidos.");
   const cardImagePath = optional(form, "card_image_path");
   const cardImageAlt = optional(form, "card_image_alt");
-  if (cardImagePath && !cardImageAlt) fail("Informe o texto alternativo da imagem do card.");
+  if (Boolean(cardImagePath) !== Boolean(cardImageAlt))
+    fail("Envie a imagem do card e informe seu texto alternativo juntos.");
   const googleMapsUrl = optional(form, "google_maps_url");
   if (!googleMapsUrl || googleMapsUrl !== text(form, "location_verified_url"))
     fail("Preencha e valide a localização pelo link do Google Maps antes de salvar.");
+  if (!isPersistableGoogleMapsUrl(googleMapsUrl))
+    fail("Importe novamente a localização usando um link copiado do Google Maps.");
   const latitude = Number(text(form, "latitude"));
   const longitude = Number(text(form, "longitude"));
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude))
     fail("Não foi possível identificar as coordenadas do local.");
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180)
+    fail("As coordenadas importadas do local estão fora dos limites válidos.");
 
   const payload = {
     id: idResult.data,
     title,
-    slug: text(form, "slug") || slugify(title),
+    slug,
     excerpt: optional(form, "excerpt"),
     card_image_path: cardImagePath,
     card_image_alt: cardImageAlt,

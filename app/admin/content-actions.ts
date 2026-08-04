@@ -38,14 +38,20 @@ export async function saveCategory(form: FormData) {
   const { client } = await requireAdmin();
   const name = text(form, "name");
   if (name.length < 2) fail(path, "O nome da categoria deve ter pelo menos 2 caracteres.");
+  if (name.length > 100) fail(path, "O nome da categoria deve ter no máximo 100 caracteres.");
+  const slug = slugify(text(form, "slug") || name);
+  if (!slug) fail(path, "Informe um nome que permita gerar um slug válido para a categoria.");
+  const displayOrder = Number(text(form, "display_order") || 0);
+  if (!Number.isInteger(displayOrder) || displayOrder < 0)
+    fail(path, "A ordem da categoria deve ser um número inteiro igual ou maior que zero.");
   const payload = {
     id: parseUuid(form.get("id"), path, "Categoria"),
     name,
-    slug: text(form, "slug") || slugify(name),
+    slug,
     description: optional(form, "description"),
     image_path: optional(form, "image_path"),
     image_alt: optional(form, "image_alt"),
-    display_order: Number(text(form, "display_order") || 0),
+    display_order: displayOrder,
     is_active: checked(form, "is_active"),
     seo_title: optional(form, "seo_title"),
     seo_description: optional(form, "seo_description")
@@ -248,12 +254,15 @@ export async function saveGalleryImage(form: FormData) {
   if (!storagePath) fail(path, "Envie uma imagem antes de adicionar à galeria.");
   const imageAlt = text(form, "image_alt");
   if (!imageAlt) fail(path, "Informe o texto alternativo da imagem da galeria.");
+  const displayOrder = Number(text(form, "display_order") || 0);
+  if (!Number.isInteger(displayOrder) || displayOrder < 0)
+    fail(path, "A ordem da imagem deve ser um número inteiro igual ou maior que zero.");
   const { error } = await client.from("business_media").insert({
     business_id: businessId,
     kind: "gallery",
     storage_path: storagePath,
     image_alt: imageAlt,
-    display_order: Number(text(form, "display_order") || 0),
+    display_order: displayOrder,
     is_active: true
   });
   if (error)
@@ -306,6 +315,11 @@ export async function saveCampaign(form: FormData) {
   if (!startsAt || !endsAt) fail(path, "Informe as datas inicial e final da campanha.");
   if (new Date(endsAt).getTime() <= new Date(startsAt).getTime())
     fail(path, "A data final da campanha deve ser posterior à data inicial.");
+  const displayOrder = Number(text(form, "display_order") || 0);
+  if (!Number.isInteger(displayOrder) || displayOrder < 0)
+    fail(path, "A ordem do banner deve ser um número inteiro igual ou maior que zero.");
+  const priority = Number(text(form, "priority") || 0);
+  if (!Number.isInteger(priority)) fail(path, "A prioridade do banner deve ser um número inteiro.");
   const categoryIds = form
     .getAll("category_ids")
     .map((value) => parseUuid(value, path, "Categoria"));
@@ -327,6 +341,8 @@ export async function saveCampaign(form: FormData) {
   if (destinationBusinessError || !destinationBusiness)
     fail(path, "A empresa selecionada não foi encontrada.");
   const internalPath = `/empresas/${destinationBusiness.slug}`;
+  if (!/^\/empresas\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(internalPath))
+    fail(path, "A empresa selecionada possui um endereço interno inválido. Corrija o slug dela.");
   let destinationUrl = internalPath;
   if (destinationType.data === "EXTERNAL") {
     const parsedUrl = z.string().url().safeParse(text(form, "destination_url"));
@@ -343,12 +359,16 @@ export async function saveCampaign(form: FormData) {
     status: status.data,
     starts_at: startsAt,
     ends_at: endsAt,
-    display_order: Number(text(form, "display_order") || 0),
-    priority: Number(text(form, "priority") || 0),
+    display_order: displayOrder,
+    priority,
     internal_path: internalPath,
     destination_type: destinationType.data,
     destination_url: destinationUrl
   };
+  const desktopImagePath = text(form, "desktop_image_path");
+  const imageAlt = text(form, "image_alt");
+  if (!desktopImagePath) fail(path, "Envie a imagem desktop do banner.");
+  if (!imageAlt) fail(path, "Informe o texto alternativo do banner.");
   const { error } = await client.from("ad_campaigns").upsert(payload);
   if (error) fail(path, explainDatabaseError(error, "Não foi possível salvar o banner."));
   await client.from("ad_campaign_categories").delete().eq("campaign_id", id);
@@ -362,10 +382,6 @@ export async function saveCampaign(form: FormData) {
         explainDatabaseError(categoriesError, "Não foi possível vincular as categorias ao banner.")
       );
   }
-  const desktopImagePath = text(form, "desktop_image_path");
-  const imageAlt = text(form, "image_alt");
-  if (!desktopImagePath) fail(path, "Envie a imagem desktop do banner.");
-  if (!imageAlt) fail(path, "Informe o texto alternativo do banner.");
   const { error: creativeError } = await client.from("ad_creatives").upsert(
     {
       campaign_id: id,
