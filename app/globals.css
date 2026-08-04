@@ -756,6 +756,34 @@ body:has(.admin-login) {
   margin-top: 1rem;
   border-top: 1px solid var(--color-border);
 }
+
+.business-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.business-footer-actions > .button {
+  flex: 1;
+}
+
+.business-footer-actions form {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .business-footer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .business-footer-actions form .button {
+    width: 100%;
+  }
+}
 .button.danger {
   background: #a12f2f;
 }

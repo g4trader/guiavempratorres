@@ -80,6 +80,8 @@ export default async function BusinessesAdminPage({ searchParams }: PageProps) {
               <BusinessForm
                 business={business}
                 {...options}
+                formId={`business-form-${business.id}`}
+                externalSubmit
                 categoryIds={relationsResult.data
                   .filter((row) => row.business_id === business.id)
                   .map((row) => row.category_id)}
@@ -92,12 +94,17 @@ export default async function BusinessesAdminPage({ searchParams }: PageProps) {
                 business={{ id: business.id, name: business.name }}
                 items={itemsResult.data.filter((item) => item.business_id === business.id)}
               />
-              <form action={deleteBusiness} className="danger-zone">
-                <input type="hidden" name="id" value={business.id} />
-                <ConfirmSubmitButton message={`Excluir “${business.name}” e seus itens/mídias?`}>
-                  Excluir empresa
-                </ConfirmSubmitButton>
-              </form>
+              <div className="business-footer-actions">
+                <button className="button" type="submit" form={`business-form-${business.id}`}>
+                  Salvar empresa
+                </button>
+                <form action={deleteBusiness}>
+                  <input type="hidden" name="id" value={business.id} />
+                  <ConfirmSubmitButton message={`Excluir “${business.name}” e seus itens/mídias?`}>
+                    Excluir empresa
+                  </ConfirmSubmitButton>
+                </form>
+              </div>
             </details>
           ))}
         </section>
@@ -192,16 +199,20 @@ function BusinessForm({
   business,
   plans,
   categories,
-  categoryIds
+  categoryIds,
+  formId,
+  externalSubmit = false
 }: {
   business: BusinessValues;
   plans: { id: string; name: string }[];
   categories: { id: string; name: string }[];
   categoryIds: string[];
+  formId?: string;
+  externalSubmit?: boolean;
 }) {
   const value = (name: string) => (business[name] as string | number | null | undefined) ?? "";
   return (
-    <form action={saveBusiness} className="admin-form">
+    <form action={saveBusiness} className="admin-form" id={formId}>
       <input type="hidden" name="id" value={business.id} />
       <p className="field-hint">
         <strong className="required-mark">*</strong> Campos obrigatórios
@@ -362,9 +373,11 @@ function BusinessForm({
           <input name="seo_description" defaultValue={value("seo_description")} />
         </label>
       </div>
-      <button className="button" type="submit">
-        Salvar empresa
-      </button>
+      {!externalSubmit ? (
+        <button className="button" type="submit">
+          Salvar empresa
+        </button>
+      ) : null}
     </form>
   );
 }
