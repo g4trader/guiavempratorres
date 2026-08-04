@@ -18,6 +18,8 @@ import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { GalleryUpload } from "@/components/admin/GalleryUpload";
+import { GalleryImage } from "@/components/media/GalleryImage";
+import { resolvePublicAsset } from "@/lib/data/directory";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
 type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
@@ -378,15 +380,25 @@ function GalleryManager({
   return (
     <section className="gallery-admin">
       <h3>Galeria</h3>
-      {images.map((image) => (
-        <form action={deleteGalleryImage} className="gallery-admin-item" key={image.id}>
-          <span>{image.image_alt}</span>
-          <input type="hidden" name="id" value={image.id} />
-          <ConfirmSubmitButton message="Remover esta imagem da galeria?">
-            Remover
-          </ConfirmSubmitButton>
-        </form>
-      ))}
+      {images.length ? (
+        <div className="gallery-admin-grid">
+          {images.map((image) => (
+            <form action={deleteGalleryImage} className="gallery-admin-item" key={image.id}>
+              <GalleryImage
+                src={resolvePublicAsset(image.storage_path) ?? image.storage_path}
+                alt={image.image_alt}
+              />
+              <span className="gallery-admin-caption">{image.image_alt}</span>
+              <input type="hidden" name="id" value={image.id} />
+              <ConfirmSubmitButton message="Remover esta imagem da galeria?">
+                Remover
+              </ConfirmSubmitButton>
+            </form>
+          ))}
+        </div>
+      ) : (
+        <p className="muted">Nenhuma imagem cadastrada.</p>
+      )}
       <form action={saveGalleryImage} className="admin-form">
         <input type="hidden" name="business_id" value={businessId} />
         <GalleryUpload entityId={businessId} />
