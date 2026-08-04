@@ -21,6 +21,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState({ completed: 0, total: 0, current: "" });
+  const [draggedId, setDraggedId] = useState<string | null>(null);
 
   async function uploadFiles(files: File[]) {
     if (!files.length || uploading) return;
@@ -144,9 +145,44 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
         onChange={(event) => void uploadFiles(Array.from(event.target.files ?? []))}
       />
       {images.length ? (
-        <div className="gallery-upload-previews">
+        <>
+          <p className="gallery-sort-instruction">Arraste as imagens para definir a ordem antes de salvar.</p>
+          <div className="gallery-upload-previews">
           {images.map((image) => (
-            <div className="gallery-upload-preview" key={image.id}>
+            <div
+              className={`gallery-upload-preview${draggedId === image.id ? " is-dragging" : ""}`}
+              key={image.id}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (!draggedId || draggedId === image.id) return;
+                setImages((current) => {
+                  const from = current.findIndex((item) => item.id === draggedId);
+                  const to = current.findIndex((item) => item.id === image.id);
+                  const reordered = [...current];
+                  const [moved] = reordered.splice(from, 1);
+                  reordered.splice(to, 0, moved);
+                  return reordered;
+                });
+                setDraggedId(null);
+              }}
+            >
+              <span
+                className="gallery-drag-handle"
+                draggable
+                role="button"
+                tabIndex={0}
+                aria-label={`Arrastar ${image.fileName} para alterar sua posição`}
+                title="Arraste para ordenar"
+                onDragStart={(event) => {
+                  setDraggedId(image.id);
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", image.id);
+                }}
+                onDragEnd={() => setDraggedId(null)}
+              >
+                <span aria-hidden="true">⠿</span> Arrastar
+              </span>
               <input type="hidden" name="storage_path" value={image.path} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={image.preview} alt="" />
@@ -170,7 +206,8 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
               </button>
             </div>
           ))}
-        </div>
+          </div>
+        </>
       ) : null}
       <span aria-live="polite">{status}</span>
     </div>

@@ -255,16 +255,23 @@ export async function saveGalleryImage(form: FormData) {
   const imageAlts = form.getAll("image_alt").map((value) => String(value).trim());
   if (imageAlts.length !== storagePaths.length || imageAlts.some((value) => !value))
     fail(path, "Informe o texto alternativo de todas as imagens da galeria.");
-  const displayOrder = Number(text(form, "display_order") || 0);
-  if (!Number.isInteger(displayOrder) || displayOrder < 0)
-    fail(path, "A ordem da imagem deve ser um número inteiro igual ou maior que zero.");
+  const { data: lastImage, error: orderError } = await client
+    .from("business_media")
+    .select("display_order")
+    .eq("business_id", businessId)
+    .eq("kind", "gallery")
+    .order("display_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (orderError) fail(path, "Não foi possível determinar a ordem atual da galeria.");
+  const initialOrder = (lastImage?.display_order ?? -1) + 1;
   const { error } = await client.from("business_media").insert(
     storagePaths.map((storagePath, index) => ({
       business_id: businessId,
       kind: "gallery" as const,
       storage_path: storagePath,
       image_alt: imageAlts[index],
-      display_order: displayOrder + index,
+      display_order: initialOrder + index,
       is_active: true
     }))
   );
@@ -272,6 +279,37 @@ export async function saveGalleryImage(form: FormData) {
     fail(path, explainDatabaseError(error, "Não foi possível adicionar a imagem à galeria."));
   revalidatePath(path);
   redirect(`${path}?mensagem=${storagePaths.length} ${storagePaths.length === 1 ? "imagem adicionada" : "imagens adicionadas"} à galeria.`);
+}
+
+export async function reorderGalleryImages(businessId: string, orderedIds: string[]) {
+  const validBusiness = databaseUuid.safeParse(businessId);
+  const validIds = z.array(databaseUuid).min(1).safeParse(orderedIds);
+  if (!validBusiness.success || !validIds.success || new Set(orderedIds).size !== orderedIds.length)
+    return { ok: false, message: "A ordem recebida é inválida. Atualize a página e tente novamente." };
+
+  const { client } = await requireAdmin();
+  const { data: current, error: loadError } = await client
+    .from("business_media")
+    .select("id")
+    .eq("business_id", validBusiness.data)
+    .eq("kind", "gallery");
+  if (loadError || current.length !== orderedIds.length || current.some(({ id }) => !orderedIds.includes(id)))
+    return { ok: false, message: "A galeria mudou. Atualize a página antes de ordenar novamente." };
+
+  const results = await Promise.all(
+    orderedIds.map((id, displayOrder) =>
+      client
+        .from("business_media")
+        .update({ display_order: displayOrder })
+        .eq("id", id)
+        .eq("business_id", validBusiness.data)
+    )
+  );
+  if (results.some(({ error }) => error))
+    return { ok: false, message: "Não foi possível salvar a nova ordem da galeria." };
+  revalidatePath("/admin/empresas");
+  revalidatePath("/empresas/[slug]", "page");
+  return { ok: true, message: "Ordem da galeria salva." };
 }
 
 export async function deleteGalleryImage(form: FormData) {

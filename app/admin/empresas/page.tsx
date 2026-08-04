@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import {
   deleteBusiness,
-  deleteGalleryImage,
   saveBusiness,
   saveGalleryImage
 } from "@/app/admin/content-actions";
@@ -18,8 +17,8 @@ import { RatingStars } from "@/components/business/BusinessRating";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { GalleryUpload } from "@/components/admin/GalleryUpload";
-import { GalleryImage } from "@/components/media/GalleryImage";
 import { resolvePublicAsset } from "@/lib/data/directory";
+import { SortableGallery } from "@/components/admin/SortableGallery";
 import { requireAdmin } from "@/lib/supabase/auth-server";
 
 type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
@@ -381,31 +380,20 @@ function GalleryManager({
     <section className="gallery-admin">
       <h3>Galeria</h3>
       {images.length ? (
-        <div className="gallery-admin-grid">
-          {images.map((image) => (
-            <form action={deleteGalleryImage} className="gallery-admin-item" key={image.id}>
-              <GalleryImage
-                src={resolvePublicAsset(image.storage_path) ?? image.storage_path}
-                alt={image.image_alt}
-              />
-              <span className="gallery-admin-caption">{image.image_alt}</span>
-              <input type="hidden" name="id" value={image.id} />
-              <ConfirmSubmitButton message="Remover esta imagem da galeria?">
-                Remover
-              </ConfirmSubmitButton>
-            </form>
-          ))}
-        </div>
+        <SortableGallery
+          businessId={businessId}
+          initialImages={images.map((image) => ({
+            id: image.id,
+            src: resolvePublicAsset(image.storage_path) ?? image.storage_path,
+            alt: image.image_alt
+          }))}
+        />
       ) : (
         <p className="muted">Nenhuma imagem cadastrada.</p>
       )}
       <form action={saveGalleryImage} className="admin-form">
         <input type="hidden" name="business_id" value={businessId} />
         <GalleryUpload entityId={businessId} />
-        <label>
-          Ordem inicial
-          <input name="display_order" type="number" min="0" defaultValue={images.length} />
-        </label>
         <button className="button secondary" type="submit">
           Adicionar imagens à galeria
         </button>
