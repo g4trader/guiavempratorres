@@ -20,6 +20,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
   const [status, setStatus] = useState("");
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState({ completed: 0, total: 0, current: "" });
 
   async function uploadFiles(files: File[]) {
     if (!files.length || uploading) return;
@@ -36,6 +37,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
     }
 
     setUploading(true);
+    setProgress({ completed: 0, total: files.length, current: files[0]?.name ?? "" });
     setStatus(`Enviando ${files.length} ${files.length === 1 ? "imagem" : "imagens"}…`);
     const client = createBrowserSupabaseClient();
     const {
@@ -49,7 +51,8 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
 
     const uploaded: UploadedImage[] = [];
     const failures: string[] = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
+      setProgress({ completed: index, total: files.length, current: file.name });
       const extension = file.name.split(".").pop()?.toLowerCase().replace("jpeg", "jpg") ?? "jpg";
       const objectPath = `${entityId}/${user.id}/${crypto.randomUUID()}.${extension}`;
       const { error } = await client.storage.from("business-gallery").upload(objectPath, file, {
@@ -58,6 +61,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
       });
       if (error) {
         failures.push(file.name);
+        setProgress({ completed: index + 1, total: files.length, current: file.name });
         continue;
       }
       const path = `business-gallery/${objectPath}`;
@@ -68,6 +72,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
         alt: file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
         fileName: file.name
       });
+      setProgress({ completed: index + 1, total: files.length, current: file.name });
     }
 
     setImages((current) => [...current, ...uploaded]);
@@ -115,9 +120,20 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
           void uploadFiles(Array.from(event.dataTransfer.files));
         }}
       >
-        <strong>{uploading ? "Enviando imagens…" : "Arraste várias imagens para esta área"}</strong>
+        <strong>Arraste várias imagens para esta área</strong>
         <span>ou clique para selecionar um grupo de arquivos</span>
         <small>JPG, PNG, WebP ou AVIF · até 8 MB por imagem</small>
+        {uploading ? (
+          <span className="gallery-upload-progress" role="status" aria-live="polite">
+            <strong>Enviando imagens</strong>
+            <span className="gallery-upload-progress-file">{progress.current}</span>
+            <progress value={progress.completed} max={progress.total || 1} />
+            <span>
+              {progress.completed} de {progress.total} concluída(s) ·{" "}
+              {Math.round((progress.completed / (progress.total || 1)) * 100)}%
+            </span>
+          </span>
+        ) : null}
       </button>
       <input
         ref={inputRef}

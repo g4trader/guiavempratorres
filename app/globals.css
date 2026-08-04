@@ -841,6 +841,7 @@ body:has(.admin-login) {
 }
 
 .gallery-dropzone {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -850,8 +851,70 @@ body:has(.admin-login) {
   text-align: center;
 }
 
+.gallery-dropzone:disabled {
+  color: var(--color-text-muted);
+  cursor: wait;
+  opacity: 1;
+}
+
 .gallery-dropzone small {
   color: var(--color-text-muted);
+}
+
+.gallery-upload-progress {
+  position: absolute;
+  z-index: 1;
+  inset: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.25rem;
+  color: var(--color-surface);
+  background: rgba(18, 49, 70, 0.96);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+}
+
+.gallery-upload-progress > strong {
+  color: var(--color-surface);
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+}
+
+.gallery-upload-progress-file {
+  width: min(100%, 32rem);
+  overflow: hidden;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-upload-progress progress {
+  width: min(100%, 32rem);
+  height: 0.9rem;
+  overflow: hidden;
+  accent-color: var(--color-brand-primary);
+  background: rgba(255, 255, 255, 0.18);
+  border: 0;
+  border-radius: 999px;
+}
+
+.gallery-upload-progress progress::-webkit-progress-bar {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.gallery-upload-progress progress::-webkit-progress-value {
+  background: var(--color-brand-primary);
+  border-radius: 999px;
+  transition: width 180ms ease;
+}
+
+.gallery-upload-progress progress::-moz-progress-bar {
+  background: var(--color-brand-primary);
+  border-radius: 999px;
 }
 
 .gallery-upload-previews {
