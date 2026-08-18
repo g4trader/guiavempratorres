@@ -1950,7 +1950,8 @@ h2 {
   flex-direction: column;
 }
 
-.business-card .card-body h3 {
+.business-card .card-body h3,
+.category-list-card .category-card-name h3 {
   font-size: clamp(1.65rem, 2vw, 2rem);
   line-height: 1.12;
 }

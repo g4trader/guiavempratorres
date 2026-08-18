@@ -107,6 +107,9 @@ test("cards de categoria preenchem a moldura e mantêm o nome clicável", async 
   await card.scrollIntoViewIfNeeded();
   await expect(image).toHaveCSS("object-fit", "cover");
   await expect(name).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  const categoryFontSize = await name.locator("h3").evaluate((element) => getComputedStyle(element).fontSize);
+  const businessFontSize = await page.locator(".business-card h3").first().evaluate((element) => getComputedStyle(element).fontSize);
+  expect(categoryFontSize).toBe(businessFontSize);
 
   const cardBox = await card.boundingBox();
   const frameBox = await frame.boundingBox();
