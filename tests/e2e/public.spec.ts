@@ -70,6 +70,31 @@ test("cards completos de categoria e empresa são clicáveis", async ({ page }) 
   await expect(page).toHaveURL(/\/empresas\/[^/]+$/);
 });
 
+test("cards de categoria preenchem a moldura e mantêm o nome clicável", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator(".category-list-card").first();
+  const frame = card.locator(".category-image-frame");
+  const image = frame.locator("img");
+  const name = card.locator(".category-card-name");
+
+  await expect(card).toBeVisible();
+  await expect(image).toHaveCSS("object-fit", "cover");
+  await expect(name).toHaveCSS("background-color", "rgb(255, 255, 255)");
+
+  const cardBox = await card.boundingBox();
+  const frameBox = await frame.boundingBox();
+  const imageBox = await image.boundingBox();
+  expect(cardBox).not.toBeNull();
+  expect(frameBox).not.toBeNull();
+  expect(imageBox).not.toBeNull();
+  expect(Math.abs(frameBox!.width - cardBox!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(imageBox!.width - frameBox!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(imageBox!.height - frameBox!.height)).toBeLessThanOrEqual(1);
+
+  await name.click();
+  await expect(page).toHaveURL(/\/categorias\/[^/]+$/);
+});
+
 test("área administrativa exige autenticação", async ({ page }) => {
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Área administrativa" })).toBeVisible();
