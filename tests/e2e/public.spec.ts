@@ -80,6 +80,7 @@ test("cards de categoria preenchem a moldura e mantêm o nome clicável", async 
   const name = card.locator(".category-card-name");
 
   await expect(card).toBeVisible();
+  await card.scrollIntoViewIfNeeded();
   await expect(image).toHaveCSS("object-fit", "cover");
   await expect(name).toHaveCSS("background-color", "rgb(255, 255, 255)");
 
