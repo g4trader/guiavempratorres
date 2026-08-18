@@ -1,19 +1,9 @@
 import Link from "next/link";
 import type { Business } from "@/lib/domain";
 import { RatingStars } from "@/components/business/BusinessRating";
-import { InstagramIcon, MapPinIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
 import { BusinessCardImage } from "@/components/media/BusinessCardImage";
 
 export function BusinessCard({ business }: { business: Business }) {
-  const whatsappNumber = business.whatsapp?.replace(/\D/g, "") ?? "";
-  const mapQuery =
-    business.latitude !== null && business.longitude !== null
-      ? `${business.latitude},${business.longitude}`
-      : [business.addressLine, business.neighborhood, business.city].filter(Boolean).join(", ");
-  const mapUrl =
-    business.googleMapsUrl ||
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-
   return (
     <article className="card business-card clickable-card">
       <Link
@@ -38,51 +28,14 @@ export function BusinessCard({ business }: { business: Business }) {
           />
           {business.ratingCount > 0 ? <span>({business.ratingCount})</span> : null}
         </div>
-        {business.shortDescription ? <p>{business.shortDescription}</p> : null}
-        {[business.neighborhood, business.city].filter(Boolean).length ? (
-          <p>{[business.neighborhood, business.city].filter(Boolean).join(", ")}</p>
+        {business.shortDescription ? (
+          <p className="business-card-description">{business.shortDescription}</p>
         ) : null}
-        <div className="business-card-actions">
-          <span className="button secondary card-visual-cta" aria-hidden="true">
-            Ver empresa
-          </span>
-          <div className="business-card-links" aria-label={`Atalhos de ${business.name}`}>
-            {whatsappNumber ? (
-              <a
-                className="business-card-link whatsapp"
-                href={`https://wa.me/${whatsappNumber}`}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Falar com ${business.name} pelo WhatsApp`}
-                title="WhatsApp"
-              >
-                <WhatsAppIcon />
-              </a>
-            ) : null}
-            {business.instagramUrl ? (
-              <a
-                className="business-card-link instagram"
-                href={business.instagramUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Ver ${business.name} no Instagram`}
-                title="Instagram"
-              >
-                <InstagramIcon />
-              </a>
-            ) : null}
-            <a
-              className="business-card-link maps"
-              href={mapUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Ver ${business.name} no Google Maps`}
-              title="Google Maps"
-            >
-              <MapPinIcon />
-            </a>
-          </div>
-        </div>
+        {[business.neighborhood, business.city].filter(Boolean).length ? (
+          <p className="business-card-location">
+            {[business.neighborhood, business.city].filter(Boolean).join(", ")}
+          </p>
+        ) : null}
       </div>
     </article>
   );

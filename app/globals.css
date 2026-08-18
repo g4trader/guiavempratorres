@@ -1946,6 +1946,16 @@ h2 {
   flex-direction: column;
 }
 
+.business-card-description {
+  margin-top: 0.8rem;
+  font-size: clamp(1.2rem, 1.45vw, 1.4rem);
+  line-height: 1.45;
+}
+
+.business-card-location {
+  margin-top: auto;
+}
+
 .business-card-rating {
   display: flex;
   align-items: center;

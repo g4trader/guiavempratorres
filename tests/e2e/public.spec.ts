@@ -39,18 +39,20 @@ test("busca encontra empresas, categorias e itens", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Bistrô Horizonte Teste" })).toBeVisible();
 });
 
-test("cards de empresas exibem atalhos de contato e localização", async ({ page }) => {
+test("cards de empresas mantêm conteúdo limpo e clique integral", async ({ page }) => {
   await page.goto("/");
   const homeCard = page.locator(".business-card").first();
   await expect(homeCard.locator(".business-card-rating")).toBeVisible();
-  await expect(homeCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
-  await expect(homeCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
+  await expect(homeCard.locator(".business-card-description")).toBeVisible();
+  await expect(homeCard.locator(".business-card-actions")).toHaveCount(0);
+  await expect(homeCard.locator(".business-card-link")).toHaveCount(0);
+  await expect(homeCard.getByText("Ver empresa", { exact: true })).toHaveCount(0);
 
   await page.goto("/categorias/gastronomia");
   const categoryCard = page.locator(".business-card").first();
   await expect(categoryCard.locator(".business-card-rating")).toBeVisible();
-  await expect(categoryCard.getByRole("link", { name: /WhatsApp/ })).toBeVisible();
-  await expect(categoryCard.getByRole("link", { name: /Google Maps/ })).toBeVisible();
+  await expect(categoryCard.locator(".business-card-actions")).toHaveCount(0);
+  await expect(categoryCard.locator(".business-card-link")).toHaveCount(0);
 });
 
 test("cards completos de categoria e empresa são clicáveis", async ({ page }) => {
