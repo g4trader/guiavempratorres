@@ -74,6 +74,28 @@ test("cards completos de categoria e empresa são clicáveis", async ({ page }) 
   await expect(page).toHaveURL(/\/empresas\/[^/]+$/);
 });
 
+test("imagem do card de empresa preenche a moldura sem distorção", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator(".business-card").first();
+  const frame = card.locator(".business-card-image-frame");
+  const image = frame.locator("img");
+
+  await card.scrollIntoViewIfNeeded();
+  await expect(frame).toBeVisible();
+  await expect(image).toHaveCSS("object-fit", "cover");
+  const dimensions = await frame.evaluate((element) => {
+    const imageElement = element.querySelector("img");
+    return {
+      frameWidth: element.clientWidth,
+      frameHeight: element.clientHeight,
+      imageWidth: imageElement?.clientWidth,
+      imageHeight: imageElement?.clientHeight,
+    };
+  });
+  expect(dimensions.imageWidth).toBe(dimensions.frameWidth);
+  expect(dimensions.imageHeight).toBe(dimensions.frameHeight);
+});
+
 test("cards de categoria preenchem a moldura e mantêm o nome clicável", async ({ page }) => {
   await page.goto("/");
   const card = page.locator(".category-list-card").first();

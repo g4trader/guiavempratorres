@@ -1829,6 +1829,10 @@ h2 {
   transition: transform 450ms ease;
 }
 
+.business-card-image-frame img {
+  object-fit: cover;
+}
+
 .category-card:hover img,
 .business-card:hover img {
   transform: scale(1.025);
