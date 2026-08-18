@@ -1,28 +1,12 @@
 import { saveBusinessRating } from "@/app/empresas/actions";
-
-export function RatingStars({
-  value,
-  label
-}: {
-  value: number;
-  label: string;
-}) {
-  const rounded = Math.round(value);
-
-  return (
-    <span className="rating-stars" aria-label={label} role="img">
-      {Array.from({ length: 5 }, (_, index) => (
-        <span className={index < rounded ? "is-filled" : ""} aria-hidden="true" key={index}>
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}
+import { BusinessReviews, type BusinessReview } from "@/components/business/BusinessReviews";
+import { RatingStars } from "@/components/business/RatingStars";
 
 export function BusinessRating({
   business,
-  currentRating
+  currentRating,
+  currentComment,
+  initialReviews
 }: {
   business: {
     id: string;
@@ -31,6 +15,8 @@ export function BusinessRating({
     ratingCount: number;
   };
   currentRating: number | null;
+  currentComment: string;
+  initialReviews: BusinessReview[];
 }) {
   return (
     <section className="panel business-rating">
@@ -72,10 +58,22 @@ export function BusinessRating({
             ))}
           </div>
         </fieldset>
+        <label className="rating-comment-field">
+          Comentário <span className="muted">(opcional)</span>
+          <textarea
+            name="comment"
+            maxLength={150}
+            rows={4}
+            defaultValue={currentComment}
+            placeholder="Conte como foi sua experiência"
+          />
+          <small>Até 150 caracteres.</small>
+        </label>
         <button className="button secondary" type="submit">
           {currentRating ? "Atualizar avaliação" : "Enviar avaliação"}
         </button>
       </form>
+      <BusinessReviews businessId={business.id} initialReviews={initialReviews} />
     </section>
   );
 }

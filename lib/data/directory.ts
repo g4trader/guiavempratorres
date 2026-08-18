@@ -1,6 +1,7 @@
 import { createPublicServerClient } from "@/lib/supabase/server";
 import { getPublicSupabaseConfig } from "@/lib/env";
 import { parseSlug } from "@/lib/validation/slugs";
+import { databaseUuid } from "@/lib/validation/database";
 import type { Business, BusinessItem, Category, SearchResult } from "@/lib/domain";
 import { seededShuffle } from "@/lib/domain";
 
@@ -306,6 +307,18 @@ export async function getPublishedBusinessBySlug(slugValue: string): Promise<Bus
       alt: item.image_alt
     }))
   });
+}
+
+export async function listRecentBusinessReviews(businessId: string, limit = 3) {
+  const client = createPublicServerClient();
+  if (!client) return [];
+  const { data, error } = await client.rpc("get_public_business_reviews", {
+    p_business_id: databaseUuid.parse(businessId),
+    p_offset: 0,
+    p_limit: Math.min(Math.max(limit, 1), 10)
+  });
+  if (error) throw new Error("Não foi possível carregar as avaliações.");
+  return data;
 }
 
 export async function searchDirectory(rawQuery: string): Promise<SearchResult[]> {

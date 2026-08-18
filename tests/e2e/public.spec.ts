@@ -150,6 +150,16 @@ test("busca sem resultado mostra estado vazio", async ({ page }) => {
   await expect(page.getByText("Nenhum resultado encontrado.")).toBeVisible();
 });
 
+test("página da empresa usa galeria em carrossel e prioriza contatos", async ({ page }) => {
+  await page.goto("/empresas/cristal-tur");
+  await expect(page.locator(".business-gallery-carousel")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Próxima imagem" })).toBeVisible();
+  await expect(page.locator(".business-about p")).toHaveCSS("font-size", /^(19|2\d)(\.\d+)?px$/);
+
+  const headings = await page.locator(".detail-grid aside h2").allTextContents();
+  expect(headings.slice(0, 3)).toEqual(["Contatos", "Avaliações", "Localização"]);
+});
+
 test("rascunho e rotas inexistentes retornam 404", async ({ page }) => {
   await page.goto("/empresas/estudio-mar-de-mentirinha");
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();

@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { persistGalleryUploads } from "@/app/admin/content-actions";
 
 const acceptedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const maxBytes = 8 * 1024 * 1024;
@@ -15,6 +17,7 @@ type UploadedImage = {
 };
 
 export function GalleryUpload({ entityId }: { entityId: string }) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [status, setStatus] = useState("");
@@ -76,13 +79,28 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
       setProgress({ completed: index + 1, total: files.length, current: file.name });
     }
 
-    setImages((current) => [...current, ...uploaded]);
     setUploading(false);
     if (inputRef.current) inputRef.current.value = "";
+    if (uploaded.length) {
+      setStatus("Salvando imagens na galeria…");
+      const result = await persistGalleryUploads(entityId, uploaded.map((image) => ({
+        storagePath: image.path,
+        imageAlt: image.alt
+      })));
+      if (result.ok) {
+        setImages([]);
+        setStatus(result.message);
+        router.refresh();
+        return;
+      }
+      setImages((current) => [...current, ...uploaded]);
+      setStatus(result.message);
+      return;
+    }
     setStatus(
       failures.length
         ? `${uploaded.length} enviada(s). Falha em: ${failures.join(", ")}.`
-        : `${uploaded.length} ${uploaded.length === 1 ? "imagem enviada" : "imagens enviadas"}. Revise os textos alternativos e salve.`
+        : `${uploaded.length} ${uploaded.length === 1 ? "imagem enviada" : "imagens enviadas"}.`
     );
   }
 

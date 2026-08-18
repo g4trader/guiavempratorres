@@ -12,6 +12,8 @@ export async function saveBusinessRating(form: FormData) {
   const businessId = databaseUuid.parse(form.get("business_id"));
   const slug = parseSlug(String(form.get("slug") ?? ""));
   const rating = z.coerce.number().int().min(1).max(5).parse(form.get("rating"));
+  const commentValue = String(form.get("comment") ?? "").trim();
+  const comment = z.string().max(150).parse(commentValue) || null;
   const client = await createAuthenticatedServerClient();
   if (!client) redirect(`/empresas/${slug}?avaliacao=erro` as Route);
 
@@ -29,6 +31,7 @@ export async function saveBusinessRating(form: FormData) {
       business_id: businessId,
       user_id: user.id,
       rating,
+      comment,
       updated_at: new Date().toISOString()
     },
     { onConflict: "business_id,user_id" }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Business } from "@/lib/domain";
-import { RatingStars } from "@/components/business/BusinessRating";
+import { RatingStars } from "@/components/business/RatingStars";
 import { BusinessCardImage } from "@/components/media/BusinessCardImage";
 
 export function BusinessCard({ business }: { business: Business }) {

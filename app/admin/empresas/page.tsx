@@ -2,8 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import {
   deleteBusiness,
-  saveBusiness,
-  saveGalleryImage
+  saveBusiness
 } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
@@ -13,7 +12,7 @@ import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessItemForm } from "@/components/admin/BusinessItemForm";
 import { BusinessCommercialFields } from "@/components/admin/BusinessCommercialFields";
 import { BusinessLocationFields } from "@/components/admin/BusinessLocationFields";
-import { RatingStars } from "@/components/business/BusinessRating";
+import { RatingStars } from "@/components/business/RatingStars";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { GalleryUpload } from "@/components/admin/GalleryUpload";
@@ -404,13 +403,9 @@ function GalleryManager({
       ) : (
         <p className="muted">Nenhuma imagem cadastrada.</p>
       )}
-      <form action={saveGalleryImage} className="admin-form">
-        <input type="hidden" name="business_id" value={businessId} />
+      <div className="admin-form">
         <GalleryUpload entityId={businessId} />
-        <button className="button secondary" type="submit">
-          Adicionar imagens à galeria
-        </button>
-      </form>
+      </div>
     </section>
   );
 }

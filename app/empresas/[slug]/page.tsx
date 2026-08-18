@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPublishedBusinessBySlug } from "@/lib/data/directory";
+import { getPublishedBusinessBySlug, listRecentBusinessReviews } from "@/lib/data/directory";
 import { BusinessRating } from "@/components/business/BusinessRating";
+import { BusinessGalleryCarousel } from "@/components/business/BusinessGalleryCarousel";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/SocialIcons";
-import { GalleryImage } from "@/components/media/GalleryImage";
-import { HeroImage } from "@/components/media/HeroImage";
 import { createAuthenticatedServerClient } from "@/lib/supabase/auth-server";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +33,7 @@ export default async function BusinessPage({ params }: Props) {
   const { slug } = await params;
   const business = await getPublishedBusinessBySlug(slug);
   if (!business) notFound();
+  const recentReviews = await listRecentBusinessReviews(business.id, 3);
   const authClient = await createAuthenticatedServerClient();
   const {
     data: { user }
@@ -42,7 +42,7 @@ export default async function BusinessPage({ params }: Props) {
     user && authClient
       ? await authClient
           .from("business_ratings")
-          .select("rating")
+          .select("rating,comment")
           .eq("business_id", business.id)
           .eq("user_id", user.id)
           .maybeSingle()
@@ -97,6 +97,10 @@ export default async function BusinessPage({ params }: Props) {
   ].filter(
     (contact): contact is { label: string; value: string; href: string } => contact !== null
   );
+  const carouselImages = [
+    { id: "cover", url: business.imageUrl, alt: business.imageAlt },
+    ...business.gallery.filter((image) => image.url !== business.imageUrl)
+  ];
 
   return (
     <div className="container">
@@ -124,25 +128,13 @@ export default async function BusinessPage({ params }: Props) {
         {business.premium ? <span className="premium-badge">Premium</span> : null}
         {business.shortDescription ? <p className="muted">{business.shortDescription}</p> : null}
       </header>
-      <div className="business-hero">
-        <HeroImage desktop={business.imageUrl} alt={business.imageAlt} priority />
-      </div>
+      <BusinessGalleryCarousel images={carouselImages} />
       <section className="section detail-grid">
         <div className="stack">
-          <article className="panel">
+          <article className="panel business-about">
             <h2>Sobre</h2>
             {business.description ? <p>{business.description}</p> : null}
           </article>
-          {business.gallery.length ? (
-            <article className="panel">
-              <h2>Galeria</h2>
-              <div className="gallery-grid">
-                {business.gallery.map((image) => (
-                  <GalleryImage key={image.id} src={image.url} alt={image.alt} />
-                ))}
-              </div>
-            </article>
-          ) : null}
           {business.items.length ? (
             <article className="panel">
               <h2>Itens</h2>
@@ -172,10 +164,6 @@ export default async function BusinessPage({ params }: Props) {
           ) : null}
         </div>
         <aside className="stack">
-          <BusinessRating
-            business={business}
-            currentRating={userRating?.rating ?? null}
-          />
           {contacts.length > 0 || business.whatsapp || business.instagramUrl ? (
             <div className="panel">
               <h2>Contatos</h2>
@@ -216,6 +204,12 @@ export default async function BusinessPage({ params }: Props) {
               ))}
             </div>
           ) : null}
+          <BusinessRating
+            business={business}
+            currentRating={userRating?.rating ?? null}
+            currentComment={userRating?.comment ?? ""}
+            initialReviews={recentReviews}
+          />
           <div className="panel">
             <h2>Localização</h2>
             {business.addressLine || business.neighborhood || business.city ? (

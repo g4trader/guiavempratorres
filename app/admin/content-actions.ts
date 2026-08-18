@@ -281,6 +281,45 @@ export async function saveGalleryImage(form: FormData) {
   redirect(`${path}?mensagem=${storagePaths.length} ${storagePaths.length === 1 ? "imagem adicionada" : "imagens adicionadas"} à galeria.`);
 }
 
+export async function persistGalleryUploads(
+  businessIdValue: string,
+  uploads: { storagePath: string; imageAlt: string }[]
+) {
+  const businessId = databaseUuid.safeParse(businessIdValue);
+  const parsedUploads = z.array(z.object({
+    storagePath: z.string().startsWith("business-gallery/").max(500),
+    imageAlt: z.string().trim().min(1).max(180)
+  })).min(1).max(20).safeParse(uploads);
+  if (!businessId.success || !parsedUploads.success) {
+    return { ok: false, message: "As imagens recebidas são inválidas." };
+  }
+  const { client } = await requireAdmin();
+  const { data: lastImage, error: orderError } = await client
+    .from("business_media")
+    .select("display_order")
+    .eq("business_id", businessId.data)
+    .eq("kind", "gallery")
+    .order("display_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (orderError) return { ok: false, message: "Não foi possível determinar a ordem da galeria." };
+  const initialOrder = (lastImage?.display_order ?? -1) + 1;
+  const { error } = await client.from("business_media").insert(
+    parsedUploads.data.map((upload, index) => ({
+      business_id: businessId.data,
+      kind: "gallery" as const,
+      storage_path: upload.storagePath,
+      image_alt: upload.imageAlt,
+      display_order: initialOrder + index,
+      is_active: true
+    }))
+  );
+  if (error) return { ok: false, message: explainDatabaseError(error, "Não foi possível salvar as imagens na galeria.") };
+  revalidatePath("/admin/empresas");
+  revalidatePath("/empresas/[slug]", "page");
+  return { ok: true, message: `${uploads.length} ${uploads.length === 1 ? "imagem salva" : "imagens salvas"} na galeria.` };
+}
+
 export async function reorderGalleryImages(businessId: string, orderedIds: string[]) {
   const validBusiness = databaseUuid.safeParse(businessId);
   const validIds = z.array(databaseUuid).min(1).safeParse(orderedIds);

@@ -151,22 +151,13 @@ test.describe("fluxos administrativos", () => {
 
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
     await openDetails(refreshedBusinessDetails);
-    const galleryForm = refreshedBusinessDetails.locator(".gallery-admin form.admin-form");
-    const galleryUpload = galleryForm.locator(".image-upload");
+    const galleryUpload = refreshedBusinessDetails.locator(".gallery-admin .image-upload");
     await galleryUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
-    await expect(galleryUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
-    uploadedPaths.push(await galleryForm.locator('input[name="storage_path"]').inputValue());
-    await galleryForm.getByLabel("Texto alternativo").fill("Imagem temporária da galeria");
-    await Promise.all([
-      page.waitForURL(
-        (url) => url.searchParams.get("mensagem") === "Imagem adicionada à galeria."
-      ),
-      galleryForm.evaluate((form: HTMLFormElement) => form.requestSubmit())
-    ]);
+    await expect(galleryUpload.getByText("1 imagem salva na galeria.")).toBeVisible();
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
     await openDetails(refreshedBusinessDetails);
     await expect(
-      refreshedBusinessDetails.getByText("Imagem temporária da galeria", { exact: true })
+      refreshedBusinessDetails.getByText("logo vempratorres", { exact: true })
     ).toHaveCount(1);
     await refreshedBusinessDetails
       .getByRole("button", { name: "Adicionar item" })
@@ -217,10 +208,12 @@ test.describe("fluxos administrativos", () => {
     await page.goto(`/empresas/${businessSlug}`);
     await expect(page.getByRole("heading", { name: businessName })).toBeVisible();
     await page.getByRole("radio", { name: "5 estrelas", exact: true }).check();
+    await page.getByLabel("Comentário (opcional)").fill("Atendimento excelente durante o teste E2E.");
     await page.getByRole("button", { name: "Enviar avaliação" }).click();
     await expect(page.getByRole("button", { name: "Atualizar avaliação" })).toBeVisible();
     await expect(page.locator(".business-rating .rating-summary > strong")).toHaveText("5,0");
     await expect(page.locator(".business-rating .rating-summary")).toContainText("1 avaliação");
+    await expect(page.getByText("Atendimento excelente durante o teste E2E.")).toBeVisible();
 
     await page.goto("/admin/usuarios");
     await expect(page.getByRole("heading", { name: "Usuários" })).toBeVisible();

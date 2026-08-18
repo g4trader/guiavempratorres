@@ -77,10 +77,10 @@ export type Database = {
           audience: string
           business_id: string
           created_at: string
-          display_order: number
-          display_locations: string[]
           destination_type: string
           destination_url: string
+          display_locations: string[]
+          display_order: number
           ends_at: string
           id: string
           internal_path: string
@@ -94,10 +94,10 @@ export type Database = {
           audience?: string
           business_id: string
           created_at?: string
-          display_order?: number
-          display_locations?: string[]
           destination_type?: string
-          destination_url?: string
+          destination_url: string
+          display_locations?: string[]
+          display_order?: number
           ends_at: string
           id?: string
           internal_path: string
@@ -111,10 +111,10 @@ export type Database = {
           audience?: string
           business_id?: string
           created_at?: string
-          display_order?: number
-          display_locations?: string[]
           destination_type?: string
           destination_url?: string
+          display_locations?: string[]
+          display_order?: number
           ends_at?: string
           id?: string
           internal_path?: string
@@ -457,6 +457,7 @@ export type Database = {
       business_ratings: {
         Row: {
           business_id: string
+          comment: string | null
           created_at: string
           rating: number
           updated_at: string
@@ -464,6 +465,7 @@ export type Database = {
         }
         Insert: {
           business_id: string
+          comment?: string | null
           created_at?: string
           rating: number
           updated_at?: string
@@ -471,6 +473,7 @@ export type Database = {
         }
         Update: {
           business_id?: string
+          comment?: string | null
           created_at?: string
           rating?: number
           updated_at?: string
@@ -870,6 +873,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_business_reviews: {
+        Args: { p_business_id: string; p_limit?: number; p_offset?: number }
+        Returns: {
+          comment: string
+          created_at: string
+          rating: number
+          total_count: number
+        }[]
+      }
       has_admin_role: {
         Args: { allowed: Database["public"]["Enums"]["admin_role"][] }
         Returns: boolean

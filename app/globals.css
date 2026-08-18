@@ -2292,6 +2292,159 @@ h2 {
   inset: 0;
 }
 
+.business-gallery-carousel {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 8;
+  background: #dcebf1;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.business-gallery-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: zoom-in;
+}
+
+.business-gallery-image img {
+  object-fit: contain;
+}
+
+.business-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  place-items: center;
+  color: white;
+  font-size: 1.35rem;
+  background: rgba(18, 49, 70, 0.82);
+  border: 0;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.business-gallery-arrow.previous { left: 1.25rem; }
+.business-gallery-arrow.next { right: 1.25rem; }
+
+.business-gallery-dots {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(18, 49, 70, 0.72);
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.business-gallery-dots button {
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.55);
+  border: 0;
+  border-radius: 50%;
+}
+
+.business-gallery-dots button.is-active { background: white; }
+
+.business-about p {
+  font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+  line-height: 1.75;
+}
+
+.rating-comment-field {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.rating-comment-field textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.business-reviews-list {
+  display: grid;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.business-review-item {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.business-review-item > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.business-review-item time {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.reviews-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  padding: 1rem;
+  place-items: center;
+  background: rgba(10, 33, 48, 0.7);
+}
+
+.reviews-modal {
+  position: relative;
+  width: min(42rem, 100%);
+  max-height: min(48rem, 90vh);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  overflow: auto;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.reviews-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-ink);
+  font-size: 1.75rem;
+  background: #edf4f6;
+  border: 0;
+  border-radius: 50%;
+}
+
+.reviews-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 .detail-grid {
   gap: 2rem;
 }
@@ -2505,6 +2658,21 @@ h2 {
   }
   .category-image-frame {
     aspect-ratio: 16 / 10;
+  }
+  .business-gallery-carousel {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+  }
+  .business-gallery-arrow {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .business-gallery-arrow.previous { left: 0.75rem; }
+  .business-gallery-arrow.next { right: 0.75rem; }
+  .reviews-pagination {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
   }
 }
 
