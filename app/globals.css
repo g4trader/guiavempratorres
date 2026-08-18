@@ -1873,10 +1873,11 @@ h2 {
 }
 
 .category-card-name h3 {
-  width: 100%;
+  width: 80%;
   margin: 0;
-  font-size: clamp(1.75rem, 2.3vw, 2.35rem);
-  line-height: 1.05;
+  font-size: clamp(2.5rem, 4vw, 4.25rem);
+  line-height: 0.98;
+  text-wrap: balance;
 }
 
 @media (max-width: 700px) {
@@ -1887,6 +1888,11 @@ h2 {
   .category-card-name {
     min-height: 6rem;
     padding: 1.2rem 1.25rem;
+  }
+
+  .category-card-name h3 {
+    width: 85%;
+    font-size: clamp(2.35rem, 11vw, 3.5rem);
   }
 }
 
