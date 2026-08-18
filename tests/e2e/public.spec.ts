@@ -55,7 +55,9 @@ test("cards de empresas exibem atalhos de contato e localização", async ({ pag
 
 test("cards completos de categoria e empresa são clicáveis", async ({ page }) => {
   await page.goto("/");
-  const categoryCard = page.locator(".category-card").first();
+  const categoryCard = page
+    .locator(".category-card")
+    .filter({ has: page.getByRole("heading", { name: "Gastronomia" }) });
   await categoryCard.scrollIntoViewIfNeeded();
   const categoryImageBox = await categoryCard.locator(".category-image-frame").boundingBox();
   expect(categoryImageBox).not.toBeNull();
@@ -91,7 +93,9 @@ test("cards de categoria preenchem a moldura e mantêm o nome clicável", async 
   expect(Math.abs(imageBox!.width - frameBox!.width)).toBeLessThanOrEqual(1);
   expect(Math.abs(imageBox!.height - frameBox!.height)).toBeLessThanOrEqual(1);
 
-  await name.click();
+  const nameBox = await name.boundingBox();
+  expect(nameBox).not.toBeNull();
+  await page.mouse.click(nameBox!.x + nameBox!.width / 2, nameBox!.y + nameBox!.height / 2);
   await expect(page).toHaveURL(/\/categorias\/[^/]+$/);
 });
 
