@@ -160,6 +160,18 @@ test("página da empresa usa galeria em carrossel e prioriza contatos", async ({
   expect(headings.slice(0, 3)).toEqual(["Contatos", "Avaliações", "Localização"]);
 });
 
+test("detalhe de ponto turístico mantém apenas respiro após o cabeçalho", async ({ page }) => {
+  await page.goto("/pontos-turisticos/parque-do-balonismo");
+  const header = page.locator(".site-header");
+  const breadcrumb = page.locator(".tourist-attraction-page > .breadcrumbs");
+  await expect(breadcrumb).toBeVisible();
+  const headerBox = await header.boundingBox();
+  const breadcrumbBox = await breadcrumb.boundingBox();
+  expect(headerBox).not.toBeNull();
+  expect(breadcrumbBox).not.toBeNull();
+  expect(breadcrumbBox!.y - (headerBox!.y + headerBox!.height)).toBeLessThanOrEqual(40);
+});
+
 test("rascunho e rotas inexistentes retornam 404", async ({ page }) => {
   await page.goto("/empresas/estudio-mar-de-mentirinha");
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();

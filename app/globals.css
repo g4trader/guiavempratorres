@@ -2162,6 +2162,14 @@ h2 {
   margin: 2rem auto;
 }
 
+.tourist-attraction-page.section {
+  padding-top: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.tourist-attraction-page > .breadcrumbs {
+  padding-top: 0;
+}
+
 .tourist-content-blocks h1,
 .tourist-content-blocks h2 {
   margin: 2.5rem 0 1rem;
