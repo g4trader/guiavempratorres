@@ -148,6 +148,13 @@ test("favicon e manifest usam a estrutura institucional", async ({ request }) =>
   expect(await manifest.text()).toContain("/brand/favicon.svg");
 });
 
+test("interface usa tipografia legível de produto web", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("body")).toHaveCSS("font-family", /Inter/);
+  await expect(page.getByRole("heading", { name: "Categorias" })).toHaveCSS("font-family", /Inter/);
+  await expect(page.locator(".nav-links")).toHaveCSS("font-family", /Inter/);
+});
+
 test("busca sem resultado mostra estado vazio", async ({ page }) => {
   await page.goto("/buscar?q=termo-inexistente-xyz");
   await expect(page.getByText("Nenhum resultado encontrado.")).toBeVisible();
