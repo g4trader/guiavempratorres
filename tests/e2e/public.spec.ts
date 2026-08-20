@@ -155,6 +155,24 @@ test("interface usa tipografia legível de produto web", async ({ page }) => {
   await expect(page.locator(".nav-links")).toHaveCSS("font-family", /Inter/);
 });
 
+test("header público oculta o acesso administrativo e usa menu móvel", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Área administrativa" })).toHaveCount(0);
+
+  const mobileMenu = page.getByRole("button", { name: "Abrir menu de navegação" });
+  if (testInfo.project.name === "mobile") {
+    await expect(page.getByRole("link", { name: "Explorar" })).toBeHidden();
+    await expect(mobileMenu).toBeVisible();
+    await mobileMenu.click();
+    const navigation = page.getByRole("navigation", { name: "Navegação principal" });
+    await expect(navigation.getByRole("link", { name: "Categorias" })).toBeVisible();
+    await expect(navigation.getByRole("link", { name: "Pontos turísticos" })).toBeVisible();
+  } else {
+    await expect(page.getByRole("link", { name: "Explorar" })).toBeVisible();
+    await expect(mobileMenu).toBeHidden();
+  }
+});
+
 test("busca sem resultado mostra estado vazio", async ({ page }) => {
   await page.goto("/buscar?q=termo-inexistente-xyz");
   await expect(page.getByText("Nenhum resultado encontrado.")).toBeVisible();

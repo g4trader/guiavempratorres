@@ -53,10 +53,21 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="nav-links">
               <Link href="/#categorias">Categorias</Link>
               <Link href="/pontos-turisticos">Pontos turísticos</Link>
-              <Link href="/admin">Área administrativa</Link>
               <Link className="button header-cta" href="/#categorias">
                 Explorar
               </Link>
+              <details className="mobile-menu">
+                <summary role="button" aria-label="Abrir menu de navegação">
+                  <span aria-hidden="true" />
+                  <span aria-hidden="true" />
+                  <span aria-hidden="true" />
+                </summary>
+                <div className="mobile-menu-panel">
+                  <Link href="/">Início</Link>
+                  <Link href="/#categorias">Categorias</Link>
+                  <Link href="/pontos-turisticos">Pontos turísticos</Link>
+                </div>
+              </details>
             </div>
           </nav>
         </header>
