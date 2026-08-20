@@ -9,8 +9,10 @@ Retome o projeto **Guia Vem Pra Torres** no repositório `/guiavempratorres` e r
 ## Estado conhecido na pausa
 
 - Branch de produção: `main`
-- Último commit validado na pausa: `7fe0ae2`
-- Produção: `https://guiavempratorres.vercel.app`
+- Último commit validado na pausa: `e2db282`
+- Produção canônica: `https://guiavempratorres.com.br`
+- Domínio alternativo: `https://www.guiavempratorres.com.br`
+- Alias Vercel: `https://guiavempratorres.vercel.app`
 - Estado do último deployment: `Ready`
 - Fluxo vigente: desenvolvimento e publicação em Production, sempre respeitando a autorização do usuário e as regras de `AGENTS.md`.
 - Stack: Next.js App Router, Vercel, Supabase Cloud e GCP.
@@ -25,7 +27,9 @@ O commit indicado é apenas uma referência histórica. Ao retomar, consulte `or
 - Equipe: `vem-pra-torres`
 - Projeto: `guiavempratorres`
 - Painel: `https://vercel.com/vem-pra-torres/guiavempratorres`
-- Produção: `https://guiavempratorres.vercel.app`
+- Produção canônica: `https://guiavempratorres.com.br`
+- Domínio alternativo: `https://www.guiavempratorres.com.br`
+- Alias Vercel: `https://guiavempratorres.vercel.app`
 
 ### Supabase Cloud
 
@@ -79,7 +83,7 @@ O commit indicado é apenas uma referência histórica. Ao retomar, consulte `or
 
 - Execute `vercel whoami`.
 - Se a sessão não tiver acesso à equipe `vem-pra-torres`, execute `vercel login` e peça ao usuário para autorizar com `contato@vempratorres.com.br`.
-- Confirme por leitura a equipe `vem-pra-torres`, o projeto `guiavempratorres`, o target Production e o alias `guiavempratorres.vercel.app`.
+- Confirme por leitura a equipe `vem-pra-torres`, o projeto `guiavempratorres`, o target Production, os domínios `guiavempratorres.com.br` e `www.guiavempratorres.com.br` e o alias `guiavempratorres.vercel.app`.
 - Se o diretório não estiver vinculado, vincule exclusivamente ao projeto existente; nunca crie outro.
 - Confirme que a proteção de acesso e os domínios existentes permanecem inalterados.
 - Não faça deploy durante a reativação.
