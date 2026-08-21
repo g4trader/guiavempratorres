@@ -173,6 +173,18 @@ test("header público oculta o acesso administrativo e usa menu móvel", async (
   }
 });
 
+test("banner Hero ocupa toda a largura do viewport", async ({ page }) => {
+  await page.goto("/");
+  const stage = page.locator(".hero-stage").first();
+  await expect(stage).toBeVisible();
+  const stageBox = await stage.boundingBox();
+  const viewport = page.viewportSize();
+  expect(stageBox).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect(Math.abs(stageBox!.width - viewport!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(stageBox!.x)).toBeLessThanOrEqual(1);
+});
+
 test("busca sem resultado mostra estado vazio", async ({ page }) => {
   await page.goto("/buscar?q=termo-inexistente-xyz");
   await expect(page.getByText("Nenhum resultado encontrado.")).toBeVisible();

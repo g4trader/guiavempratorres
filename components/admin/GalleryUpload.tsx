@@ -120,6 +120,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
   return (
     <div className="image-upload gallery-batch-upload">
       <span className="image-upload-label">Novas imagens da galeria</span>
+      <small className="image-upload-hint">Dimensões recomendadas: 1600 × 1200 px</small>
       <button
         className={`upload-dropzone gallery-dropzone${dragging ? " dragging" : ""}`}
         type="button"

@@ -12,34 +12,44 @@ type Bucket =
   | "ad-creatives"
   | "tourist-attraction-images";
 
-const uploadRules: Record<Bucket, { maxBytes: number; acceptedTypes: string[] }> = {
+const uploadRules: Record<
+  Bucket,
+  { maxBytes: number; acceptedTypes: string[]; recommendedDimensions: string }
+> = {
   "category-images": {
     maxBytes: 5 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1200 × 800 px"
   },
   "business-logos": {
     maxBytes: 2 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/svg+xml"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/svg+xml"],
+    recommendedDimensions: "1200 × 800 px"
   },
   "business-hero-images": {
     maxBytes: 8 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1600 × 900 px"
   },
   "business-gallery": {
     maxBytes: 8 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1600 × 1200 px"
   },
   "product-service-images": {
     maxBytes: 5 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1200 × 900 px"
   },
   "ad-creatives": {
     maxBytes: 8 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1600 × 720 px"
   },
   "tourist-attraction-images": {
     maxBytes: 8 * 1024 * 1024,
-    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"]
+    acceptedTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    recommendedDimensions: "1200 × 800 px"
   }
 };
 
@@ -49,6 +59,7 @@ export function ImageUpload({
   name,
   currentPath = null,
   label,
+  recommendedDimensions,
   onPathChange
 }: {
   bucket: Bucket;
@@ -56,6 +67,7 @@ export function ImageUpload({
   name: string;
   currentPath?: string | null;
   label: string;
+  recommendedDimensions?: string;
   onPathChange?: (path: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -119,6 +131,9 @@ export function ImageUpload({
     <div className="image-upload">
       <input type="hidden" name={name} value={path} />
       <span className="image-upload-label">{label}</span>
+      <small className="image-upload-hint">
+        Dimensões recomendadas: {recommendedDimensions ?? rule.recommendedDimensions}
+      </small>
       <button
         className={`upload-dropzone${dragging ? " dragging" : ""}`}
         type="button"

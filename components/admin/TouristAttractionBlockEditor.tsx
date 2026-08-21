@@ -92,6 +92,7 @@ export function TouristAttractionBlockEditor({
                   entityId={entityId}
                   name={`block_image_${block.id}`}
                   label="Imagem do bloco"
+                  recommendedDimensions="1600 × 1200 px"
                   currentPath={block.imagePath}
                   onPathChange={(imagePath) => updateBlock(block.id, { imagePath })}
                 />

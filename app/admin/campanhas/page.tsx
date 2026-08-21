@@ -205,6 +205,7 @@ function CampaignForm({
           entityId={campaign.id}
           name="desktop_image_path"
           label="Imagem desktop"
+          recommendedDimensions="1600 × 720 px"
           currentPath={creative?.desktop_image_path}
         />
         <ImageUpload
@@ -212,6 +213,7 @@ function CampaignForm({
           entityId={campaign.id}
           name="mobile_image_path"
           label="Imagem mobile"
+          recommendedDimensions="1080 × 1350 px"
           currentPath={creative?.mobile_image_path}
         />
       </div>
