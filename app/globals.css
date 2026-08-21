@@ -1669,7 +1669,7 @@ body {
   width: 100%;
   min-height: 0;
   overflow: hidden;
-  aspect-ratio: 16 / 7;
+  aspect-ratio: 20 / 9;
   border-radius: 0;
   background: transparent;
 }
@@ -1703,6 +1703,7 @@ body {
 
 .hero .campaign-image img {
   animation: none;
+  object-fit: cover;
 }
 
 @keyframes hero-slide-in-left {

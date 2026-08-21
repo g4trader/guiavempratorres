@@ -183,6 +183,14 @@ test("banner Hero ocupa toda a largura do viewport", async ({ page }) => {
   expect(viewport).not.toBeNull();
   expect(Math.abs(stageBox!.width - viewport!.width)).toBeLessThanOrEqual(1);
   expect(Math.abs(stageBox!.x)).toBeLessThanOrEqual(1);
+  const frame = stage.locator(".hero-image-frame").first();
+  const image = frame.locator("img");
+  await expect(image).toHaveCSS("object-fit", "cover");
+  if (viewport!.width > 760) {
+    const frameBox = await frame.boundingBox();
+    expect(frameBox).not.toBeNull();
+    expect(Math.abs(frameBox!.height - frameBox!.width * 9 / 20)).toBeLessThanOrEqual(1);
+  }
 });
 
 test("busca sem resultado mostra estado vazio", async ({ page }) => {
