@@ -1648,7 +1648,7 @@ body {
 }
 
 .hero {
-  padding: clamp(1rem, 2.5vw, 2rem) 0;
+  padding: 0;
   background: #e7f4fa;
 }
 
