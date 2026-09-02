@@ -229,6 +229,16 @@ test("busca sem resultado mostra estado vazio", async ({ page }) => {
 
 test("página da empresa usa galeria em carrossel e prioriza contatos", async ({ page }) => {
   await page.goto("/empresas/cristal-tur");
+  const identity = page.locator(".business-identity");
+  const logoBox = await identity.locator(".business-logo").boundingBox();
+  const nameBox = await identity.getByRole("heading", { name: "Cristal Tur" }).boundingBox();
+  expect(logoBox).not.toBeNull();
+  expect(nameBox).not.toBeNull();
+  expect(nameBox!.x).toBeGreaterThan(logoBox!.x + logoBox!.width);
+  expect(Math.abs(nameBox!.y + nameBox!.height / 2 - (logoBox!.y + logoBox!.height / 2))).toBeLessThan(
+    logoBox!.height / 2
+  );
+  await expect(page.getByText("Empresa local", { exact: true })).toHaveCount(0);
   await expect(page.locator(".business-gallery-carousel")).toBeVisible();
   await expect(page.getByRole("button", { name: "Próxima imagem" })).toBeVisible();
   await expect(page.locator(".business-about p")).toHaveCSS("font-size", /^(19|2\d)(\.\d+)?px$/);

@@ -2453,9 +2453,65 @@ h2 {
 }
 
 .business-logo {
+  flex: 0 0 auto;
+  width: clamp(9rem, 15vw, 13rem);
+  height: clamp(7rem, 10vw, 9rem);
+  max-width: none;
+  max-height: none;
+  margin: 0;
   padding: 0.5rem;
   background: #fff;
   border-radius: var(--radius-sm);
+}
+
+.business-identity {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.business-identity-copy {
+  min-width: 0;
+}
+
+.business-name-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.business-name-row h1 {
+  margin: 0;
+}
+
+.business-identity-copy > p {
+  margin: 1rem 0 0;
+}
+
+@media (max-width: 700px) {
+  .business-header {
+    padding-top: 2.5rem;
+  }
+
+  .business-identity {
+    align-items: center;
+    gap: 1.15rem;
+  }
+
+  .business-logo {
+    width: 7.5rem;
+    height: 6.25rem;
+  }
+
+  .business-name-row h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .business-identity-copy > p {
+    font-size: 1.1rem;
+    line-height: 1.45;
+  }
 }
 
 .business-hero {

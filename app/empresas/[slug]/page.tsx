@@ -114,19 +114,26 @@ export default async function BusinessPage({ params }: Props) {
         <Link href="/">Início</Link> / {business.name}
       </nav>
       <header className="page-header business-header">
-        {business.logoUrl ? (
-          <Image
-            className="business-logo"
-            src={business.logoUrl}
-            alt={`Logo de ${business.name}`}
-            width={240}
-            height={160}
-          />
-        ) : null}
-        <span className="eyebrow">Empresa local</span>
-        <h1>{business.name}</h1>
-        {business.premium ? <span className="premium-badge">Premium</span> : null}
-        {business.shortDescription ? <p className="muted">{business.shortDescription}</p> : null}
+        <div className="business-identity">
+          {business.logoUrl ? (
+            <Image
+              className="business-logo"
+              src={business.logoUrl}
+              alt={`Logo de ${business.name}`}
+              width={240}
+              height={160}
+            />
+          ) : null}
+          <div className="business-identity-copy">
+            <div className="business-name-row">
+              <h1>{business.name}</h1>
+              {business.premium ? <span className="premium-badge">Premium</span> : null}
+            </div>
+            {business.shortDescription ? (
+              <p className="muted">{business.shortDescription}</p>
+            ) : null}
+          </div>
+        </div>
       </header>
       <BusinessGalleryCarousel images={carouselImages} />
       <section className="section detail-grid">
