@@ -74,6 +74,31 @@ test("cards completos de categoria e empresa são clicáveis", async ({ page }) 
   await expect(page).toHaveURL(/\/empresas\/[^/]+$/);
 });
 
+test("home exibe pontos turísticos entre categorias e empresas em destaque", async ({ page }) => {
+  await page.goto("/");
+
+  const categories = page.locator("#categorias");
+  const attractions = page.locator("#pontos-turisticos");
+  const featuredBusinesses = page
+    .getByRole("heading", { name: "Empresas em destaque" })
+    .locator("xpath=ancestor::section");
+
+  await expect(attractions.getByRole("heading", { name: "Pontos turísticos" })).toBeVisible();
+  const attractionCard = attractions.locator(".category-list-card").first();
+  await expect(attractionCard.locator(".category-image-frame")).toBeVisible();
+  await expect(attractionCard.locator(".category-card-name h3")).toBeVisible();
+  await expect(attractionCard.getByRole("link", { name: /^Conhecer ponto turístico/ })).toBeVisible();
+
+  const categoryBox = await categories.boundingBox();
+  const attractionBox = await attractions.boundingBox();
+  const featuredBox = await featuredBusinesses.boundingBox();
+  expect(categoryBox).not.toBeNull();
+  expect(attractionBox).not.toBeNull();
+  expect(featuredBox).not.toBeNull();
+  expect(attractionBox!.y).toBeGreaterThan(categoryBox!.y);
+  expect(featuredBox!.y).toBeGreaterThan(attractionBox!.y);
+});
+
 test("imagem do card de empresa preenche a moldura sem distorção", async ({ page }) => {
   await page.goto("/");
   const card = page.locator(".business-card").first();

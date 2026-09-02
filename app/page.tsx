@@ -9,6 +9,7 @@ import {
   listFeaturedBusinesses,
   listRecentBusinesses
 } from "@/lib/data/directory";
+import { listPublishedTouristAttractions } from "@/lib/data/tourist-attractions";
 
 export const dynamic = "force-dynamic";
 
@@ -25,12 +26,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [campaigns, categories, featuredBusinesses, recentBusinesses] = await Promise.all([
-    getValidHomeHeroCampaigns(),
-    listActiveCategories(),
-    listFeaturedBusinesses(),
-    listRecentBusinesses()
-  ]);
+  const [campaigns, categories, touristAttractions, featuredBusinesses, recentBusinesses] =
+    await Promise.all([
+      getValidHomeHeroCampaigns(),
+      listActiveCategories(),
+      listPublishedTouristAttractions(),
+      listFeaturedBusinesses(),
+      listRecentBusinesses()
+    ]);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -102,6 +105,34 @@ export default async function Home() {
           <div className="empty">Nenhuma categoria publicada.</div>
         )}
       </section>
+      {touristAttractions.length ? (
+        <section className="section container" id="pontos-turisticos">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Conheça Torres</span>
+              <h2>Pontos turísticos</h2>
+            </div>
+          </div>
+          <div className="grid category-grid">
+            {touristAttractions.map((attraction) => (
+              <article
+                className="card category-card category-list-card clickable-card"
+                key={attraction.id}
+              >
+                <Link
+                  className="card-cover-link"
+                  href={`/pontos-turisticos/${attraction.slug}`}
+                  aria-label={`Conhecer ponto turístico ${attraction.title}`}
+                />
+                <CategoryImage src={attraction.cardImageUrl} alt={attraction.cardImageAlt} />
+                <div className="category-card-name">
+                  <h3>{attraction.title}</h3>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <BusinessSection
         title="Empresas em destaque"
         eyebrow="Recomendadas"

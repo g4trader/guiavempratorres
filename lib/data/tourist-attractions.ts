@@ -27,16 +27,20 @@ const selection =
   "id,title,slug,excerpt,card_image_path,card_image_alt,content_blocks,google_maps_url,address_line,neighborhood,city,state,postal_code,latitude,longitude,seo_title,seo_description";
 
 function mapAttraction(row: TouristAttractionRow): TouristAttraction {
+  const contentBlocks = Array.isArray(row.content_blocks)
+    ? (row.content_blocks as TouristAttractionBlock[])
+    : [];
+  const firstContentImage = contentBlocks.find((block) => block.type === "IMAGE");
+  const cardImagePath = row.card_image_path ?? firstContentImage?.imagePath ?? null;
+
   return {
     id: row.id,
     title: row.title,
     slug: row.slug,
     excerpt: row.excerpt ?? "",
-    cardImageUrl: resolvePublicAsset(row.card_image_path) ?? "/placeholders/hero-desktop.svg",
-    cardImageAlt: row.card_image_alt ?? `Imagem de ${row.title}`,
-    contentBlocks: Array.isArray(row.content_blocks)
-      ? (row.content_blocks as TouristAttractionBlock[])
-      : [],
+    cardImageUrl: resolvePublicAsset(cardImagePath) ?? "/placeholders/hero-desktop.svg",
+    cardImageAlt: row.card_image_alt ?? firstContentImage?.imageAlt ?? `Imagem de ${row.title}`,
+    contentBlocks,
     googleMapsUrl: row.google_maps_url,
     addressLine: row.address_line ?? "",
     neighborhood: row.neighborhood ?? "",
