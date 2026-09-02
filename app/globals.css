@@ -2226,8 +2226,19 @@ h2 {
 }
 
 .tourist-content-blocks {
-  width: min(100%, 900px);
+  width: min(100%, 820px);
   margin: 2rem auto;
+}
+
+.tourist-attraction-page .page-header {
+  width: min(100%, 900px);
+  margin-inline: auto;
+}
+
+.tourist-attraction-description {
+  max-width: 48rem;
+  font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+  line-height: 1.75;
 }
 
 .tourist-attraction-page.section {
@@ -2246,19 +2257,97 @@ h2 {
 .tourist-content-blocks p {
   margin: 0 0 1.5rem;
   color: var(--color-text-muted);
-  font-size: 1.1rem;
-  line-height: 1.8;
+  font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+  line-height: 1.75;
   white-space: pre-line;
 }
 
-.tourist-content-blocks figure {
-  margin: 2rem 0;
+.tourist-gallery-carousel {
+  position: relative;
+  width: min(100%, 760px);
+  margin: 2.5rem auto 0;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #dcebf1;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
-.tourist-content-blocks img {
+.tourist-gallery-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
+  height: 100%;
+  padding: 0;
+  cursor: zoom-in;
+  background: transparent;
+  border: 0;
+}
+
+.tourist-gallery-image img {
+  object-fit: contain;
+}
+
+.tourist-gallery-zoom {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  color: #fff;
+  font-size: 1.5rem;
+  background: rgba(18, 49, 70, 0.86);
+  border-radius: 50%;
+}
+
+.tourist-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  place-items: center;
+  color: #fff;
+  font-size: 1.35rem;
+  cursor: pointer;
+  background: rgba(18, 49, 70, 0.86);
+  border: 0;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.tourist-gallery-arrow.previous { left: 1rem; }
+.tourist-gallery-arrow.next { right: 1rem; }
+
+.tourist-gallery-dots {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(18, 49, 70, 0.74);
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.tourist-gallery-dots button {
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.55);
+  border: 0;
+  border-radius: 50%;
+}
+
+.tourist-gallery-dots button.is-active {
+  background: #fff;
 }
 
 .tourist-location {
@@ -2268,6 +2357,20 @@ h2 {
   background: #fff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 760px) {
+  .tourist-gallery-carousel {
+    width: min(100%, 34rem);
+  }
+
+  .tourist-gallery-arrow {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .tourist-gallery-arrow.previous { left: 0.75rem; }
+  .tourist-gallery-arrow.next { right: 0.75rem; }
 }
 
 .tourist-location iframe {

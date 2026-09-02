@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TouristAttractionCarousel } from "@/components/tourist-attractions/TouristAttractionCarousel";
 import { getPublishedTouristAttractionBySlug } from "@/lib/data/tourist-attractions";
 import { resolvePublicAsset } from "@/lib/data/directory";
 
@@ -30,6 +30,13 @@ export default async function TouristAttractionPage({ params }: Props) {
     attraction.latitude !== null && attraction.longitude !== null
       ? `https://www.google.com/maps?q=${attraction.latitude},${attraction.longitude}&z=15&output=embed`
       : null;
+  const galleryImages = attraction.contentBlocks.flatMap((block) => {
+    if (block.type !== "IMAGE") return [];
+    const url = resolvePublicAsset(block.imagePath);
+    return url ? [{ id: block.id, url, alt: block.imageAlt || `Imagem de ${attraction.title}` }] : [];
+  });
+  const textBlocks = attraction.contentBlocks.filter((block) => block.type !== "IMAGE");
+
   return (
     <article className="container section tourist-attraction-page">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -39,28 +46,19 @@ export default async function TouristAttractionPage({ params }: Props) {
       <header className="page-header">
         <span className="eyebrow">Ponto turístico</span>
         <h1>{attraction.title}</h1>
-        {attraction.excerpt ? <p className="muted">{attraction.excerpt}</p> : null}
+        {attraction.excerpt ? (
+          <p className="muted tourist-attraction-description">{attraction.excerpt}</p>
+        ) : null}
       </header>
       <div className="tourist-content-blocks">
-        {attraction.contentBlocks.map((block) => {
+        {textBlocks.map((block) => {
           if (block.type === "H1") return <h1 key={block.id}>{block.text}</h1>;
           if (block.type === "H2") return <h2 key={block.id}>{block.text}</h2>;
           if (block.type === "PARAGRAPH") return <p key={block.id}>{block.text}</p>;
-          if (block.type !== "IMAGE") return null;
-          const src = resolvePublicAsset(block.imagePath);
-          return src ? (
-            <figure key={block.id}>
-              <Image
-                src={src}
-                alt={block.imageAlt}
-                width={1200}
-                height={800}
-                sizes="(max-width: 900px) 100vw, 900px"
-              />
-            </figure>
-          ) : null;
+          return null;
         })}
       </div>
+      <TouristAttractionCarousel images={galleryImages} attractionTitle={attraction.title} />
       <section className="tourist-location" aria-labelledby="localizacao-ponto">
         <h2 id="localizacao-ponto">Localização</h2>
         {mapEmbedUrl ? (

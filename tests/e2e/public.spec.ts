@@ -224,6 +224,21 @@ test("detalhe de ponto turístico mantém apenas respiro após o cabeçalho", as
   expect(breadcrumbBox!.y - (headerBox!.y + headerBox!.height)).toBeLessThanOrEqual(40);
 });
 
+test("detalhe de ponto turístico oferece leitura ampliada e carrossel de imagens", async ({ page }) => {
+  await page.goto("/pontos-turisticos/parque-do-balonismo");
+  const description = page.locator(".tourist-attraction-description");
+  await expect(description).toBeVisible();
+  const fontSize = Number.parseFloat(await description.evaluate((element) => getComputedStyle(element).fontSize));
+  expect(fontSize).toBeGreaterThanOrEqual(19);
+
+  const carousel = page.getByRole("region", { name: /Galeria de/ });
+  await expect(carousel).toBeVisible();
+  await expect(carousel.getByRole("button", { name: "Próxima imagem" })).toBeVisible();
+  const imageButton = carousel.getByRole("button", { name: /^Ampliar imagem:/ });
+  await imageButton.click();
+  await expect(page.getByRole("dialog", { name: /^Visualização ampliada:/ })).toBeVisible();
+});
+
 test("rascunho e rotas inexistentes retornam 404", async ({ page }) => {
   await page.goto("/empresas/estudio-mar-de-mentirinha");
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
