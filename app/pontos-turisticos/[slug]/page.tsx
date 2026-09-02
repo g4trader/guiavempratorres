@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TouristAttractionCarousel } from "@/components/tourist-attractions/TouristAttractionCarousel";
+import { FormattedText } from "@/components/public/FormattedText";
 import { getPublishedTouristAttractionBySlug } from "@/lib/data/tourist-attractions";
 import { resolvePublicAsset } from "@/lib/data/directory";
 
@@ -33,7 +34,9 @@ export default async function TouristAttractionPage({ params }: Props) {
   const galleryImages = attraction.contentBlocks.flatMap((block) => {
     if (block.type !== "IMAGE") return [];
     const url = resolvePublicAsset(block.imagePath);
-    return url ? [{ id: block.id, url, alt: block.imageAlt || `Imagem de ${attraction.title}` }] : [];
+    return url
+      ? [{ id: block.id, url, alt: block.imageAlt || `Imagem de ${attraction.title}` }]
+      : [];
   });
   const textBlocks = attraction.contentBlocks.filter((block) => block.type !== "IMAGE");
 
@@ -47,7 +50,10 @@ export default async function TouristAttractionPage({ params }: Props) {
         <span className="eyebrow">Ponto turístico</span>
         <h1>{attraction.title}</h1>
         {attraction.excerpt ? (
-          <p className="muted tourist-attraction-description">{attraction.excerpt}</p>
+          <FormattedText
+            value={attraction.excerpt}
+            className="muted tourist-attraction-description"
+          />
         ) : null}
       </header>
       <div className="tourist-content-blocks">

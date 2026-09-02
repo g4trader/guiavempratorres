@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CategoryImage } from "@/components/media/CategoryImage";
+import { FormattedText } from "@/components/public/FormattedText";
 import { getValidTouristAttractionsHeroCampaigns } from "@/lib/data/directory";
 import { listPublishedTouristAttractions } from "@/lib/data/tourist-attractions";
 
@@ -43,7 +44,7 @@ export default async function TouristAttractionsPage() {
                 <CategoryImage src={attraction.cardImageUrl} alt={attraction.cardImageAlt} />
                 <div className="card-body">
                   <h2>{attraction.title}</h2>
-                  {attraction.excerpt ? <p>{attraction.excerpt}</p> : null}
+                  {attraction.excerpt ? <FormattedText value={attraction.excerpt} /> : null}
                   <span className="button secondary card-visual-cta" aria-hidden="true">
                     Conhecer
                   </span>

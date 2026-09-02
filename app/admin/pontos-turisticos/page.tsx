@@ -7,6 +7,7 @@ import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
 import { BusinessLocationFields } from "@/components/admin/BusinessLocationFields";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { TouristAttractionBlockEditor } from "@/components/admin/TouristAttractionBlockEditor";
 import type { TouristAttractionBlock } from "@/lib/domain";
 import { requireAdmin } from "@/lib/supabase/auth-server";
@@ -80,10 +81,11 @@ function AttractionForm({ attraction }: { attraction: Attraction }) {
           </select>
         </label>
       </div>
-      <label>
-        Resumo para o card
-        <textarea name="excerpt" rows={3} defaultValue={value("excerpt")} />
-      </label>
+      <RichTextEditor
+        name="excerpt"
+        label="Resumo para o card"
+        defaultValue={value("excerpt") as string}
+      />
       <ImageUpload
         bucket="tourist-attraction-images"
         entityId={attraction.id}

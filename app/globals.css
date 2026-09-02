@@ -577,6 +577,81 @@ body:has(.admin-login) {
 .admin-form textarea {
   resize: vertical;
 }
+
+.rich-text-field > label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.rich-text-editor {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: white;
+}
+
+.rich-text-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--color-border);
+  background: #f4f8fa;
+}
+
+.rich-text-toolbar button {
+  min-height: 2.65rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 750;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.rich-text-toolbar button:hover,
+.rich-text-toolbar button:focus-visible {
+  color: white;
+  background: var(--color-brand-primary);
+}
+
+.rich-text-editor textarea {
+  width: 100%;
+  min-height: 11rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.rich-text-help {
+  padding: 0 1rem 0.8rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.rich-text-preview {
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+  background: #fbfdfe;
+}
+
+.formatted-text > :first-child {
+  margin-top: 0;
+}
+.formatted-text > :last-child {
+  margin-bottom: 0;
+}
+.formatted-text ul,
+.formatted-text ol {
+  padding-left: 1.5em;
+}
+.formatted-text blockquote {
+  margin-left: 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--color-brand-primary);
+}
 .admin-form-row,
 .admin-filters {
   display: grid;

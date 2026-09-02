@@ -39,6 +39,8 @@ export async function saveTouristAttraction(form: FormData) {
   if (title.length < 2) fail("Informe um título com pelo menos 2 caracteres.");
   const slug = slugify(text(form, "slug") || title);
   if (!slug) fail("Informe um título que permita gerar um slug válido.");
+  const excerptResult = z.string().max(5_000).nullable().safeParse(optional(form, "excerpt"));
+  if (!excerptResult.success) fail("O resumo para o card deve ter no máximo 5.000 caracteres.");
   const statusResult = z
     .enum(["draft", "published", "suspended", "archived"])
     .safeParse(form.get("status"));
@@ -71,7 +73,7 @@ export async function saveTouristAttraction(form: FormData) {
     id: idResult.data,
     title,
     slug,
-    excerpt: optional(form, "excerpt"),
+    excerpt: excerptResult.data,
     card_image_path: cardImagePath,
     card_image_alt: cardImageAlt,
     content_blocks: blocksResult.data,

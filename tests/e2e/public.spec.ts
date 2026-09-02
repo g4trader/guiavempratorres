@@ -263,6 +263,7 @@ test("detalhe de ponto turístico oferece leitura ampliada e carrossel de imagen
   await page.goto("/pontos-turisticos/parque-do-balonismo");
   const description = page.locator(".tourist-attraction-description");
   await expect(description).toBeVisible();
+  await expect(description.locator("p").first()).not.toBeEmpty();
   const fontSize = Number.parseFloat(await description.evaluate((element) => getComputedStyle(element).fontSize));
   expect(fontSize).toBeGreaterThanOrEqual(19);
 
