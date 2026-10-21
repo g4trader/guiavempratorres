@@ -142,6 +142,7 @@ test.describe("fluxos administrativos", () => {
       .locator(".image-upload")
       .filter({ hasText: "Logo" });
     await logoUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
+    await logoUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(logoUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await refreshedBusinessDetails.locator('input[name="logo_path"]').inputValue());
     await refreshedBusinessDetails.getByRole("button", { name: "Salvar empresa" }).click();
@@ -151,7 +152,7 @@ test.describe("fluxos administrativos", () => {
 
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
     await openDetails(refreshedBusinessDetails);
-    const galleryUpload = refreshedBusinessDetails.locator(".gallery-admin .image-upload");
+    const galleryUpload = refreshedBusinessDetails.locator(".gallery-admin .gallery-batch-upload");
     await galleryUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
     await expect(galleryUpload.getByText("1 imagem salva na galeria.")).toBeVisible();
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
@@ -190,14 +191,17 @@ test.describe("fluxos administrativos", () => {
     await campaignCreate.getByLabel("Título").fill(`Campanha E2E ${suffix}`);
     const desktopUpload = campaignCreate
       .locator(".image-upload")
-      .filter({ hasText: "Imagem desktop" });
+      .filter({ hasText: "Imagem principal" });
     await desktopUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
+    await desktopUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(desktopUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await campaignCreate.locator('input[name="desktop_image_path"]').inputValue());
+    await campaignCreate.getByText("Usar outra imagem no celular (opcional)", { exact: true }).click();
     const mobileUpload = campaignCreate
       .locator(".image-upload")
       .filter({ hasText: "Imagem mobile" });
     await mobileUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
+    await mobileUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(mobileUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await campaignCreate.locator('input[name="mobile_image_path"]').inputValue());
     await campaignCreate.getByRole("button", { name: "Salvar campanha" }).click();

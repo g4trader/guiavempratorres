@@ -199,23 +199,20 @@ function CampaignForm({
           <input name="priority" type="number" defaultValue={campaign.priority} />
         </label>
       </div>
-      <div className="admin-form-row">
+      <div className="admin-form-row admin-image-row">
         <ImageUpload
           bucket="ad-creatives"
           entityId={campaign.id}
           name="desktop_image_path"
-          label="Imagem desktop"
-          recommendedDimensions="1600 × 720 px"
+          label="Imagem principal"
           currentPath={creative?.desktop_image_path}
         />
-        <ImageUpload
-          bucket="ad-creatives"
-          entityId={campaign.id}
-          name="mobile_image_path"
-          label="Imagem mobile"
-          recommendedDimensions="1080 × 1350 px"
-          currentPath={creative?.mobile_image_path}
-        />
+        <details className="image-mobile-option" open={creative?.mobile_image_path ? true : undefined}>
+          <summary>Usar outra imagem no celular (opcional)</summary>
+          <p className="field-hint">A imagem principal também aparece no celular. Envie outra apenas se quiser uma composição diferente.</p>
+          <ImageUpload bucket="ad-creatives" entityId={campaign.id} name="mobile_image_path"
+            label="Imagem mobile (opcional)" currentPath={creative?.mobile_image_path} />
+        </details>
       </div>
       <label>
         <span>

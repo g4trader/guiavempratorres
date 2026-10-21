@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import {
   deleteBusiness,
-  saveBusiness
+  saveBusiness,
+  saveGalleryImage
 } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
@@ -287,7 +288,7 @@ function BusinessForm({
           </label>
         ))}
       </fieldset>
-      <div className="admin-form-row">
+      <div className="admin-form-row admin-image-row">
         <ImageUpload
           bucket="business-logos"
           entityId={business.id}
@@ -299,11 +300,11 @@ function BusinessForm({
           bucket="business-hero-images"
           entityId={business.id}
           name="hero_image_path"
-          label="Hero"
+          label="Foto principal (capa e card)"
           currentPath={value("hero_image_path") as string}
         />
         <label>
-          Alt do Hero
+          Descrição da foto principal
           <input name="hero_image_alt" defaultValue={value("hero_image_alt")} />
         </label>
       </div>
@@ -406,6 +407,15 @@ function GalleryManager({
       <div className="admin-form">
         <GalleryUpload entityId={businessId} />
       </div>
+      <details className="image-mobile-option">
+        <summary>Ajustar uma foto antes de adicionar à galeria</summary>
+        <form action={saveGalleryImage} className="admin-form">
+          <input type="hidden" name="business_id" value={businessId} />
+          <ImageUpload bucket="business-gallery" entityId={businessId} name="storage_path" label="Foto da galeria" />
+          <label>Texto alternativo<input name="image_alt" required /></label>
+          <button className="button" type="submit">Adicionar foto ajustada</button>
+        </form>
+      </details>
     </section>
   );
 }

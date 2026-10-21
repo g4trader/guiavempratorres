@@ -34,6 +34,7 @@ test("admin publica ponto turístico com blocos e mapa", async ({ page }) => {
     await form.getByLabel("Resumo para o card").fill("Um lugar especial para conhecer em Torres.");
     const cardUpload = form.locator(".image-upload").filter({ hasText: "Imagem do card" });
     await cardUpload.locator('input[type="file"]').setInputFiles(fixture);
+    await cardUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(cardUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await form.locator('input[name="card_image_path"]').inputValue());
     await form.getByLabel("Texto alternativo da imagem").fill("Vista do ponto turístico");
@@ -49,6 +50,7 @@ test("admin publica ponto turístico com blocos e mapa", async ({ page }) => {
     await editor.getByRole("menuitem", { name: "Imagem" }).click();
     const block = editor.locator(".content-block-admin").last();
     await block.locator('input[type="file"]').setInputFiles(fixture);
+    await block.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(block.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
     uploadedPaths.push(await block.locator('input[type="hidden"]').first().inputValue());
     await block.getByLabel("Texto alternativo").fill("Detalhe do ponto turístico");
