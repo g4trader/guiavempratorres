@@ -19,7 +19,8 @@
     "db:check": "node scripts/assert-supabase-project.mjs",
     "db:push": "pnpm db:check && supabase db push --linked",
     "db:types": "pnpm db:check && supabase gen types typescript --linked > lib/database.types.ts",
-    "db:lint": "pnpm db:check && supabase db lint --linked"
+    "db:lint": "pnpm db:check && supabase db lint --linked",
+    "test:e2e:images": "playwright test --config=playwright.images.config.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.3",

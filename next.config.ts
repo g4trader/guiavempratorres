@@ -5,15 +5,18 @@ const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : null;
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  async headers() {
+    return process.env.VERCEL_ENV === "preview"
+      ? [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }]
+      : [];
+  },
   turbopack: { root: process.cwd() },
   allowedDevOrigins: ["127.0.0.1"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "http", hostname: "127.0.0.1", port: "54321" },
-      ...(supabaseHostname
-        ? ([{ protocol: "https", hostname: supabaseHostname }] as const)
-        : [])
+      ...(supabaseHostname ? ([{ protocol: "https", hostname: supabaseHostname }] as const) : [])
     ]
   }
 };

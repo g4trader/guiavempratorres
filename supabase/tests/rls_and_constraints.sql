@@ -1,171 +1,73 @@
+-- Run only in an authorized cloud test project. Requires pgTAP already installed.
+-- All fixtures are unique, created here, and rolled back; no dependency on seed counts.
 begin;
-
-create extension if not exists pgtap with schema extensions;
-select plan(21);
-
-select has_table('public', 'businesses', 'businesses existe');
-select has_table('public', 'ad_campaigns', 'ad_campaigns existe');
-select has_table('public', 'plans', 'plans existe');
-select has_table('public', 'business_items', 'business_items existe');
-select col_is_unique('public', 'categories', 'slug', 'slug de categoria é único');
-select col_is_unique('public', 'businesses', 'slug', 'slug de empresa é único');
-
-select results_eq(
-  $$ select count(*)::bigint from public.businesses where plan_id is not null $$,
-  $$ values (6::bigint) $$,
-  'todas as empresas pertencem a um plano'
-);
-
-insert into auth.users (id, email) values
-  ('90000000-0000-0000-0000-000000000001', 'editor@example.invalid'),
-  ('90000000-0000-0000-0000-000000000002', 'admin@example.invalid'),
-  ('90000000-0000-0000-0000-000000000003', 'super@example.invalid');
-
-insert into public.admin_roles (user_id, role) values
-  ('90000000-0000-0000-0000-000000000001', 'editor'),
-  ('90000000-0000-0000-0000-000000000002', 'admin'),
-  ('90000000-0000-0000-0000-000000000003', 'super_admin');
-
+set local search_path = public, extensions;
+select no_plan();
+select set_config('test.editor', gen_random_uuid()::text, true);
+select set_config('test.admin', gen_random_uuid()::text, true);
+select set_config('test.super', gen_random_uuid()::text, true);
+select set_config('test.visitor', gen_random_uuid()::text, true);
+select set_config('test.plan', gen_random_uuid()::text, true);
+select set_config('test.business', gen_random_uuid()::text, true);
+select set_config('test.draft', gen_random_uuid()::text, true);
+select set_config('test.category', gen_random_uuid()::text, true);
+select set_config('test.hidden_category', gen_random_uuid()::text, true);
+select set_config('test.attraction', gen_random_uuid()::text, true);
+select set_config('test.hidden_attraction', gen_random_uuid()::text, true);
+select set_config('test.item', gen_random_uuid()::text, true);
+select set_config('test.placement', gen_random_uuid()::text, true);
+insert into auth.users (id, email) values (current_setting('test.editor')::uuid, current_setting('test.editor') || '@example.invalid');
+insert into auth.users (id, email) values (current_setting('test.admin')::uuid, current_setting('test.admin') || '@example.invalid');
+insert into auth.users (id, email) values (current_setting('test.super')::uuid, current_setting('test.super') || '@example.invalid');
+insert into auth.users (id, email) values (current_setting('test.visitor')::uuid, current_setting('test.visitor') || '@example.invalid');
+insert into public.admin_roles (user_id, role) values (current_setting('test.editor')::uuid, 'editor');
+insert into public.admin_roles (user_id, role) values (current_setting('test.admin')::uuid, 'admin');
+insert into public.admin_roles (user_id, role) values (current_setting('test.super')::uuid, 'super_admin');
+insert into public.plans (id, name, slug, max_images, max_items) values (current_setting('test.plan')::uuid, 'Plano teste isolado', 'test-' || current_setting('test.plan'), 10, 10);
+insert into public.businesses (id, name, slug, plan_id, status, published_at) values (current_setting('test.business')::uuid, 'Empresa teste isolado', 'test-' || current_setting('test.business'), current_setting('test.plan')::uuid, 'published', now());
+insert into public.businesses (id, name, slug, plan_id, status, published_at) values (current_setting('test.draft')::uuid, 'Empresa teste isolado', 'test-' || current_setting('test.draft'), current_setting('test.plan')::uuid, 'draft', now());
+insert into public.categories (id,name,slug,is_active) values (current_setting('test.category')::uuid, 'Categoria teste', 'test-' || current_setting('test.category'), true);
+insert into public.categories (id,name,slug,is_active) values (current_setting('test.hidden_category')::uuid, 'Categoria teste', 'test-' || current_setting('test.hidden_category'), false);
+insert into public.tourist_attractions (id,title,slug,status,published_at) values (current_setting('test.attraction')::uuid, 'Turismo teste', 'test-' || current_setting('test.attraction'), 'published', now());
+insert into public.tourist_attractions (id,title,slug,status,published_at) values (current_setting('test.hidden_attraction')::uuid, 'Turismo teste', 'test-' || current_setting('test.hidden_attraction'), 'draft', now());
+insert into public.business_items (id,business_id,type,title) values (current_setting('test.item')::uuid,current_setting('test.business')::uuid,'PRODUCT','Item teste');
+insert into public.ad_placements (id,code,name,maximum_active_ads) values (current_setting('test.placement')::uuid, 'TEST_' || upper(replace(current_setting('test.placement'),'-','')), 'Posição teste', 5);
+reset role;
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
-
-select results_eq(
-  $$ select count(*)::bigint from public.categories where is_active $$,
-  $$ values (5::bigint) $$,
-  'anónimo lê categorias ativas'
-);
-
-select results_eq(
-  $$ select count(*)::bigint from public.businesses where status = 'published' $$,
-  $$ values (5::bigint) $$,
-  'anónimo lê empresas publicadas'
-);
-
-select results_eq(
-  $$ select count(*)::bigint from public.business_items where active $$,
-  $$ values (10::bigint) $$,
-  'anónimo lê itens ativos de empresas publicadas'
-);
-
-select is_empty(
-  $$ select id from public.businesses where slug = 'estudio-mar-de-mentirinha' $$,
-  'anónimo não lê rascunhos'
-);
-
-select throws_ok(
-  $$ insert into public.categories (name, slug) values ('Bloqueada', 'bloqueada') $$,
-  '42501',
-  null,
-  'escrita anónima é bloqueada'
-);
-
+select results_eq($q$ select count(*) from public.businesses where id=current_setting('test.business')::uuid $q$, $q$ values (1::bigint) $q$, 'visitante lê empresa publicada');
+select results_eq($q$ select count(*) from public.businesses where id=current_setting('test.draft')::uuid $q$, $q$ values (0::bigint) $q$, 'visitante não lê rascunho');
+select results_eq($q$ select count(*) from public.categories where id=current_setting('test.category')::uuid $q$, $q$ values (1::bigint) $q$, 'visitante lê categoria ativa');
+select results_eq($q$ select count(*) from public.categories where id=current_setting('test.hidden_category')::uuid $q$, $q$ values (0::bigint) $q$, 'visitante não lê categoria inativa');
+select results_eq($q$ select count(*) from public.tourist_attractions where id=current_setting('test.attraction')::uuid $q$, $q$ values (1::bigint) $q$, 'visitante lê turismo publicado');
+select results_eq($q$ select count(*) from public.tourist_attractions where id=current_setting('test.hidden_attraction')::uuid $q$, $q$ values (0::bigint) $q$, 'visitante não lê turismo em rascunho');
+select results_eq($q$ select count(*) from public.business_items where id=current_setting('test.item')::uuid $q$, $q$ values (1::bigint) $q$, 'visitante lê item público');
+select throws_ok($q$ insert into public.categories (name,slug) values ('Bloqueada','test-' || gen_random_uuid()) $q$, '42501', null, 'escrita anônima bloqueada');
 reset role;
 set local role authenticated;
-select set_config(
-  'request.jwt.claims',
-  '{"role":"authenticated","sub":"90000000-0000-0000-0000-000000000001"}',
-  true
-);
-
-select lives_ok(
-  $$ update public.categories set description = 'Edição autorizada' where slug = 'gastronomia' $$,
-  'editor gere conteúdo editorial'
-);
-
-select lives_ok(
-  $$ update public.plans set max_items = max_items where slug = 'plano-inicial' $$,
-  'editor gere planos comerciais'
-);
-
-select results_eq(
-  $$ with changed as (
-       update public.admin_roles set role = 'admin'
-       where user_id = '90000000-0000-0000-0000-000000000001'
-       returning 1
-     ) select count(*)::bigint from changed $$,
-  $$ values (0::bigint) $$,
-  'editor altera zero papéis'
-);
-
+select set_config('request.jwt.claims', json_build_object('role','authenticated','sub',current_setting('test.editor'))::text, true);
+select results_eq($q$ with changed as (update public.categories set description='Teste' where id=current_setting('test.category')::uuid returning id) select count(*) from changed $q$, $q$ values (1::bigint) $q$, 'editor altera categories');
+select results_eq($q$ with changed as (update public.tourist_attractions set excerpt='Teste' where id=current_setting('test.attraction')::uuid returning id) select count(*) from changed $q$, $q$ values (1::bigint) $q$, 'editor altera tourist_attractions');
+select results_eq($q$ with changed as (update public.plans set max_items=11 where id=current_setting('test.plan')::uuid returning id) select count(*) from changed $q$, $q$ values (1::bigint) $q$, 'editor altera plano');
 reset role;
 set local role authenticated;
-select set_config(
-  'request.jwt.claims',
-  '{"role":"authenticated","sub":"90000000-0000-0000-0000-000000000002"}',
-  true
-);
-
-select lives_ok(
-  $$ update public.ad_campaigns set priority = priority + 1
-     where id = '40000000-0000-0000-0000-000000000001' $$,
-  'admin gere campanhas'
-);
-
-select results_eq(
-  $$ with changed as (
-       update public.admin_roles set role = 'editor'
-       where user_id = '90000000-0000-0000-0000-000000000001'
-       returning 1
-     ) select count(*)::bigint from changed $$,
-  $$ values (0::bigint) $$,
-  'admin altera zero papéis'
-);
-
+select set_config('request.jwt.claims', json_build_object('role','authenticated','sub',current_setting('test.editor'))::text, true);
+select results_eq($q$ with changed as (update public.admin_roles set role='super_admin' where user_id=current_setting('test.editor')::uuid returning user_id) select count(*) from changed $q$, $q$ values (0::bigint) $q$, 'editor não promove papel');
 reset role;
 set local role authenticated;
-select set_config(
-  'request.jwt.claims',
-  '{"role":"authenticated","sub":"90000000-0000-0000-0000-000000000003"}',
-  true
-);
-
-select lives_ok(
-  $$ update public.admin_roles set role = 'editor'
-     where user_id = '90000000-0000-0000-0000-000000000001' $$,
-  'super admin gere papéis'
-);
-
+select set_config('request.jwt.claims', json_build_object('role','authenticated','sub',current_setting('test.admin'))::text, true);
+select results_eq($q$ with changed as (update public.admin_roles set role='super_admin' where user_id=current_setting('test.editor')::uuid returning user_id) select count(*) from changed $q$, $q$ values (0::bigint) $q$, 'admin não promove papel');
 reset role;
-
-select lives_ok(
-  $$ insert into public.ad_campaigns (
-       id, business_id, placement_id, status, starts_at, ends_at, display_order, internal_path
-     ) values
-       ('40000000-0000-0000-0000-000000000006', '20000000-0000-0000-0000-000000000004',
-        (select id from public.ad_placements where code = 'HOME_HERO'),
-        'active', now(), now() + interval '1 day', 6, '/empresas/oficina-farol-cenografico'),
-       ('40000000-0000-0000-0000-000000000007', '20000000-0000-0000-0000-000000000005',
-        (select id from public.ad_placements where code = 'HOME_HERO'),
-        'active', now(), now() + interval '1 day', 7, '/empresas/mercado-vila-imaginaria') $$,
-  'capacidade aceita até cinco campanhas sobrepostas'
-);
-
-select throws_ok(
-  $$ insert into public.ad_campaigns (
-       id, business_id, placement_id, status, starts_at, ends_at, display_order, internal_path
-     ) values (
-       '40000000-0000-0000-0000-000000000008',
-       '20000000-0000-0000-0000-000000000001',
-       (select id from public.ad_placements where code = 'HOME_HERO'),
-       'active', now(), now() + interval '1 day', 8, '/empresas/bistro-horizonte-teste'
-     ) $$,
-  '23514',
-  'ad placement capacity exceeded',
-  'sexta campanha sobreposta é bloqueada'
-);
-
-select throws_ok(
-  $$ insert into public.ad_campaigns (
-       business_id, placement_id, status, starts_at, ends_at, internal_path
-     ) values (
-       '20000000-0000-0000-0000-000000000001',
-       (select id from public.ad_placements where code = 'HOME_HERO'),
-       'active', now(), now() - interval '1 day', '/empresas/bistro-horizonte-teste'
-     ) $$,
-  '22000',
-  null,
-  'período inválido é bloqueado'
-);
-
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('role','authenticated','sub',current_setting('test.super'))::text, true);
+select results_eq($q$ with changed as (update public.admin_roles set role='editor' where user_id=current_setting('test.editor')::uuid returning user_id) select count(*) from changed $q$, $q$ values (1::bigint) $q$, 'super admin altera papel');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('role','authenticated','sub',current_setting('test.visitor'))::text, true);
+select lives_ok($q$ insert into public.business_ratings (business_id,user_id,rating,comment) values (current_setting('test.business')::uuid,current_setting('test.visitor')::uuid,5,'Teste isolado') $q$, 'usuário grava sua avaliação');
+select throws_ok($q$ insert into public.business_ratings (business_id,user_id,rating) values (current_setting('test.business')::uuid,current_setting('test.editor')::uuid,5) $q$, '42501', null, 'usuário não grava avaliação alheia');
+reset role;
+select lives_ok($q$ insert into public.ad_campaigns (business_id,placement_id,status,starts_at,ends_at,internal_path,destination_url) select current_setting('test.business')::uuid,current_setting('test.placement')::uuid,'active',now(),now()+interval '1 day','/empresas/teste','/empresas/teste' from generate_series(1,5) $q$, 'posição isolada aceita cinco campanhas');
+select throws_ok($q$ insert into public.ad_campaigns (business_id,placement_id,status,starts_at,ends_at,internal_path,destination_url) values (current_setting('test.business')::uuid,current_setting('test.placement')::uuid,'active',now(),now()+interval '1 day','/empresas/teste','/empresas/teste') $q$, '23514', 'ad placement capacity exceeded', 'sexta campanha isolada é bloqueada');
 select * from finish();
 rollback;

@@ -1,3 +1,4 @@
+import { loadUsers } from "@/lib/data/admin-queries";
 import { redirect } from "next/navigation";
 import { updateAdminRole } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -12,10 +13,7 @@ export default async function UsersAdminPage({ searchParams }: PageProps) {
   const { client, role } = await requireAdmin();
   const { erro, mensagem } = await searchParams;
   if (!canManageAdminRoles(role)) redirect("/admin?erro=permissao");
-  const { data, error } = await client
-    .from("profiles")
-    .select("id,display_name,admin_roles(role)")
-    .order("display_name");
+  const { data, error } = await loadUsers(client);
   if (error) throw new Error("Não foi possível carregar os usuários.");
   return (
     <>

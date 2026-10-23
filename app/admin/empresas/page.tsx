@@ -1,10 +1,7 @@
+import { loadBusinessEditor } from "@/lib/data/admin-queries";
 import { randomUUID } from "node:crypto";
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
-import {
-  deleteBusiness,
-  saveBusiness,
-  saveGalleryImage
-} from "@/app/admin/content-actions";
+import { deleteBusiness, saveBusiness, saveGalleryImage } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
 import { AdminFeedback } from "@/components/admin/AdminFeedback";
@@ -33,14 +30,7 @@ export default async function BusinessesAdminPage({ searchParams }: PageProps) {
     relationsResult,
     mediaResult,
     itemsResult
-  ] = await Promise.all([
-    client.from("businesses").select("*").order("name"),
-    client.from("plans").select("id,name").order("priority", { ascending: false }),
-    client.from("categories").select("id,name").order("display_order"),
-    client.from("business_categories").select("business_id,category_id"),
-    client.from("business_media").select("*").eq("kind", "gallery").order("display_order"),
-    client.from("business_items").select("*").order("display_order")
-  ]);
+  ] = await loadBusinessEditor(client);
   if (
     businessesResult.error ||
     plansResult.error ||
@@ -411,9 +401,19 @@ function GalleryManager({
         <summary>Ajustar uma foto antes de adicionar à galeria</summary>
         <form action={saveGalleryImage} className="admin-form">
           <input type="hidden" name="business_id" value={businessId} />
-          <ImageUpload bucket="business-gallery" entityId={businessId} name="storage_path" label="Foto da galeria" />
-          <label>Texto alternativo<input name="image_alt" required /></label>
-          <button className="button" type="submit">Adicionar foto ajustada</button>
+          <ImageUpload
+            bucket="business-gallery"
+            entityId={businessId}
+            name="storage_path"
+            label="Foto da galeria"
+          />
+          <label>
+            Texto alternativo
+            <input name="image_alt" required />
+          </label>
+          <button className="button" type="submit">
+            Adicionar foto ajustada
+          </button>
         </form>
       </details>
     </section>

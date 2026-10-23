@@ -1,6 +1,8 @@
+import { assertWritableTestEnvironment } from "@/lib/validation/test-environment";
 import { test, expect } from "@playwright/test";
 
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+if (adminPassword) assertWritableTestEnvironment(process.env);
 
 test("edita empresas originadas do seed sem erro de UUID", async ({ page }) => {
   test.skip(!adminPassword, "Credencial E2E administrativa não configurada.");
@@ -38,7 +40,9 @@ test("edita empresas originadas do seed sem erro de UUID", async ({ page }) => {
       const endsAt = commercial.getByLabel("Fim da veiculação");
       await startsAt.fill("2026-08-01T10:00");
       await endsAt.fill("2026-08-01T10:00");
-      await expect(commercial.getByText("A data final deve ser posterior à data inicial.")).toBeVisible();
+      await expect(
+        commercial.getByText("A data final deve ser posterior à data inicial.")
+      ).toBeVisible();
       await page.goto("/admin/empresas");
       continue;
     }

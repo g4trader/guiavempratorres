@@ -1,3 +1,4 @@
+import { getUserRating } from "@/lib/data/admin-queries";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,14 +40,7 @@ export default async function BusinessPage({ params }: Props) {
     data: { user }
   } = (await authClient?.auth.getUser()) ?? { data: { user: null } };
   const { data: userRating } =
-    user && authClient
-      ? await authClient
-          .from("business_ratings")
-          .select("rating,comment")
-          .eq("business_id", business.id)
-          .eq("user_id", user.id)
-          .maybeSingle()
-      : { data: null };
+    user && authClient ? await getUserRating(authClient, business.id, user.id) : { data: null };
 
   const hasCoordinates = business.latitude !== null && business.longitude !== null;
   const mapUrl =

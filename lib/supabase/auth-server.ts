@@ -1,3 +1,4 @@
+import { getAdminMembership } from "@/lib/data/admin-queries";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -37,11 +38,7 @@ export async function requireAdmin() {
   } = await client.auth.getUser();
   if (!user) redirect("/admin?erro=login");
 
-  const { data: membership } = await client
-    .from("admin_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const { data: membership } = await getAdminMembership(client, user.id);
   if (!membership) redirect("/admin?erro=permissao");
 
   return { client, user, role: membership.role as AdminRole };

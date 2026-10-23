@@ -1,3 +1,4 @@
+import { assertWritableTestEnvironment } from "@/lib/validation/test-environment";
 import { resolve } from "node:path";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Locator } from "@playwright/test";
@@ -5,6 +6,7 @@ import type { Database } from "@/lib/database.types";
 
 const adminEmail = process.env.E2E_ADMIN_EMAIL ?? "contato@vempratorres.com.br";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+if (adminPassword) assertWritableTestEnvironment(process.env);
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -44,6 +46,7 @@ test.describe("fluxos administrativos", () => {
   });
 
   test.afterAll(async () => {
+    if (!adminClient) return;
     const { data: business } = await adminClient
       .from("businesses")
       .select("id")
@@ -102,8 +105,7 @@ test.describe("fluxos administrativos", () => {
       .fill("Categoria temporária para validação E2E.");
     const categoryResponsePromise = page.waitForResponse(
       (response) =>
-        response.url().includes("/admin/categorias") &&
-        response.request().method() === "POST"
+        response.url().includes("/admin/categorias") && response.request().method() === "POST"
     );
     await categoryCreate.getByRole("button", { name: "Salvar categoria" }).click();
     const categoryResponse = await categoryResponsePromise;
@@ -144,7 +146,9 @@ test.describe("fluxos administrativos", () => {
     await logoUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
     await logoUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(logoUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
-    uploadedPaths.push(await refreshedBusinessDetails.locator('input[name="logo_path"]').inputValue());
+    uploadedPaths.push(
+      await refreshedBusinessDetails.locator('input[name="logo_path"]').inputValue()
+    );
     await refreshedBusinessDetails.getByRole("button", { name: "Salvar empresa" }).click();
     await expect(
       page.locator("details.panel summary").getByText(businessName, { exact: true })
@@ -160,17 +164,13 @@ test.describe("fluxos administrativos", () => {
     await expect(
       refreshedBusinessDetails.getByText("logo vempratorres", { exact: true })
     ).toHaveCount(1);
-    await refreshedBusinessDetails
-      .getByRole("button", { name: "Adicionar item" })
-      .click();
+    await refreshedBusinessDetails.getByRole("button", { name: "Adicionar item" }).click();
     const itemDialog = page.getByRole("dialog");
     await itemDialog.getByLabel("Título").fill(`Item E2E ${suffix}`);
     await itemDialog.getByLabel("Descrição", { exact: true }).fill("Item temporário.");
     await itemDialog.getByLabel("Preço").fill("25.90");
     await Promise.all([
-      page.waitForURL(
-        (url) => url.searchParams.get("mensagem") === "Item criado com sucesso."
-      ),
+      page.waitForURL((url) => url.searchParams.get("mensagem") === "Item criado com sucesso."),
       itemDialog.getByRole("button", { name: "Criar item" }).click()
     ]);
     refreshedBusinessDetails = page.locator("details.panel").filter({ hasText: businessName });
@@ -195,15 +195,21 @@ test.describe("fluxos administrativos", () => {
     await desktopUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
     await desktopUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(desktopUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
-    uploadedPaths.push(await campaignCreate.locator('input[name="desktop_image_path"]').inputValue());
-    await campaignCreate.getByText("Usar outra imagem no celular (opcional)", { exact: true }).click();
+    uploadedPaths.push(
+      await campaignCreate.locator('input[name="desktop_image_path"]').inputValue()
+    );
+    await campaignCreate
+      .getByText("Usar outra imagem no celular (opcional)", { exact: true })
+      .click();
     const mobileUpload = campaignCreate
       .locator(".image-upload")
       .filter({ hasText: "Imagem mobile" });
     await mobileUpload.locator('input[type="file"]').setInputFiles(uploadFixture);
     await mobileUpload.getByRole("button", { name: "Aplicar imagem" }).click();
     await expect(mobileUpload.getByText("Imagem enviada. Salve o formulário.")).toBeVisible();
-    uploadedPaths.push(await campaignCreate.locator('input[name="mobile_image_path"]').inputValue());
+    uploadedPaths.push(
+      await campaignCreate.locator('input[name="mobile_image_path"]').inputValue()
+    );
     await campaignCreate.getByRole("button", { name: "Salvar campanha" }).click();
     await expect(
       page.locator("details.panel summary strong").filter({ hasText: businessName }).first()
@@ -212,7 +218,9 @@ test.describe("fluxos administrativos", () => {
     await page.goto(`/empresas/${businessSlug}`);
     await expect(page.getByRole("heading", { name: businessName })).toBeVisible();
     await page.getByRole("radio", { name: "5 estrelas", exact: true }).check();
-    await page.getByLabel("Comentário (opcional)").fill("Atendimento excelente durante o teste E2E.");
+    await page
+      .getByLabel("Comentário (opcional)")
+      .fill("Atendimento excelente durante o teste E2E.");
     await page.getByRole("button", { name: "Enviar avaliação" }).click();
     await expect(page.getByRole("button", { name: "Atualizar avaliação" })).toBeVisible();
     await expect(page.locator(".business-rating .rating-summary > strong")).toHaveText("5,0");

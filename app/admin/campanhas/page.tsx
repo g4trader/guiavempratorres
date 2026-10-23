@@ -1,3 +1,4 @@
+import { loadCampaignEditor } from "@/lib/data/admin-queries";
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { deleteCampaign, saveCampaign } from "@/app/admin/content-actions";
@@ -25,14 +26,7 @@ export default async function CampaignsAdminPage({ searchParams }: PageProps) {
     creativesResult,
     categoriesResult,
     campaignCategoriesResult
-  ] = await Promise.all([
-      client.from("ad_campaigns").select("*").order("starts_at", { ascending: false }),
-      client.from("businesses").select("id,name,slug").order("name"),
-      client.from("ad_placements").select("id,name,code").order("name"),
-      client.from("ad_creatives").select("*"),
-      client.from("categories").select("id,name").eq("is_active", true).order("name"),
-      client.from("ad_campaign_categories").select("campaign_id,category_id")
-    ]);
+  ] = await loadCampaignEditor(client);
   if (
     campaignsResult.error ||
     businessesResult.error ||
@@ -150,7 +144,8 @@ function CampaignForm({
   categories: { id: string; name: string }[];
   categoryIds: string[];
 }) {
-  const heroPlacement = placements.find((placement) => placement.code === "HOME_HERO") ?? placements[0];
+  const heroPlacement =
+    placements.find((placement) => placement.code === "HOME_HERO") ?? placements[0];
 
   return (
     <form action={saveCampaign} className="admin-form">
@@ -167,10 +162,7 @@ function CampaignForm({
         displayLocations={
           campaign.display_locations?.length
             ? (campaign.display_locations as (
-                | "HOME"
-                | "SITE"
-                | "CATEGORIES"
-                | "TOURIST_ATTRACTIONS"
+                "HOME" | "SITE" | "CATEGORIES" | "TOURIST_ATTRACTIONS"
               )[])
             : [
                 campaign.audience === "SITE" ||
@@ -183,7 +175,9 @@ function CampaignForm({
         businesses={businesses}
         businessId={campaign.business_id ?? ""}
         destinationType={campaign.destination_type === "EXTERNAL" ? "EXTERNAL" : "INTERNAL"}
-        destinationUrl={campaign.destination_type === "EXTERNAL" ? campaign.destination_url ?? "" : ""}
+        destinationUrl={
+          campaign.destination_type === "EXTERNAL" ? (campaign.destination_url ?? "") : ""
+        }
         categories={categories}
         categoryIds={categoryIds}
         status={campaign.status}
@@ -207,11 +201,22 @@ function CampaignForm({
           label="Imagem principal"
           currentPath={creative?.desktop_image_path}
         />
-        <details className="image-mobile-option" open={creative?.mobile_image_path ? true : undefined}>
+        <details
+          className="image-mobile-option"
+          open={creative?.mobile_image_path ? true : undefined}
+        >
           <summary>Usar outra imagem no celular (opcional)</summary>
-          <p className="field-hint">A imagem principal também aparece no celular. Envie outra apenas se quiser uma composição diferente.</p>
-          <ImageUpload bucket="ad-creatives" entityId={campaign.id} name="mobile_image_path"
-            label="Imagem mobile (opcional)" currentPath={creative?.mobile_image_path} />
+          <p className="field-hint">
+            A imagem principal também aparece no celular. Envie outra apenas se quiser uma
+            composição diferente.
+          </p>
+          <ImageUpload
+            bucket="ad-creatives"
+            entityId={campaign.id}
+            name="mobile_image_path"
+            label="Imagem mobile (opcional)"
+            currentPath={creative?.mobile_image_path}
+          />
         </details>
       </div>
       <label>

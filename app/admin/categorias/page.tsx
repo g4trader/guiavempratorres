@@ -1,3 +1,4 @@
+import { loadCategories } from "@/lib/data/admin-queries";
 import { randomUUID } from "node:crypto";
 import { deleteCategory, saveCategory } from "@/app/admin/content-actions";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -26,7 +27,7 @@ type PageProps = { searchParams: Promise<{ erro?: string; mensagem?: string }> }
 export default async function CategoriesAdminPage({ searchParams }: PageProps) {
   const { client } = await requireAdmin();
   const { erro, mensagem } = await searchParams;
-  const { data, error } = await client.from("categories").select("*").order("display_order");
+  const { data, error } = await loadCategories(client);
   if (error) throw new Error("Não foi possível carregar as categorias.");
   return (
     <>
@@ -48,10 +49,7 @@ export default async function CategoriesAdminPage({ searchParams }: PageProps) {
             <details className="panel" key={category.id}>
               <summary>
                 <strong>{category.name}</strong>
-                <AdminStatusIcon
-                  status={category.is_active}
-                  activeLabel="Categoria ativa"
-                />
+                <AdminStatusIcon status={category.is_active} activeLabel="Categoria ativa" />
               </summary>
               <CategoryForm category={category} />
               <form action={deleteCategory} className="danger-zone">

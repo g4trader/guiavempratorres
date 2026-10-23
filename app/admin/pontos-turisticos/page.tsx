@@ -1,3 +1,4 @@
+import { loadAttractions } from "@/lib/data/admin-queries";
 import { randomUUID } from "node:crypto";
 import { deleteTouristAttraction, saveTouristAttraction } from "./actions";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
@@ -18,7 +19,7 @@ type Props = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
 export default async function TouristAttractionsAdminPage({ searchParams }: Props) {
   const { client } = await requireAdmin();
   const { erro, mensagem } = await searchParams;
-  const { data, error } = await client.from("tourist_attractions").select("*").order("title");
+  const { data, error } = await loadAttractions(client);
   if (error) throw new Error("Não foi possível carregar os pontos turísticos.");
   return (
     <>

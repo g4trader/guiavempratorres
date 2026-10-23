@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   const response = await page.goto("/demonstracao/imagens");
+  if (testInfo.config.metadata.requireImageDemo) {
+    expect(response?.status(), "A demonstração deve estar disponível no servidor dev").toBe(200);
+    return;
+  }
   test.skip(
     response?.status() === 404,
     "Demonstração disponível somente no servidor de desenvolvimento."

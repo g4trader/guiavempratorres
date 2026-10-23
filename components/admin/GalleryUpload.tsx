@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { uploadGalleryObject, removeUnpersistedGalleryObject } from "@/lib/data/media";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import { persistGalleryUploads } from "@/app/admin/content-actions";
@@ -59,10 +60,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
       setProgress({ completed: index, total: files.length, current: file.name });
       const extension = file.name.split(".").pop()?.toLowerCase().replace("jpeg", "jpg") ?? "jpg";
       const objectPath = `${entityId}/${user.id}/${crypto.randomUUID()}.${extension}`;
-      const { error } = await client.storage.from("business-gallery").upload(objectPath, file, {
-        cacheControl: "3600",
-        upsert: false
-      });
+      const { error } = await uploadGalleryObject(objectPath, file);
       if (error) {
         failures.push(file.name);
         setProgress({ completed: index + 1, total: files.length, current: file.name });
@@ -83,10 +81,13 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
     if (inputRef.current) inputRef.current.value = "";
     if (uploaded.length) {
       setStatus("Salvando imagens na galeria…");
-      const result = await persistGalleryUploads(entityId, uploaded.map((image) => ({
-        storagePath: image.path,
-        imageAlt: image.alt
-      })));
+      const result = await persistGalleryUploads(
+        entityId,
+        uploaded.map((image) => ({
+          storagePath: image.path,
+          imageAlt: image.alt
+        }))
+      );
       if (result.ok) {
         setImages([]);
         setStatus(result.message);
@@ -105,10 +106,7 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
   }
 
   async function removeImage(image: UploadedImage) {
-    const client = createBrowserSupabaseClient();
-    const { error } = await client.storage
-      .from("business-gallery")
-      .remove([image.path.slice("business-gallery/".length)]);
+    const { error } = await removeUnpersistedGalleryObject(image.path);
     if (error) {
       setStatus(`Não foi possível remover ${image.fileName}.`);
       return;
@@ -165,66 +163,72 @@ export function GalleryUpload({ entityId }: { entityId: string }) {
       />
       {images.length ? (
         <>
-          <p className="gallery-sort-instruction">Arraste as imagens para definir a ordem antes de salvar.</p>
+          <p className="gallery-sort-instruction">
+            Arraste as imagens para definir a ordem antes de salvar.
+          </p>
           <div className="gallery-upload-previews">
-          {images.map((image) => (
-            <div
-              className={`gallery-upload-preview${draggedId === image.id ? " is-dragging" : ""}`}
-              key={image.id}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => {
-                event.preventDefault();
-                if (!draggedId || draggedId === image.id) return;
-                setImages((current) => {
-                  const from = current.findIndex((item) => item.id === draggedId);
-                  const to = current.findIndex((item) => item.id === image.id);
-                  const reordered = [...current];
-                  const [moved] = reordered.splice(from, 1);
-                  reordered.splice(to, 0, moved);
-                  return reordered;
-                });
-                setDraggedId(null);
-              }}
-            >
-              <span
-                className="gallery-drag-handle"
-                draggable
-                role="button"
-                tabIndex={0}
-                aria-label={`Arrastar ${image.fileName} para alterar sua posição`}
-                title="Arraste para ordenar"
-                onDragStart={(event) => {
-                  setDraggedId(image.id);
-                  event.dataTransfer.effectAllowed = "move";
-                  event.dataTransfer.setData("text/plain", image.id);
+            {images.map((image) => (
+              <div
+                className={`gallery-upload-preview${draggedId === image.id ? " is-dragging" : ""}`}
+                key={image.id}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (!draggedId || draggedId === image.id) return;
+                  setImages((current) => {
+                    const from = current.findIndex((item) => item.id === draggedId);
+                    const to = current.findIndex((item) => item.id === image.id);
+                    const reordered = [...current];
+                    const [moved] = reordered.splice(from, 1);
+                    reordered.splice(to, 0, moved);
+                    return reordered;
+                  });
+                  setDraggedId(null);
                 }}
-                onDragEnd={() => setDraggedId(null)}
               >
-                <span aria-hidden="true">⠿</span> Arrastar
-              </span>
-              <input type="hidden" name="storage_path" value={image.path} />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={image.preview} alt="" />
-              <label>
-                Texto alternativo
-                <input
-                  name="image_alt"
-                  required
-                  value={image.alt}
-                  onChange={(event) =>
-                    setImages((current) =>
-                      current.map((item) =>
-                        item.id === image.id ? { ...item, alt: event.target.value } : item
+                <span
+                  className="gallery-drag-handle"
+                  draggable
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Arrastar ${image.fileName} para alterar sua posição`}
+                  title="Arraste para ordenar"
+                  onDragStart={(event) => {
+                    setDraggedId(image.id);
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", image.id);
+                  }}
+                  onDragEnd={() => setDraggedId(null)}
+                >
+                  <span aria-hidden="true">⠿</span> Arrastar
+                </span>
+                <input type="hidden" name="storage_path" value={image.path} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={image.preview} alt="" />
+                <label>
+                  Texto alternativo
+                  <input
+                    name="image_alt"
+                    required
+                    value={image.alt}
+                    onChange={(event) =>
+                      setImages((current) =>
+                        current.map((item) =>
+                          item.id === image.id ? { ...item, alt: event.target.value } : item
+                        )
                       )
-                    )
-                  }
-                />
-              </label>
-              <button className="button danger" type="button" onClick={() => void removeImage(image)}>
-                Remover
-              </button>
-            </div>
-          ))}
+                    }
+                  />
+                </label>
+                <button
+                  className="button danger"
+                  type="button"
+                  onClick={() => void removeImage(image)}
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
           </div>
         </>
       ) : null}

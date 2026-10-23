@@ -1,24 +1,29 @@
 # Segurança
 
-- Supabase RLS está ativo em todas as tabelas expostas.
-- Anônimos só leem categorias ativas, empresas publicadas e conteúdo vigente.
-- Escrita exige papéis administrativos; somente `super_admin` gere papéis.
-- Não há autocadastro administrativo.
-- A service-role key é exclusiva do servidor e nunca recebe prefixo `NEXT_PUBLIC_`.
-- Migrations remotas exigem revisão, confirmação explícita e `pnpm db:check`.
-- Uploads futuros devem validar MIME real, tamanho, dimensão, caminho aleatório e alt text.
-- A aplicação não embute chave privada de mapas; o MVP cria link para OpenStreetMap.
-- Editores gerem conteúdo, mas não campanhas nem papéis.
-- Admins gerem conteúdo e campanhas, mas não papéis.
-- Somente super admins gerem papéis.
-- Storage valida bucket, papel, caminho, MIME declarado e tamanho; validação
-  server-side de conteúdo real continua obrigatória.
-- Queries públicas usam a publishable/anon key e dependem de RLS; service role
-  não participa das páginas públicas.
-- Banco, Auth e Storage não usam Docker ou emuladores. Testes de integração
-  apontam para o único projeto cloud e limpam exclusivamente os próprios dados.
-- Durante o desenvolvimento, variáveis Supabase são configuradas primeiro no
-  Vercel Preview. Service role nunca é enviada ao cliente.
+Responsável operacional: `contato@vempratorres.com.br`.
 
-O CRUD de upload ainda não existe. Remoção segura de arquivo antigo deverá ser
-implementada junto ao fluxo server-side, conforme ADR 0004.
+## Identidade e acesso
+
+Supabase Auth identifica usuários; `admin_roles` define `editor`, `admin` e `super_admin`. `requireAdmin()` consulta o usuário autenticado e o papel. Cadastro público não concede papel administrativo. Editor gere conteúdo e planos/itens conforme políticas atuais; admin também gere campanhas; somente super admin gere papéis.
+
+RLS e constraints devem proteger todas as tabelas públicas. Novas tabelas exigem testes de leitura e escrita. Clientes públicos usam chave publicável; segredo service role não é necessário para os fluxos atuais e nunca deve chegar ao navegador.
+
+## Arquivos
+
+Buckets editoriais são públicos para leitura. Upload requer sessão e papel autorizado, limites, MIME declarado e caminho esperado. O editor decodifica imagens no navegador. Isso não equivale a inspeção binária no servidor nem sanitização completa de SVG. Não armazenar dados confidenciais nos buckets públicos.
+
+Exclusão no cadastro remove referência; arquivos persistidos são retidos até coleta revisada. O descarte de arquivo de lote ainda não persistido é um fluxo separado. Limpeza por idade, sem verificar referências, não é segura.
+
+## Operações
+
+Nunca versionar `.env*` reais, `.vercel`, tokens, senhas, service-role keys ou JSON de conta de serviço. O `.env.example` contém apenas nomes e valores públicos de referência.
+
+Executar `pnpm db:check` antes de comandos remotos Supabase. Não usar reset, exclusão de projetos, migration repair ou SQL destrutivo sem revisão e autorização explícita. Publicação em produção também exige autorização.
+
+Testes de escrita recusam o projeto Supabase de produção e exigem destino e opt-in explícitos. Uma URL Preview pode apontar ao banco de produção; o nome do ambiente não basta.
+
+## Validação
+
+Lint reforça a fronteira de dados. Testes unitários cobrem a proteção de destinos e regressões de salvamento. A suíte SQL usa fixtures próprias e rollback, mas requer execução em cloud autorizado; não confundir a presença do teste com sua aprovação remota.
+
+Pendências operacionais e limitações: [passagem técnica](HANDOFF_TECNICO.md).

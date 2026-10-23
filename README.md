@@ -1,43 +1,22 @@
 # Guia Vem Pra Torres
 
-Guia local de empresas, profissionais, produtos e serviços de Torres e região.
+Guia comercial e turístico de Torres, com catálogo público, administração, campanhas, planos, avaliações e editor de imagens.
 
-## Stack
-
-Next.js 16, React 19, TypeScript estrito, Supabase (PostgreSQL/Auth/Storage), Vitest, Playwright e Vercel. Node 22 e pnpm 10 são obrigatórios.
+A [documentação de passagem](docs/HANDOFF_TECNICO.md) reúne arquitetura, configuração, acessos, publicação e estado das pendências. O responsável operacional é `contato@vempratorres.com.br`.
 
 ## Desenvolvimento
 
+Use Node 22 e pnpm 10.14.0:
+
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
+cp .env.example .env.local
 pnpm dev
 ```
 
-Serviços persistentes são exclusivamente cloud. Não use Docker, `supabase start`
-ou PostgreSQL local. O projeto usa um único Supabase Cloud chamado
-`guiavempratorres`.
+Preencha as variáveis por canal seguro. Banco, Auth e Storage usam Supabase Cloud. Não use Docker, Supabase local, PostgreSQL local ou emuladores. Sem Supabase válido, consultas retornam vazio; isso não é uma integração funcional.
 
-Antes de qualquer operação remota:
-
-```bash
-SUPABASE_PROJECT_REF=<ref-autorizado> \
-SUPABASE_PROJECT_NAME=guiavempratorres \
-SUPABASE_ORGANIZATION_ID=ljfsuuapozqveecvqwxy \
-pnpm db:check
-```
-
-Com o projeto explicitamente confirmado:
-
-```bash
-pnpm db:lint
-pnpm db:push
-pnpm db:types
-```
-
-Variáveis de Preview são configuradas diretamente na Vercel, somente no target
-Preview. `.env.local` pode ser usado temporariamente para o Next.js, mas nunca é
-versionado. Sem configuração Supabase Cloud, a aplicação entra em modo
-demonstrativo explicitamente identificado.
+`/demonstracao/imagens` funciona apenas em desenvolvimento, é identificada como demonstração e não grava dados.
 
 ## Qualidade
 
@@ -45,34 +24,26 @@ demonstrativo explicitamente identificado.
 pnpm lint
 pnpm typecheck
 pnpm test
-pnpm test:e2e
 pnpm build
-pnpm format:check
 ```
 
-## Estrutura
+Execute o E2E sem gravações, com servidor gerenciado pelo próprio comando:
 
-- `app`: rotas públicas, administrativas e SEO;
-- `lib/data`: única camada de queries server-side;
-- `lib/database.types.ts`: tipos gerados/alinhados ao schema local;
-- `lib`: regras de domínio, autorização e fallback demonstrativo;
-- `supabase`: configuração, migrations, testes e seed;
-- `tests`: testes unitários e E2E;
-- `docs`: arquitetura, design, segurança e operações.
+```bash
+pnpm test:e2e:images
+```
 
-## Ambientes
+Testes administrativos exigem projeto cloud de testes separado, `E2E_ALLOW_WRITES=true` e `E2E_SUPABASE_PROJECT_REF` coerente com a URL. O projeto Supabase de produção é bloqueado por esses testes. Não interpretar testes ignorados por falta de credenciais como cobertura aprovada.
 
-Edição, lint, typecheck, testes unitários e build rodam localmente. Banco, Auth e
-Storage usam um único Supabase Cloud; durante o desenvolvimento entram apenas
-dados fictícios e o deploy funcional usa Vercel Preview protegido.
+## Estrutura e operação
 
-## Limitações conhecidas
+- `app/`: rotas e pontos de entrada das actions.
+- `components/`: interface administrativa e pública.
+- `lib/data/`: consultas, persistência e actions autenticadas.
+- `lib/`: domínio, validação, autenticação e geometria de imagens.
+- `supabase/`: migrations e testes SQL.
+- `docs/`: documentação; `docs/history/` preserva registros antigos, não instruções atuais.
 
-O Supabase único ainda não está conectado. O CRUD/admin completo e uploads serão
-implementados após autenticação segura. Logo e favicon oficiais já foram
-fornecidos; mídia editorial autorizada ainda está pendente.
+Leia [AGENTS.md](AGENTS.md) antes de alterar o projeto. Antes de qualquer comando remoto Supabase, execute `pnpm db:check`. Mudanças de schema exigem migration e regeneração de tipos após confirmar o projeto. Produção exige autorização explícita; Preview manual usa `vercel deploy --target=preview`.
 
-## Marca
-
-Ativos institucionais oficiais vivem exclusivamente em `public/brand/` e são
-renderizados pelo componente `components/layout/Logo.tsx`.
+Logo e favicon oficiais vivem em `public/brand/`; páginas usam `components/layout/Logo.tsx`.

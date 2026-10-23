@@ -1,3 +1,5 @@
+import { getAdminMembership } from "@/lib/data/admin-queries";
+import { loadDashboard } from "@/lib/data/admin-queries";
 import Link from "next/link";
 import { signIn } from "@/app/admin/actions";
 import { requestPasswordReset } from "@/app/admin/content-actions";
@@ -19,21 +21,11 @@ export default async function AdminPage({ searchParams }: Props) {
   } = (await client?.auth.getUser()) ?? { data: { user: null } };
 
   if (client && user) {
-    const { data: membership } = await client
-      .from("admin_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data: membership } = await getAdminMembership(client, user.id);
     if (membership) {
       const { client: adminClient } = await requireAdmin();
-      const [plans, categories, attractions, businesses, campaigns, users] = await Promise.all([
-        adminClient.from("plans").select("*", { count: "exact", head: true }),
-        adminClient.from("categories").select("*", { count: "exact", head: true }),
-        adminClient.from("tourist_attractions").select("*", { count: "exact", head: true }),
-        adminClient.from("businesses").select("*", { count: "exact", head: true }),
-        adminClient.from("ad_campaigns").select("*", { count: "exact", head: true }),
-        adminClient.from("profiles").select("*", { count: "exact", head: true })
-      ]);
+      const [plans, categories, attractions, businesses, campaigns, users] =
+        await loadDashboard(adminClient);
       const stats = [
         ["Planos", plans.count ?? 0, "/admin/planos"],
         ["Categorias", categories.count ?? 0, "/admin/categorias"],

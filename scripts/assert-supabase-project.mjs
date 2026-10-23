@@ -45,8 +45,14 @@ delete cliEnvironment.CODEX_CI;
 const projectsResult = spawnSync(
   "supabase",
   ["projects", "list", "--output", "json", "--agent", "no"],
-  { encoding: "utf8", env: cliEnvironment }
+  { encoding: "utf8", env: cliEnvironment, timeout: 30_000, killSignal: "SIGTERM" }
 );
+
+if (projectsResult.error?.code === "ETIMEDOUT") {
+  fail(
+    "a confirmação remota excedeu 30 segundos. Verifique rede e login da CLI antes de repetir; nenhuma migration foi executada."
+  );
+}
 
 if (projectsResult.status !== 0) {
   fail("não foi possível confirmar os metadados do projeto pela Supabase CLI.");

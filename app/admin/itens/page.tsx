@@ -1,3 +1,4 @@
+import { loadItemEditor } from "@/lib/data/admin-queries";
 import { createBusinessItem, deleteBusinessItem, updateBusinessItem } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminStatusIcon } from "@/components/admin/AdminStatusIcon";
@@ -17,17 +18,11 @@ export default async function ItemsPage({ searchParams }: Props) {
   const search = params.busca?.trim() ?? "";
   const type = params.tipo ?? "";
 
-  const [{ data: businesses, error: businessesError }, itemsResult] = await Promise.all([
-    client.from("businesses").select("id,name").order("name"),
-    (() => {
-      let query = client.from("business_items").select("*,businesses(name)").order("display_order");
-      if (search) query = query.ilike("title", `%${search}%`);
-      if (["PRODUCT", "SERVICE", "PROMOTION", "MENU", "CATALOG"].includes(type)) {
-        query = query.eq("type", type as "PRODUCT" | "SERVICE" | "PROMOTION" | "MENU" | "CATALOG");
-      }
-      return query;
-    })()
-  ]);
+  const [{ data: businesses, error: businessesError }, itemsResult] = await loadItemEditor(
+    client,
+    search,
+    type
+  );
   if (businessesError || itemsResult.error) throw new Error("Não foi possível carregar os itens.");
   const items = itemsResult.data;
 

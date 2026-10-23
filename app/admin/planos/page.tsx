@@ -1,3 +1,4 @@
+import { loadPlans } from "@/lib/data/admin-queries";
 import { createPlan, deletePlan, updatePlan } from "@/app/admin/actions";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminCreatePanel } from "@/components/admin/AdminCreatePanel";
@@ -10,9 +11,7 @@ type Props = { searchParams: Promise<{ erro?: string; mensagem?: string }> };
 
 export default async function PlansPage({ searchParams }: Props) {
   const { client } = await requireAdmin();
-  const { data: plans, error } = await client.from("plans").select("*").order("priority", {
-    ascending: false
-  });
+  const { data: plans, error } = await loadPlans(client);
   if (error) throw new Error("Não foi possível carregar os planos.");
   const { erro, mensagem } = await searchParams;
 

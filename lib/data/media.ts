@@ -17,3 +17,14 @@ export async function uploadMedia(bucket: string, entityId: string, file: File, 
   if (error) throw new Error("UPLOAD_FAILED");
   return `${bucket}/${objectPath}`;
 }
+
+export async function uploadGalleryObject(objectPath: string, file: File) {
+  return createBrowserSupabaseClient()
+    .storage.from("business-gallery")
+    .upload(objectPath, file, { cacheControl: "3600", upsert: false });
+}
+export async function removeUnpersistedGalleryObject(path: string) {
+  return createBrowserSupabaseClient()
+    .storage.from("business-gallery")
+    .remove([path.slice("business-gallery/".length)]);
+}

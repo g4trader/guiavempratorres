@@ -29,15 +29,15 @@ Estas recomendações aparecem em cada campo de upload, inclusive após selecion
 ou aplicar a imagem. As dimensões indicam **largura × altura**; não são exigências
 para o arquivo de entrada.
 
-| Tipo de imagem | Tamanho recomendado | Proporção |
-| --- | --- | --- |
-| Categoria | 1200 × 900 px | 4:3 |
-| Foto principal da empresa (capa e card) | 1600 × 1200 px | 4:3 |
-| Galeria da empresa | 1600 × 1200 px | 4:3 |
-| Produto, serviço ou item | 1200 × 900 px | 4:3 |
-| Banner/hero da campanha, principal e mobile opcional | 1600 × 1200 px | 4:3 |
-| Logo em PNG, WebP, JPG ou AVIF | 1200 px no lado maior | Original, sem deformação |
-| Logo em SVG | Sem tamanho obrigatório em pixels | Original |
+| Tipo de imagem                                       | Tamanho recomendado               | Proporção                |
+| ---------------------------------------------------- | --------------------------------- | ------------------------ |
+| Categoria                                            | 1200 × 900 px                     | 4:3                      |
+| Foto principal da empresa (capa e card)              | 1600 × 1200 px                    | 4:3                      |
+| Galeria da empresa                                   | 1600 × 1200 px                    | 4:3                      |
+| Produto, serviço ou item                             | 1200 × 900 px                     | 4:3                      |
+| Banner/hero da campanha, principal e mobile opcional | 1600 × 1200 px                    | 4:3                      |
+| Logo em PNG, WebP, JPG ou AVIF                       | 1200 px no lado maior             | Original, sem deformação |
+| Logo em SVG                                          | Sem tamanho obrigatório em pixels | Original                 |
 
 Use um original maior quando precisar aproximar bastante o enquadramento. Não
 amplie manualmente um arquivo pequeno apenas para atingir a recomendação.
@@ -91,3 +91,9 @@ Validações: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` e, com o 
 de desenvolvimento disponível, `E2E_BASE_URL=http://127.0.0.1:3000 pnpm exec playwright test tests/e2e/image-editor.spec.ts`.
 Os testes administrativos existentes incluem a confirmação **Aplicar imagem**;
 executá-los contra uma nuvem requer ambiente de testes e credenciais autorizadas.
+
+## Revisão de integridade de 23/10/2026
+
+A exclusão de imagens já cadastradas na galeria também passou a remover somente a referência do banco. Os objetos são retidos para coleta revisada, evitando apagá-los antes da confirmação de exclusão do registro. O original continua disponível apenas durante a edição; persistência de originais e inspeção server-side dependem da próxima etapa de mídia.
+
+O comando `pnpm test:e2e:images` gerencia o servidor de desenvolvimento e executa os cenários desktop/mobile, inclusive no workflow de qualidade.
