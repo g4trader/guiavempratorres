@@ -51,6 +51,9 @@ test("arte com texto começa inteira e pode ser removida sem apagar arquivos", a
   await expect(page.getByLabel("Zoom", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: "Aplicar imagem" }).click();
   await expect(page.getByAltText("Campanha de demonstração")).toBeVisible();
+  await expect(page.getByText("1869 × 842 px", { exact: false })).toBeVisible();
+  const ratio = await page.getByAltText("Campanha de demonstração").evaluate((img: HTMLImageElement) => img.naturalWidth / img.naturalHeight);
+  expect(ratio).toBeCloseTo(1869 / 842, 2);
   await page.getByRole("button", { name: "Remover", exact: true }).click();
   await expect(page.getByText("Sua imagem aparece aqui")).toBeVisible();
 });

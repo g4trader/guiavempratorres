@@ -1744,7 +1744,7 @@ body {
   width: 100%;
   min-height: 0;
   overflow: hidden;
-  aspect-ratio: 20 / 9;
+  aspect-ratio: 1869 / 842;
   border-radius: 0;
   background: transparent;
 }
@@ -2951,7 +2951,6 @@ h2 {
   }
   .hero-image-frame {
     min-height: 0;
-    aspect-ratio: 4 / 5;
   }
   .campaign-image img {
     object-position: center;
@@ -3089,3 +3088,10 @@ h2 {
 .image-fit-options input[type="radio"] { min-height: 1rem; height: 1rem; width: 1rem; padding: 0; accent-color: var(--color-brand-primary); }
 @media (max-width: 760px) { .admin-image-row { grid-template-columns: 1fr; } }
 .image-upload input[type="file"] { width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; }
+
+/* Campaign artwork uses the same proportions in the editor and public carousel. */
+.image-upload-stage.banner-desktop-stage { aspect-ratio: 1869 / 842; }
+.image-upload-stage.banner-mobile-stage { aspect-ratio: 4 / 5; }
+@media (max-width: 640px) {
+  .hero-image-frame.has-mobile-banner { aspect-ratio: 4 / 5; }
+}

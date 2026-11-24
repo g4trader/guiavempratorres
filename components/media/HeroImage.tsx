@@ -9,7 +9,7 @@ type HeroImageProps = {
 
 export function HeroImage(props: HeroImageProps) {
   return (
-    <div className="hero-image-frame">
+    <div className={`hero-image-frame${props.mobile ? " has-mobile-banner" : ""}`}>
       <CampaignImage {...props} className="hero-image" />
     </div>
   );

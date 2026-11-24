@@ -19,8 +19,8 @@ export function CampaignImage({
       <img
         src={desktop}
         alt={alt}
-        width={1600}
-        height={720}
+        width={1869}
+        height={842}
         fetchPriority={priority ? "high" : "auto"}
       />
     </picture>

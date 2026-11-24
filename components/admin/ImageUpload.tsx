@@ -18,7 +18,7 @@ const recommendedSizes: Record<Bucket, string> = {
   "business-hero-images": "1600 × 1200 px",
   "business-gallery": "1600 × 1200 px",
   "product-service-images": "1200 × 900 px",
-  "ad-creatives": "1600 × 1200 px",
+  "ad-creatives": "1869 × 842 px",
   "tourist-attraction-images": "1600 × 1200 px"
 };
 const types = ["image/jpeg", "image/png", "image/webp", "image/avif"];
@@ -70,6 +70,12 @@ export function ImageUpload({
   const [status, setStatus] = useState("");
   const [dragging, setDragging] = useState(false);
   const logo = bucket === "business-logos";
+  const banner = bucket === "ad-creatives";
+  const mobileBanner = banner && name === "mobile_image_path";
+  const targetWidth = banner ? (mobileBanner ? 1080 : 1869) : 1600;
+  const targetHeight = banner ? (mobileBanner ? 1350 : 842) : 1200;
+  const ratioLabel = banner ? (mobileBanner ? "4:5" : "1869:842") : "4:3";
+  const bannerStage = banner ? (mobileBanner ? " banner-mobile-stage" : " banner-desktop-stage") : "";
   const acceptedTypes = logo ? [...types, "image/svg+xml"] : types;
   const maxBytes =
     (logo ? 2 : bucket === "category-images" || bucket === "product-service-images" ? 5 : 8) *
@@ -186,17 +192,17 @@ export function ImageUpload({
         const scale = imagePlacement(
           selection.image.naturalWidth,
           selection.image.naturalHeight,
-          1600,
-          1200,
+          targetWidth,
+          targetHeight,
           fit,
           zoom,
           x,
           y
         ).scale;
-        const width = Math.max(4, Math.floor(1600 / Math.max(1, scale) / 4) * 4);
+        const width = banner ? Math.max(1, Math.floor(targetWidth / Math.max(1, scale))) : Math.max(4, Math.floor(1600 / Math.max(1, scale) / 4) * 4);
         const canvas = document.createElement("canvas");
         canvas.width = width;
-        canvas.height = (width * 3) / 4;
+        canvas.height = Math.max(1, Math.round(width * targetHeight / targetWidth));
         const context = canvas.getContext("2d");
         if (!context) throw new Error("canvas");
         const rect = imagePlacement(
@@ -267,8 +273,8 @@ export function ImageUpload({
     imagePlacement(
       selection.image.naturalWidth,
       selection.image.naturalHeight,
-      1000,
-      750,
+      banner ? targetWidth : 1000,
+      banner ? targetHeight : 750,
       fit,
       zoom,
       x,
@@ -282,7 +288,7 @@ export function ImageUpload({
         <span className="image-upload-label" id={`${id}-label`}>
           {label}
         </span>
-        <span className="image-ratio-badge">{logo ? "Marca inteira" : "4:3"}</span>
+        <span className="image-ratio-badge">{logo ? "Marca inteira" : ratioLabel}</span>
       </div>
       <p className="field-hint" id={`${id}-hint`}>
         {logo
@@ -290,14 +296,14 @@ export function ImageUpload({
           : "Envie a imagem original. Ajuste aqui, sem preparar versões em outro editor."}
       </p>
       <p className="field-hint" id={`${id}-dimensions`}>
-        <strong>Recomendado: {recommendedDimensions ?? recommendedSizes[bucket]}.</strong>{" "}
+        <strong>Recomendado: {banner ? `${targetWidth} × ${targetHeight} px` : recommendedDimensions ?? recommendedSizes[bucket]}.</strong>{" "}
         {logo
           ? "Mantenha a proporção original. Para SVG, não há tamanho obrigatório em pixels."
-          : "Largura × altura · proporção 4:3. Outros tamanhos são aceitos e podem ser ajustados aqui."}
+          : `Largura × altura · proporção ${ratioLabel}. Outros tamanhos são aceitos e podem ser ajustados aqui.`}
       </p>
       {!selection ? (
         <button
-          className={`upload-dropzone image-upload-stage${dragging ? " dragging" : ""}${logo ? " logo-stage" : ""}`}
+          className={`upload-dropzone image-upload-stage${dragging ? " dragging" : ""}${logo ? " logo-stage" : ""}${bannerStage}`}
           type="button"
           disabled={busy}
           aria-labelledby={`${id}-label`}
@@ -333,15 +339,15 @@ export function ImageUpload({
         </button>
       ) : (
         <div className="image-editor">
-          <div className={`image-upload-stage${logo ? " logo-stage" : ""}`}>
+          <div className={`image-upload-stage${logo ? " logo-stage" : ""}${bannerStage}`}>
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={selection.url} alt="Logo completo, sem recortes" />
             ) : (
               <canvas
                 ref={canvasRef}
-                width={800}
-                height={600}
+                width={banner ? targetWidth : 800}
+                height={banner ? targetHeight : 600}
                 role="img"
                 aria-label="Prévia do enquadramento"
               />
