@@ -43,6 +43,12 @@ describe("Google Maps location import", () => {
     ).toEqual({ latitude: -29.33, longitude: -49.72 });
   });
 
+  it("extracts coordinates from query parameters", () => {
+    expect(
+      coordinatesFromGoogleMapsUrl("https://www.google.com/maps?q=-29.3357,-49.726")
+    ).toEqual({ latitude: -29.3357, longitude: -49.726 });
+  });
+
   it("rejects links without coordinates", () => {
     expect(
       coordinatesFromGoogleMapsUrl("https://www.google.com/maps/place/Torres")
