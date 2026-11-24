@@ -46,8 +46,8 @@ export function isPersistableGoogleMapsUrl(value: string) {
 export function coordinatesFromGoogleMapsUrl(value: string) {
   const decoded = decodeURIComponent(value);
   const patterns = [
-    /@(-?\d{1,2}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)/,
     /!3d(-?\d{1,2}(?:\.\d+)?).*?!4d(-?\d{1,3}(?:\.\d+)?)/,
+    /@(-?\d{1,2}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)/,
     /[?&](?:q|query|ll)=(-?\d{1,2}(?:\.\d+)?),\s*(-?\d{1,3}(?:\.\d+)?)/
   ];
   for (const pattern of patterns) {
