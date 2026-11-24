@@ -35,6 +35,14 @@ describe("Google Maps location import", () => {
     ).toEqual({ latitude: -29.3357, longitude: -49.726 });
   });
 
+  it("prioritizes establishment coordinates over the map viewport", () => {
+    expect(
+      coordinatesFromGoogleMapsUrl(
+        "https://www.google.com/maps/place/Hotel/@-29.3400395,-49.7263535,823m/data=!3d-29.33!4d-49.72"
+      )
+    ).toEqual({ latitude: -29.33, longitude: -49.72 });
+  });
+
   it("rejects links without coordinates", () => {
     expect(
       coordinatesFromGoogleMapsUrl("https://www.google.com/maps/place/Torres")
